@@ -1,9 +1,8 @@
 ﻿using cAPParel.API.Entities;
-using System.ComponentModel.DataAnnotations;
 
 namespace cAPParel.API.Models
 {
-    public class ItemDto
+    public class ItemForCreationDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -15,7 +14,7 @@ namespace cAPParel.API.Models
         public Category Category { get; set; }
         public int CategoryId { get; set; }
 
-        public ICollection<Image> Images { get; set; } = new List<Image>();
-        public ICollection<FileData> OtherData { get; set; } = new List<FileData>();
+        public ICollection<ImageForCreationDto> Images { get; set; }
+        public ICollection<FileDataForCreationDto> OtherData { get; set; }
     }
 }

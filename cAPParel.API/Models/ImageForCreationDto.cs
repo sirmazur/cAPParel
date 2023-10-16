@@ -2,10 +2,11 @@
 
 namespace cAPParel.API.Models
 {
-    public class ImageDto
+    public class ImageForCreationDto
     {
-        public int Id { get; set; }
+        [Required]
         public byte[] Data { get; set; }
+        [Required]
         public string Description { get; set; }
     }
 }

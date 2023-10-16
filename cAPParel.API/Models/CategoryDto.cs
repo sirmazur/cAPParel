@@ -5,7 +5,8 @@ namespace cAPParel.API.Models
 {
     public class CategoryDto
     {
-        [Required]
+        public int Id { get; set; }
+
         public string CategoryName { get; set; }
         public int? ParentCategoryId { get; set; }
 
