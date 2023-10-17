@@ -7,5 +7,8 @@ namespace cAPParel.API.Models
         [Required]
         public string CategoryName { get; set; }
         public int? ParentCategoryId { get; set; }
+
+        public ICollection<CategoryForCreationDto> ChildCategories { get; set; }
+            = new List<CategoryForCreationDto>();
     }
 }

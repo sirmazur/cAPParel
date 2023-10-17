@@ -11,8 +11,6 @@ namespace cAPParel.API.Entities
         [Required]
         public string Name { get; set; }
         [Required]
-        public string Size { get; set; }
-        [Required]
         public double Price { get; set; }
         [Required]
         public string Color { get; set; }
@@ -24,6 +22,7 @@ namespace cAPParel.API.Entities
         public Category Category { get; set; }
         public int CategoryId { get; set; }
 
+        public ICollection<Piece> Pieces { get; set; } = new List<Piece>();
         public ICollection<Image> Images { get; set; } = new List<Image>();
         public ICollection<FileData> OtherData { get; set; } = new List<FileData>();
     }

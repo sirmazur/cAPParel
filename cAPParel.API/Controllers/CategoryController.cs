@@ -15,6 +15,7 @@ namespace cAPParel.API.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
             var categories = await _categoryService.GetAllAsync();
