@@ -3,10 +3,12 @@ using System.Linq.Expressions;
 
 namespace cAPParel.API.Services.Basic
 {
-    public interface IBasicService<TDto, TEntity, TExtendedDto> where TDto : class where TEntity : class where TExtendedDto : class
+    public interface IBasicService<TDto, TEntity, TExtendedDto, TCreationDto> where TDto : class where TEntity : class where TExtendedDto : class where TCreationDto : class
     {
         Task<TDto> GetByIdAsync(int id);
         Task<IEnumerable<TDto>> GetAllAsync();
+        Task<TDto> CreateAsync(TCreationDto creationDto);
+        Task<OperationResult<TDto>> UpdateAsync(int id, TCreationDto creationDto);
         Task<(bool, TEntity?)> CheckIfIdExistsAsync(int id);
         Task<OperationResult<TDto>> DeleteByIdAsync(int id);
         Task<TEntity> GetEntityByIdAsync(int id);

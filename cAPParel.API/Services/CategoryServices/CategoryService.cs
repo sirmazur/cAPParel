@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace cAPParel.API.Services.CategoryServices
 {
-    public class CategoryService : BasicService<CategoryDto, Category, CategoryDto>, ICategoryService
+    public class CategoryService : BasicService<CategoryDto, Category, CategoryDto, CategoryForCreationDto>, ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
@@ -15,12 +15,6 @@ namespace cAPParel.API.Services.CategoryServices
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
-        }
-        public async Task<CategoryDto> CreateCategoryAsync(CategoryForCreationDto category)
-        {
-            var categoryToAdd = _mapper.Map<Category>(category);
-            var categoryEntity = await _categoryRepository.AddCategoryAsync(categoryToAdd);
-            return _mapper.Map<CategoryDto>(categoryEntity);
         }
         public override async Task<OperationResult<CategoryDto>> DeleteByIdAsync(int id)
         {

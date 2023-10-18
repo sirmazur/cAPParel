@@ -15,6 +15,12 @@ namespace cAPParel.API.Services.Basic
             _context = context;
         }
 
+        public async Task<TEntity> AddAsync(TEntity entity)
+        {
+            await _context.Set<TEntity>().AddAsync(entity);
+            return entity;
+        }
+
         public async Task<TEntity> GetByIdAsync(int id)
         {
             return await _context.Set<TEntity>().FindAsync(id);

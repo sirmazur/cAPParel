@@ -61,8 +61,22 @@ namespace cAPParel.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> CreateCategoryAsync(CategoryForCreationDto category)
         {
-            var categoryDto = await _categoryService.CreateCategoryAsync(category);
+            var categoryDto = await _categoryService.CreateAsync(category);
             return CreatedAtRoute("GetCategory", new { categoryId = categoryDto.Id }, categoryDto);
+        }
+
+        [HttpPut("{categorytoupdateid}")]
+        public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForCreationDto category)
+        {
+            var operationResult = await _categoryService.UpdateAsync(categorytoupdateid, category);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
         }
 
     }

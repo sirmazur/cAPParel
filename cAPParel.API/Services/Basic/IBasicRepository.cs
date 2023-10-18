@@ -10,5 +10,6 @@ namespace cAPParel.API.Services.Basic
         void DeleteAsync(TEntity entity);
         Task SaveChangesAsync();
         Task<TEntity> GetByIdWithEagerLoadingAsync(int id, params Expression<Func<TEntity, object>>[] includeProperties);
+        Task<TEntity> AddAsync(TEntity entity);
     }
 }

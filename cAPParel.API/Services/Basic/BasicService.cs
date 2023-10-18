@@ -7,7 +7,7 @@ using System.Reflection.Metadata;
 
 namespace cAPParel.API.Services.Basic
 {
-    public class BasicService<TDto, TEntity, TExtendedDto> where TEntity : class where TDto : class where TExtendedDto : class
+    public class BasicService<TDto, TEntity, TExtendedDto, TCreationDto> where TEntity : class where TDto : class where TExtendedDto : class where TCreationDto : class
     {
         protected readonly IMapper _mapper;
         protected readonly IBasicRepository<TEntity> _basicRepository;
@@ -15,6 +15,15 @@ namespace cAPParel.API.Services.Basic
         {
             _mapper=mapper;
             _basicRepository=basicRepository;
+        }
+
+        public async Task<TDto> CreateAsync(TCreationDto creationDto)
+        {
+            var entity = _mapper.Map<TEntity>(creationDto);
+            await _basicRepository.AddAsync(entity);
+            await _basicRepository.SaveChangesAsync();
+            var entityToReturn = _mapper.Map<TDto>(entity);
+            return entityToReturn;
         }
 
         public async Task<TDto> GetByIdAsync(int id)
@@ -65,6 +74,30 @@ namespace cAPParel.API.Services.Basic
                 list.Add(_mapper.Map<TExtendedDto>(add));
             }
             return list;
+        }
+
+        public async Task<OperationResult<TDto>> UpdateAsync(int id, TCreationDto creationDto)
+        {
+            var item = await _basicRepository.GetByIdAsync(id);
+            if( item == null)
+            {
+                return new OperationResult<TDto>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = $"Entity of type {typeof(TEntity).Name} with id={id} does not exist.",
+                    HttpResponseCode = 404
+                };
+            }
+            else
+            {
+                _mapper.Map(creationDto, item);
+                await _basicRepository.SaveChangesAsync();
+                return new OperationResult<TDto>
+                {
+                    IsSuccess = true,
+                    HttpResponseCode = 204
+                };
+            }
         }
 
         public async Task<(bool,TEntity?)> CheckIfIdExistsAsync(int id)
