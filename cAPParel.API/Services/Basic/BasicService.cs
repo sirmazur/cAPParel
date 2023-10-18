@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using cAPParel.API.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Linq.Expressions;
@@ -91,6 +92,32 @@ namespace cAPParel.API.Services.Basic
             else
             {
                 _mapper.Map(creationDto, item);
+                await _basicRepository.SaveChangesAsync();
+                return new OperationResult<TDto>
+                {
+                    IsSuccess = true,
+                    HttpResponseCode = 204
+                };
+            }
+        }
+
+        public async Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TCreationDto> patchDocument)
+        {
+            var item = await _basicRepository.GetByIdAsync(id);
+            if (item == null)
+            {
+                return new OperationResult<TDto>
+                {
+                    IsSuccess = false,
+                    ErrorMessage = $"Entity of type {typeof(TEntity).Name} with id={id} does not exist.",
+                    HttpResponseCode = 404
+                };
+            }
+            else
+            {
+                var itemToPatch = _mapper.Map<TCreationDto>(item);
+                patchDocument.ApplyTo(itemToPatch);
+                _mapper.Map(itemToPatch, item);
                 await _basicRepository.SaveChangesAsync();
                 return new OperationResult<TDto>
                 {

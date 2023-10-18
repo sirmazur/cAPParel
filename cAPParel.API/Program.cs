@@ -3,6 +3,7 @@ using cAPParel.API.Entities;
 using cAPParel.API.Services.Basic;
 using cAPParel.API.Services.CategoryServices;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.ReturnHttpNotAcceptable = true;
-}).AddXmlDataContractSerializerFormatters();
+})
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = 
+    new CamelCasePropertyNamesContractResolver();
+})
+.AddXmlDataContractSerializerFormatters();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

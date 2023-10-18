@@ -1,5 +1,6 @@
 ﻿using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cAPParel.API.Controllers
@@ -69,6 +70,19 @@ namespace cAPParel.API.Controllers
         public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForCreationDto category)
         {
             var operationResult = await _categoryService.UpdateAsync(categorytoupdateid, category);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
+        }
+        [HttpPatch("{categorytoupdateid}")]
+        public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForCreationDto> patchDocument)
+        {
+            var operationResult = await _categoryService.PartialUpdateAsync(categorytoupdateid, patchDocument);
             if (operationResult.IsSuccess)
             {
                 return NoContent();

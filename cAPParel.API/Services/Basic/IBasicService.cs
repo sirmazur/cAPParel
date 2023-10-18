@@ -1,4 +1,5 @@
 ﻿using cAPParel.API.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using System.Linq.Expressions;
 
 namespace cAPParel.API.Services.Basic
@@ -9,6 +10,7 @@ namespace cAPParel.API.Services.Basic
         Task<IEnumerable<TDto>> GetAllAsync();
         Task<TDto> CreateAsync(TCreationDto creationDto);
         Task<OperationResult<TDto>> UpdateAsync(int id, TCreationDto creationDto);
+        Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TCreationDto> patchDocument);
         Task<(bool, TEntity?)> CheckIfIdExistsAsync(int id);
         Task<OperationResult<TDto>> DeleteByIdAsync(int id);
         Task<TEntity> GetEntityByIdAsync(int id);
