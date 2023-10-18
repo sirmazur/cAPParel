@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace cAPParel.API.Services.CategoryServices
 {
-    public class CategoryService : BasicService<CategoryDto, Category, CategoryDto, CategoryForCreationDto>, ICategoryService
+    public class CategoryService : BasicService<CategoryDto, Category, CategoryDto, CategoryForCreationDto, CategoryForUpdateDto>, ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;

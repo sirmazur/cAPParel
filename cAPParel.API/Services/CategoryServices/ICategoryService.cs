@@ -4,7 +4,7 @@ using cAPParel.API.Services.Basic;
 
 namespace cAPParel.API.Services.CategoryServices
 {
-    public interface ICategoryService : IBasicService<CategoryDto, Category, CategoryDto, CategoryForCreationDto>
+    public interface ICategoryService : IBasicService<CategoryDto, Category, CategoryDto, CategoryForCreationDto, CategoryForUpdateDto>
     {
     }
 }

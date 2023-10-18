@@ -8,7 +8,7 @@ using System.Reflection.Metadata;
 
 namespace cAPParel.API.Services.Basic
 {
-    public class BasicService<TDto, TEntity, TExtendedDto, TCreationDto> where TEntity : class where TDto : class where TExtendedDto : class where TCreationDto : class
+    public class BasicService<TDto, TEntity, TExtendedDto, TCreationDto, TUpdateDto> where TEntity : class where TDto : class where TExtendedDto : class where TCreationDto : class where TUpdateDto : class
     {
         protected readonly IMapper _mapper;
         protected readonly IBasicRepository<TEntity> _basicRepository;
@@ -77,7 +77,7 @@ namespace cAPParel.API.Services.Basic
             return list;
         }
 
-        public async Task<OperationResult<TDto>> UpdateAsync(int id, TCreationDto creationDto)
+        public async Task<OperationResult<TDto>> UpdateAsync(int id, TUpdateDto creationDto)
         {
             var item = await _basicRepository.GetByIdAsync(id);
             if( item == null)
@@ -101,7 +101,7 @@ namespace cAPParel.API.Services.Basic
             }
         }
 
-        public async Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TCreationDto> patchDocument)
+        public async Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TUpdateDto> patchDocument)
         {
             var item = await _basicRepository.GetByIdAsync(id);
             if (item == null)
@@ -115,7 +115,7 @@ namespace cAPParel.API.Services.Basic
             }
             else
             {
-                var itemToPatch = _mapper.Map<TCreationDto>(item);
+                var itemToPatch = _mapper.Map<TUpdateDto>(item);
                 patchDocument.ApplyTo(itemToPatch);
                 _mapper.Map(itemToPatch, item);
                 await _basicRepository.SaveChangesAsync();

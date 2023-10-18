@@ -67,7 +67,7 @@ namespace cAPParel.API.Controllers
         }
 
         [HttpPut("{categorytoupdateid}")]
-        public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForCreationDto category)
+        public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForUpdateDto category)
         {
             var operationResult = await _categoryService.UpdateAsync(categorytoupdateid, category);
             if (operationResult.IsSuccess)
@@ -80,7 +80,7 @@ namespace cAPParel.API.Controllers
             }
         }
         [HttpPatch("{categorytoupdateid}")]
-        public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForCreationDto> patchDocument)
+        public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForUpdateDto> patchDocument)
         {
             var operationResult = await _categoryService.PartialUpdateAsync(categorytoupdateid, patchDocument);
             if (operationResult.IsSuccess)
@@ -91,6 +91,13 @@ namespace cAPParel.API.Controllers
             {
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
             }
+        }
+
+        [HttpOptions()]
+        public IActionResult GetCategoriesOptions()
+        {
+            Response.Headers.Add("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
+            return Ok();
         }
 
     }

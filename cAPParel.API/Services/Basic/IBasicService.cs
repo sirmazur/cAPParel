@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 
 namespace cAPParel.API.Services.Basic
 {
-    public interface IBasicService<TDto, TEntity, TExtendedDto, TCreationDto> where TDto : class where TEntity : class where TExtendedDto : class where TCreationDto : class
+    public interface IBasicService<TDto, TEntity, TExtendedDto, TCreationDto, TUpdateDto> where TDto : class where TEntity : class where TExtendedDto : class where TCreationDto : class where TUpdateDto : class
     {
         Task<TDto> GetByIdAsync(int id);
         Task<IEnumerable<TDto>> GetAllAsync();
         Task<TDto> CreateAsync(TCreationDto creationDto);
-        Task<OperationResult<TDto>> UpdateAsync(int id, TCreationDto creationDto);
-        Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TCreationDto> patchDocument);
+        Task<OperationResult<TDto>> UpdateAsync(int id, TUpdateDto creationDto);
+        Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TUpdateDto> patchDocument);
         Task<(bool, TEntity?)> CheckIfIdExistsAsync(int id);
         Task<OperationResult<TDto>> DeleteByIdAsync(int id);
         Task<TEntity> GetEntityByIdAsync(int id);

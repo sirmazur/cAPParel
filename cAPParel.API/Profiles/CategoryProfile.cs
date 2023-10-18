@@ -8,6 +8,7 @@ namespace cAPParel.API.Profiles
         {
             CreateMap<Entities.Category, Models.CategoryDto>();
             CreateMap<Models.CategoryForCreationDto, Entities.Category>().ReverseMap();
+            CreateMap<Models.CategoryForUpdateDto, Entities.Category>().ReverseMap();
         }
     }
 }
