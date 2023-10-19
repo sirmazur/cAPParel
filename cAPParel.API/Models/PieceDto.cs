@@ -8,6 +8,7 @@ namespace cAPParel.API.Models
     {
         public int Id { get; set; }
         public string Size { get; set; }
+        public Color Color { get; set; }
         public Item Item { get; set; }
         public int ItemId { get; set; }
     }

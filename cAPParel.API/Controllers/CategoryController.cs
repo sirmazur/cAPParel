@@ -23,10 +23,8 @@ namespace cAPParel.API.Controllers
             return Ok(categories);
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
-        public async Task<ActionResult<CategoryDto>> GetGame(int categoryid)
-        {
-            if (ModelState.IsValid)
-            {
+        public async Task<ActionResult<CategoryDto>> GetCategory(int categoryid)
+        {         
                 var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
                 if (item!=null)
                 {
@@ -36,12 +34,6 @@ namespace cAPParel.API.Controllers
                 {
                     return NotFound();
                 }
-
-            }
-            else
-            {
-                return BadRequest(ModelState);
-            }
         }
        
 

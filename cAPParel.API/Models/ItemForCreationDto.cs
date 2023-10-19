@@ -1,16 +1,21 @@
 ﻿using cAPParel.API.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace cAPParel.API.Models
 {
     public class ItemForCreationDto
     {
-        public int Id { get; set; }
+        [Required]
+        [MaxLength(50)]
         public string Name { get; set; }
+        [Required]
         public double Price { get; set; }
-        public string Color { get; set; }
+        [Required]
         public ItemType Type { get; set; }
+        [Required]
+        [MaxLength(500)]
         public string Description { get; set; }
-        public Category Category { get; set; }
+        [Required]
         public int CategoryId { get; set; }
 
         public ICollection<Piece> Pieces { get; set; } = new List<Piece>();

@@ -8,6 +8,7 @@ namespace cAPParel.API.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
+        [MaxLength(50)]
         public string CategoryName { get; set; }
         public Category? ParentCategory { get; set; }
         public int? ParentCategoryId { get; set; }

@@ -13,8 +13,6 @@ namespace cAPParel.API.Entities
         [Required]
         public double Price { get; set; }
         [Required]
-        public string Color { get; set; }
-        [Required]
         public ItemType Type { get; set; }
         [Required]
         public string Description { get; set; }
