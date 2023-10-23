@@ -13,6 +13,8 @@ namespace cAPParel.API.Entities
         [Required]
         public double Price { get; set; }
         [Required]
+        public Color Color { get; set; } 
+        [Required]
         public ItemType Type { get; set; }
         [Required]
         public string Description { get; set; }
@@ -29,5 +31,20 @@ namespace cAPParel.API.Entities
         Men,
         Women,
         Kids
+    }
+
+    public enum Color
+    {
+        Red,
+        Blue,
+        Green,
+        Yellow,
+        Black,
+        White,
+        Gray,
+        Brown,
+        Pink,
+        Purple,
+        Orange
     }
 }

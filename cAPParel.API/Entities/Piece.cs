@@ -10,24 +10,9 @@ namespace cAPParel.API.Entities
         [Required]
         public string Size { get; set; }
         [Required]
-        public Color Color { get; set; }
-        [Required]
         public Item Item { get; set; }
         [Required]
         public int ItemId { get; set; }
     }
-    public enum Color
-    {
-        Red,
-        Blue,
-        Green,
-        Yellow,
-        Black,
-        White,
-        Gray,
-        Brown,
-        Pink,
-        Purple,
-        Orange
-    }
+    
 }

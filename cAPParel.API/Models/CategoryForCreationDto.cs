@@ -2,11 +2,8 @@
 
 namespace cAPParel.API.Models
 {
-    public class CategoryForCreationDto
+    public class CategoryForCreationDto : CategoryToModifyDto
     {
-        [Required]
-        [MaxLength(50)]
-        public string CategoryName { get; set; }
-        public int? ParentCategoryId { get; set; }
+
     }
 }

@@ -3,6 +3,7 @@ using cAPParel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection.Metadata;
 
@@ -117,7 +118,6 @@ namespace cAPParel.API.Services.Basic
             {
                 var itemToPatch = _mapper.Map<TUpdateDto>(item);
                 patchDocument.ApplyTo(itemToPatch);
-                _mapper.Map(itemToPatch, item);
                 await _basicRepository.SaveChangesAsync();
                 return new OperationResult<TDto>
                 {
