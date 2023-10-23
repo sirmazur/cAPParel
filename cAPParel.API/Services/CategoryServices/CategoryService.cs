@@ -16,6 +16,17 @@ namespace cAPParel.API.Services.CategoryServices
             _categoryRepository = categoryRepository;
             _mapper = mapper;
         }
+        //public override async Task<IEnumerable<CategoryDto>> GetAllAsync(string? parentNameFilter, int? parentIdFilter)
+        //{
+        //    if(parentIdFilter==null && parentNameFilter==null)
+        //    {
+        //        return await base.GetAllAsync();
+        //    }
+        //    else
+        //    {
+
+        //    }
+        //}
         public override async Task<OperationResult<CategoryDto>> DeleteByIdAsync(int id)
         {
             (bool exists, Category? entity) result = await _basicRepository.CheckIfIdExistsAsync(id);

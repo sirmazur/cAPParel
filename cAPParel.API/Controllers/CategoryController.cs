@@ -1,4 +1,5 @@
-﻿using cAPParel.API.Models;
+﻿using cAPParel.API.Filters;
+using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,15 @@ namespace cAPParel.API.Controllers
 
         [HttpGet]
         [HttpHead]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories(
+            int? parentCategoryId)
         {
-            var categories = await _categoryService.GetAllAsync();
+            List<IFilter> filters = new List<IFilter>();
+            if(parentCategoryId != null)
+            {
+                filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
+            }
+            var categories = await _categoryService.GetAllAsync(filters);
             return Ok(categories);
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]

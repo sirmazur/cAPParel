@@ -1,4 +1,5 @@
-﻿using cAPParel.API.Models;
+﻿using cAPParel.API.Filters;
+using cAPParel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Linq.Expressions;
 
@@ -7,7 +8,7 @@ namespace cAPParel.API.Services.Basic
     public interface IBasicService<TDto, TEntity, TExtendedDto, TCreationDto, TUpdateDto> where TDto : class where TEntity : class where TExtendedDto : class where TCreationDto : class where TUpdateDto : class
     {
         Task<TDto> GetByIdAsync(int id);
-        Task<IEnumerable<TDto>> GetAllAsync();
+        Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter>? filters);
         Task<TDto> CreateAsync(TCreationDto creationDto);
         Task<OperationResult<TDto>> UpdateAsync(int id, TUpdateDto creationDto);
         Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TUpdateDto> patchDocument);

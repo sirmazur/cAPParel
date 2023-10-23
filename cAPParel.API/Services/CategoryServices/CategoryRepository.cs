@@ -25,5 +25,14 @@ namespace cAPParel.API.Services.CategoryServices
             var result = await _context.Categories.Where(c => c.ParentCategoryId == parentid).ToListAsync();
             return result;
         }
+
+        //public async Task<IEnumerable<Category>> GetFilteredCategoriesAsync(string? parentNameFilter, int? parentIdFilter)
+        //{
+        //    IQueryable<Category> result;
+        //    if(parentNameFilter!=null)
+        //    {
+        //        result += _context.Categories.Where(c => c.CategoryName.Contains(parentNameFilter));
+        //    }
+        //}
     }
 }

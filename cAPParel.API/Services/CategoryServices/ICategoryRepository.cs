@@ -7,5 +7,6 @@ namespace cAPParel.API.Services.CategoryServices
     {
         Task<Category> AddCategoryAsync(Category category);
         Task<IEnumerable<Category>> GetCategoriesWithParentIdAsync(int parentid);
+        //Task<IEnumerable<Category>> GetFilteredCategoriesAsync(string? parentNameFilter, int? parentIdFilter);
     }
 }
