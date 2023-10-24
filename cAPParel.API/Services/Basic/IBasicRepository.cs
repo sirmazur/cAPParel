@@ -7,6 +7,7 @@ namespace cAPParel.API.Services.Basic
     {
         Task<TEntity> GetByIdAsync(int id);
         Task<IEnumerable<TEntity>> GetAllAsync();
+        IQueryable<TEntity> GetQueryableAll();
         Task<(bool,TEntity?)> CheckIfIdExistsAsync(int id);
         void DeleteAsync(TEntity entity);
         Task SaveChangesAsync();

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using cAPParel.API.Filters;
 using cAPParel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
@@ -64,74 +65,80 @@ namespace cAPParel.API.Services.Basic
 
         public async Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter> filters, string searchQuery)
         {
-            var query = _basicRepository.GetQueryableAll();
+            var listToReturn = _basicRepository.GetQueryableAll();
 
             foreach (var filter in filters)
             {
-                query = ApplyFilter(query, filter);
+                listToReturn = FilterEntity(listToReturn, filter);             
             }
 
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
-                query = ApplySearch(query, searchQuery);
+                listToReturn = SearchEntityByProperty(listToReturn, searchQuery);
             }
 
-            var finalListToReturn = await _mapper.ProjectTo<TDto>(query).ToListAsync();
+            var finalList = listToReturn.ToList();
+            var finalListToReturn = _mapper.Map<IEnumerable<TDto>>(finalList);
             return finalListToReturn;
         }
 
-        private IQueryable<TEntity> ApplyFilter(IQueryable<TEntity> query, IFilter filter)
+        public static IQueryable<TEntity> FilterEntity<TEntity>(IQueryable<TEntity> source, IFilter filter)
         {
-            var parameter = Expression.Parameter(typeof(TEntity), "entity");
-            var property = Expression.Property(parameter, filter.FieldName);
-            var filterValue = Expression.Constant(filter.Value);
+                var entityType = typeof(TEntity);
+                var parameter = Expression.Parameter(entityType, "entity");
+                var searchProperty = entityType.GetProperty(filter.FieldName);
 
-            Expression body;
+                Expression finalExpression = Expression.Constant(false);
 
-            if (filter is NumericFilter)
-            {
-                body = Expression.Equal(property, filterValue);
-            }
-            else if (filter is TextFilter)
-            {
-                body = Expression.Equal(Expression.Call(property, "ToString", null), filterValue);
-            }
-            else
-            {
-                // Handle other filter types if needed.
-                return query;
-            }
-
-            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
-            return query.Where(lambda);
-        }
-
-        private IQueryable<TEntity> ApplySearch(IQueryable<TEntity> query, string searchQuery)
-        {
-            var parameter = Expression.Parameter(typeof(TEntity), "entity");
-
-            var properties = typeof(TEntity).GetProperties();
-
-            Expression orExpression = null;
-
-            foreach (var propertyInfo in properties)
-            {
-                var property = Expression.Property(parameter, propertyInfo);
-                var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                var call = Expression.Call(property, containsMethod, Expression.Constant(searchQuery));
-
-                if (orExpression == null)
+                if(filter is NumericFilter && searchProperty.PropertyType == typeof(int?) || searchProperty.PropertyType == typeof(int))
                 {
-                    orExpression = call;
+                    var propertyExpression = Expression.Property(parameter, searchProperty);
+                    var filterValue = Expression.Constant(filter.Value, typeof(int?));
+                    var equalsExpression = Expression.Equal(propertyExpression, filterValue);
+                    finalExpression = Expression.OrElse(finalExpression, equalsExpression);
                 }
                 else
+                if(filter is TextFilter && searchProperty.PropertyType == typeof(string))
                 {
-                    orExpression = Expression.Or(orExpression, call);
+                    var propertyExpression = Expression.Property(parameter, searchProperty);
+                    var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                    var containsExpression = Expression.Call(propertyExpression, containsMethod, Expression.Constant(Convert.ToString(filter.Value)));
+                    finalExpression = Expression.OrElse(finalExpression, containsExpression);
                 }
-            }
 
-            var lambda = Expression.Lambda<Func<TEntity, bool>>(orExpression, parameter);
-            return query.Where(lambda);
+            
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(finalExpression, parameter);
+                source = source.Where(lambda);
+            
+
+            return source;
+        }
+
+        public static IQueryable<TEntity> SearchEntityByProperty<TEntity>(IQueryable<TEntity> source, string searchQuery)
+        {
+
+                var entityType = typeof(TEntity);
+                var parameter = Expression.Parameter(entityType, "entity");
+                var searchProperties = entityType.GetProperties();
+
+                Expression finalExpression = Expression.Constant(false);
+
+                foreach (var propertyInfo in searchProperties)
+                {
+                    if (propertyInfo.PropertyType == typeof(string))
+                    {
+                        var propertyExpression = Expression.Property(parameter, propertyInfo);
+                        var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                        var containsExpression = Expression.Call(propertyExpression, containsMethod, Expression.Constant(searchQuery));
+
+                        finalExpression = Expression.OrElse(finalExpression, containsExpression);
+                    }
+                }
+
+                var lambda = Expression.Lambda<Func<TEntity, bool>>(finalExpression, parameter);
+                source = source.Where(lambda);           
+
+            return source;
         }
 
         public async Task<IEnumerable<TExtendedDto>> GetExtendedListWithEagerLoadingAsync(IEnumerable<int> ids, params Expression<Func<TEntity, object>>[] includeProperties)
