@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Internal;
 using cAPParel.API.Filters;
+using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,7 @@ namespace cAPParel.API.Services.Basic
             return await _basicRepository.GetByIdWithEagerLoadingAsync(id, includeProperties);
         }
 
-        public async Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter> filters, string searchQuery)
+        public async Task<PagedList<TDto>> GetAllAsync(IEnumerable<IFilter> filters, ResourceParameters parameters)
         {
             var listToReturn = _basicRepository.GetQueryableAll();
 
@@ -72,13 +73,16 @@ namespace cAPParel.API.Services.Basic
                 listToReturn = FilterEntity(listToReturn, filter);             
             }
 
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            if (!string.IsNullOrWhiteSpace(parameters.searchQuery))
             {
-                listToReturn = SearchEntityByProperty(listToReturn, searchQuery);
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.searchQuery);
             }
 
-            var finalList = listToReturn.ToList();
-            var finalListToReturn = _mapper.Map<IEnumerable<TDto>>(finalList);
+            var finalList = await PagedList<TEntity>
+                .CreateAsync(listToReturn, 
+                parameters.PageNumber, 
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<TDto>>(finalList);
             return finalListToReturn;
         }
 
