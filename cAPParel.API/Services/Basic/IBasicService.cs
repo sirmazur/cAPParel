@@ -8,7 +8,7 @@ namespace cAPParel.API.Services.Basic
     public interface IBasicService<TDto, TEntity, TExtendedDto, TCreationDto, TUpdateDto> where TDto : class where TEntity : class where TExtendedDto : class where TCreationDto : class where TUpdateDto : class
     {
         Task<TDto> GetByIdAsync(int id);
-        Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter>? filters);
+        Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter>? filters, string? searchQuery);
         Task<TDto> CreateAsync(TCreationDto creationDto);
         Task<OperationResult<TDto>> UpdateAsync(int id, TUpdateDto creationDto);
         Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TUpdateDto> patchDocument);

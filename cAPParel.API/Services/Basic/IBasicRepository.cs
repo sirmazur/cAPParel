@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using cAPParel.API.Filters;
+using System.Linq.Expressions;
 
 namespace cAPParel.API.Services.Basic
 {

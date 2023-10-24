@@ -62,37 +62,76 @@ namespace cAPParel.API.Services.Basic
             return await _basicRepository.GetByIdWithEagerLoadingAsync(id, includeProperties);
         }
 
-        public async Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter> filters)
+        public async Task<IEnumerable<TDto>> GetAllAsync(IEnumerable<IFilter> filters, string searchQuery)
         {
-            var listToReturn = await _basicRepository.GetAllAsync();
+            var query = _basicRepository.GetQueryableAll();
 
-                foreach (var filter in filters)
-                {
-                listToReturn = listToReturn.Where(entity =>
-                {
-                    var propertyInfo = entity.GetType().GetProperty(filter.FieldName);
-
-                    if (propertyInfo != null)
-                    {
-                        var propertyValue = propertyInfo.GetValue(entity, null);
-
-                        if(filter is NumericFilter)
-                        {
-                            var filterValue = Convert.ToInt32(filter.Value);
-                            return propertyValue != null && Convert.ToInt32(propertyValue) == filterValue;
-                        }
-                        else if(filter is TextFilter)
-                        {
-                            var filterValue = filter.Value.ToString();
-                            return propertyValue != null && propertyValue.ToString() == filterValue;
-                        }
-                    }
-                    return true;
-                });
+            foreach (var filter in filters)
+            {
+                query = ApplyFilter(query, filter);
             }
-                
-            var finalListToReturn = _mapper.Map<IEnumerable<TDto>>(listToReturn);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                query = ApplySearch(query, searchQuery);
+            }
+
+            var finalListToReturn = await _mapper.ProjectTo<TDto>(query).ToListAsync();
             return finalListToReturn;
+        }
+
+        private IQueryable<TEntity> ApplyFilter(IQueryable<TEntity> query, IFilter filter)
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "entity");
+            var property = Expression.Property(parameter, filter.FieldName);
+            var filterValue = Expression.Constant(filter.Value);
+
+            Expression body;
+
+            if (filter is NumericFilter)
+            {
+                body = Expression.Equal(property, filterValue);
+            }
+            else if (filter is TextFilter)
+            {
+                body = Expression.Equal(Expression.Call(property, "ToString", null), filterValue);
+            }
+            else
+            {
+                // Handle other filter types if needed.
+                return query;
+            }
+
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+            return query.Where(lambda);
+        }
+
+        private IQueryable<TEntity> ApplySearch(IQueryable<TEntity> query, string searchQuery)
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "entity");
+
+            var properties = typeof(TEntity).GetProperties();
+
+            Expression orExpression = null;
+
+            foreach (var propertyInfo in properties)
+            {
+                var property = Expression.Property(parameter, propertyInfo);
+                var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                var call = Expression.Call(property, containsMethod, Expression.Constant(searchQuery));
+
+                if (orExpression == null)
+                {
+                    orExpression = call;
+                }
+                else
+                {
+                    orExpression = Expression.Or(orExpression, call);
+                }
+            }
+
+            var lambda = Expression.Lambda<Func<TEntity, bool>>(orExpression, parameter);
+            return query.Where(lambda);
         }
 
         public async Task<IEnumerable<TExtendedDto>> GetExtendedListWithEagerLoadingAsync(IEnumerable<int> ids, params Expression<Func<TEntity, object>>[] includeProperties)

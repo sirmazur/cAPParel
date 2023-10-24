@@ -3,6 +3,7 @@ using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Permissions;
 
 namespace cAPParel.API.Controllers
 {
@@ -19,15 +20,22 @@ namespace cAPParel.API.Controllers
         [HttpGet]
         [HttpHead]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories(
-            int? parentCategoryId)
+            int? parentCategoryId, string? searchQuery)
         {
             List<IFilter> filters = new List<IFilter>();
             if(parentCategoryId != null)
             {
                 filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
             }
-            var categories = await _categoryService.GetAllAsync(filters);
-            return Ok(categories);
+            var categories = await _categoryService.GetAllAsync(filters,searchQuery);
+            if(categories.Count() == 0)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(categories);
+            }
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
         public async Task<ActionResult<CategoryDto>> GetCategory(int categoryid)

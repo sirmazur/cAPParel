@@ -31,6 +31,10 @@ namespace cAPParel.API.Services.Basic
             return await _context.Set<TEntity>().ToListAsync();
         }
 
+        public IQueryable<TEntity> GetQueryableAll()
+        {
+            return _context.Set<TEntity>();
+        }
 
 
         public async Task<(bool,TEntity?)> CheckIfIdExistsAsync(int id)
