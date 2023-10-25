@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Metadata;
 
 namespace cAPParel.API.Services.Basic
@@ -78,6 +79,8 @@ namespace cAPParel.API.Services.Basic
                 listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
             }
 
+            listToReturn = ApplyOrdering(listToReturn, parameters.orderBy);
+
             var finalList = await PagedList<TEntity>
                 .CreateAsync(listToReturn, 
                 parameters.PageNumber, 
@@ -86,7 +89,34 @@ namespace cAPParel.API.Services.Basic
             return finalListToReturn;
         }
 
-        public static IQueryable<TEntity> FilterEntity<TEntity>(IQueryable<TEntity> source, IFilter filter)
+        private IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> source, string orderBy)
+        {
+            var orderParams = orderBy.Split(',');
+
+            foreach(var param in orderParams)
+            {
+                var trimmedParam = param.Trim();
+                var orderDescending = trimmedParam.EndsWith(" desc");
+                var indexOfFirstSpace = trimmedParam.IndexOf(" ");
+                var propertyName = indexOfFirstSpace == -1 ? trimmedParam : trimmedParam.Remove(indexOfFirstSpace);
+
+                var property = typeof(TEntity).GetProperty(propertyName);
+                if (property == null)
+                {
+                    throw new ArgumentException($"Property {propertyName} does not exist.");
+                }
+
+                var parameter = Expression.Parameter(typeof(TEntity), "entity");
+                var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+                var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+
+                var resultExpression = Expression.Call(typeof(Queryable), orderDescending ? "OrderByDescending" : "OrderBy", new Type[] { typeof(TEntity), property.PropertyType }, source.Expression, Expression.Quote(orderByExpression));
+                source = source.Provider.CreateQuery<TEntity>(resultExpression);
+            }
+            return source;
+        }
+
+        private IQueryable<TEntity> FilterEntity<TEntity>(IQueryable<TEntity> source, IFilter filter)
         {
                 var entityType = typeof(TEntity);
                 var parameter = Expression.Parameter(entityType, "entity");
@@ -118,7 +148,7 @@ namespace cAPParel.API.Services.Basic
             return source;
         }
 
-        public static IQueryable<TEntity> SearchEntityByProperty<TEntity>(IQueryable<TEntity> source, string searchQuery)
+        private IQueryable<TEntity> SearchEntityByProperty<TEntity>(IQueryable<TEntity> source, string searchQuery)
         {
 
                 var entityType = typeof(TEntity);

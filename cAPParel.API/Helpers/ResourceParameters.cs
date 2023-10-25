@@ -14,5 +14,6 @@ namespace cAPParel.API.Helpers
             get => _pageSize;
             set => _pageSize = (value > maxPageSize) ? maxPageSize : value;
         }
+        public string orderBy { get; set; } = "Id";
     }
 }
