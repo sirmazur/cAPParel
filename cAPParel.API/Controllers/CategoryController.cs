@@ -4,6 +4,7 @@ using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.Versioning;
 using System.Security.Permissions;
 using System.Text.Json;
 
@@ -140,7 +141,8 @@ namespace cAPParel.API.Controllers
             List<IFilter> filters,
             ResourceUriType type)
         {
-            switch(type)
+            int? parentId = (filters.Count()>1) ? Convert.ToInt32(filters[0].Value) : null;
+            switch (type)
             {
                 case ResourceUriType.PreviousPage:
                     return Url.Link("GetCategories",
@@ -148,7 +150,7 @@ namespace cAPParel.API.Controllers
                      {
                          pageNumber = resourceParameters.PageNumber - 1,
                          pageSize = resourceParameters.PageSize,
-                         parentCategoryId = filters[0].Value,
+                         parentCategoryId = parentId,
                          searchQuery = resourceParameters.SearchQuery
 
                      });
@@ -158,7 +160,7 @@ namespace cAPParel.API.Controllers
                     {
                         pageNumber = resourceParameters.PageNumber + 1,
                         pageSize = resourceParameters.PageSize,
-                        parentCategoryId = filters[0].Value,
+                        parentCategoryId = parentId,
                         searchQuery = resourceParameters.SearchQuery
 
                     });
@@ -168,7 +170,7 @@ namespace cAPParel.API.Controllers
                     {
                         pageNumber = resourceParameters.PageNumber,
                         pageSize = resourceParameters.PageSize,
-                        parentCategoryId = filters[0].Value,
+                        parentCategoryId = parentId,
                         searchQuery = resourceParameters.SearchQuery
 
                     });
