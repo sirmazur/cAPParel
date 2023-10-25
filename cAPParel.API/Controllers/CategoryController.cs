@@ -4,9 +4,9 @@ using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Runtime.Versioning;
 using System.Security.Permissions;
-using System.Text.Json;
 
 namespace cAPParel.API.Controllers
 {
@@ -55,7 +55,7 @@ namespace cAPParel.API.Controllers
             };
 
             Response.Headers.Add("X-Pagination",
-                JsonSerializer.Serialize(paginationMetadata));
+                JsonConvert.SerializeObject(paginationMetadata));
 
             if(categories.Count() == 0)
             {
@@ -151,8 +151,8 @@ namespace cAPParel.API.Controllers
                          pageNumber = resourceParameters.PageNumber - 1,
                          pageSize = resourceParameters.PageSize,
                          parentCategoryId = parentId,
-                         searchQuery = resourceParameters.SearchQuery
-
+                         searchQuery = resourceParameters.SearchQuery,
+                         orderBy = resourceParameters.OrderBy
                      });
                 case ResourceUriType.NextPage:
                     return Url.Link("GetCategories",
@@ -161,8 +161,8 @@ namespace cAPParel.API.Controllers
                         pageNumber = resourceParameters.PageNumber + 1,
                         pageSize = resourceParameters.PageSize,
                         parentCategoryId = parentId,
-                        searchQuery = resourceParameters.SearchQuery
-
+                        searchQuery = resourceParameters.SearchQuery,
+                        orderBy = resourceParameters.OrderBy
                     });
                 default:
                     return Url.Link("GetCategories",
@@ -171,7 +171,8 @@ namespace cAPParel.API.Controllers
                         pageNumber = resourceParameters.PageNumber,
                         pageSize = resourceParameters.PageSize,
                         parentCategoryId = parentId,
-                        searchQuery = resourceParameters.SearchQuery
+                        searchQuery = resourceParameters.SearchQuery,
+                        orderBy = resourceParameters.OrderBy
 
                     });
             }

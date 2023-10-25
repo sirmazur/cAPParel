@@ -79,7 +79,7 @@ namespace cAPParel.API.Services.Basic
                 listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
             }
 
-            listToReturn = ApplyOrdering(listToReturn, parameters.orderBy);
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
 
             var finalList = await PagedList<TEntity>
                 .CreateAsync(listToReturn, 
