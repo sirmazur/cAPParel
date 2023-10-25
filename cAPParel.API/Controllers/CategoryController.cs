@@ -30,7 +30,15 @@ namespace cAPParel.API.Controllers
             {
                 filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
             }
-            var categories = await _categoryService.GetAllAsync(filters,resourceParameters);
+            PagedList<CategoryDto> categories = null;
+            try
+            {
+                categories = await _categoryService.GetAllAsync(filters, resourceParameters);
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
            
             var previousPageLink = categories.HasPrevious 
                 ? CreateCategoriesResourceUri(
@@ -68,7 +76,7 @@ namespace cAPParel.API.Controllers
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
         public async Task<ActionResult<CategoryDto>> GetCategory(int categoryid)
-        {         
+        {       
                 var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
                 if (item!=null)
                 {

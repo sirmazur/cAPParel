@@ -120,7 +120,7 @@ namespace cAPParel.API.Services.Basic
         {
                 var entityType = typeof(TEntity);
                 var parameter = Expression.Parameter(entityType, "entity");
-                var searchProperty = entityType.GetProperty(filter.FieldName);
+                var searchProperty = entityType.GetProperty(filter.FieldName) ?? throw new ArgumentException($"Property {filter.FieldName} does not exist.");
 
                 Expression finalExpression = Expression.Constant(false);
 
