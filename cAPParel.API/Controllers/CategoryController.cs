@@ -5,6 +5,7 @@ using cAPParel.API.Services.CategoryServices;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Permissions;
+using System.Text.Json;
 
 namespace cAPParel.API.Controllers
 {
@@ -18,7 +19,7 @@ namespace cAPParel.API.Controllers
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetCategories")]
         [HttpHead]
         public async Task<ActionResult<PagedList<CategoryDto>>> GetCategories(
             int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters)
@@ -29,6 +30,32 @@ namespace cAPParel.API.Controllers
                 filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
             }
             var categories = await _categoryService.GetAllAsync(filters,resourceParameters);
+           
+            var previousPageLink = categories.HasPrevious 
+                ? CreateCategoriesResourceUri(
+                    resourceParameters,
+                    filters,
+                    ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = categories.HasNext
+                ? CreateCategoriesResourceUri(
+                    resourceParameters,
+                    filters,
+                    ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = categories.TotalCount,
+                pageSize = categories.PageSize,
+                currentPage = categories.CurrentPage,
+                totalPages = categories.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(paginationMetadata));
+
             if(categories.Count() == 0)
             {
                 return NotFound();
@@ -106,6 +133,47 @@ namespace cAPParel.API.Controllers
         {
             Response.Headers.Add("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
             return Ok();
+        }
+
+        private string? CreateCategoriesResourceUri(
+            ResourceParameters resourceParameters,
+            List<IFilter> filters,
+            ResourceUriType type)
+        {
+            switch(type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetCategories",
+                     new
+                     {
+                         pageNumber = resourceParameters.PageNumber - 1,
+                         pageSize = resourceParameters.PageSize,
+                         parentCategoryId = filters[0].Value,
+                         searchQuery = resourceParameters.SearchQuery
+
+                     });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetCategories",
+                    new
+                    {
+                        pageNumber = resourceParameters.PageNumber + 1,
+                        pageSize = resourceParameters.PageSize,
+                        parentCategoryId = filters[0].Value,
+                        searchQuery = resourceParameters.SearchQuery
+
+                    });
+                default:
+                    return Url.Link("GetCategories",
+                    new
+                    {
+                        pageNumber = resourceParameters.PageNumber,
+                        pageSize = resourceParameters.PageSize,
+                        parentCategoryId = filters[0].Value,
+                        searchQuery = resourceParameters.SearchQuery
+
+                    });
+            }
+
         }
 
     }

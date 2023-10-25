@@ -5,8 +5,9 @@ namespace cAPParel.API.Helpers
     public class ResourceParameters
     {
         const int maxPageSize = 200;
-        public string? searchQuery { get; set; }
+        public string? SearchQuery { get; set; }
         public int PageNumber { get; set; } = 1;
+
         private int _pageSize = 100;
         public int PageSize
         {

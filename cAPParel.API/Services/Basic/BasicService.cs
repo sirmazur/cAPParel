@@ -73,9 +73,9 @@ namespace cAPParel.API.Services.Basic
                 listToReturn = FilterEntity(listToReturn, filter);             
             }
 
-            if (!string.IsNullOrWhiteSpace(parameters.searchQuery))
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {
-                listToReturn = SearchEntityByProperty(listToReturn, parameters.searchQuery);
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
             }
 
             var finalList = await PagedList<TEntity>
