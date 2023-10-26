@@ -55,7 +55,9 @@ namespace cAPParel.API.Controllers
             }
             catch (Exception ex) 
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: ex.Message));
             }
            
             var previousPageLink = categories.HasPrevious 
