@@ -76,12 +76,12 @@ namespace cAPParel.API.Controllers
             }
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
-        public async Task<ActionResult<CategoryDto>> GetCategory(int categoryid)
+        public async Task<IActionResult> GetCategory(int categoryid, string? fields)
         {       
                 var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
                 if (item!=null)
                 {
-                    return Ok(item);
+                    return Ok(item.ShapeData(fields));
                 }
                 else
                 {
