@@ -2,6 +2,7 @@
 using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace cAPParel.API.Controllers
 
         [HttpGet(Name = "GetCategories")]
         [HttpHead]
-        public async Task<ActionResult<PagedList<CategoryDto>>> GetCategories(
+        public async Task<IActionResult> GetCategories(
             int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters)
         {
             List<IFilter> filters = new List<IFilter>();
@@ -71,7 +72,7 @@ namespace cAPParel.API.Controllers
             }
             else
             {
-                return Ok(categories);
+                return Ok(categories.ShapeData(resourceParameters.Fields));
             }
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
@@ -156,6 +157,7 @@ namespace cAPParel.API.Controllers
                     return Url.Link("GetCategories",
                      new
                      {
+                         fields = resourceParameters.Fields,
                          pageNumber = resourceParameters.PageNumber - 1,
                          pageSize = resourceParameters.PageSize,
                          parentCategoryId = parentId,
@@ -166,6 +168,7 @@ namespace cAPParel.API.Controllers
                     return Url.Link("GetCategories",
                     new
                     {
+                        fields = resourceParameters.Fields,
                         pageNumber = resourceParameters.PageNumber + 1,
                         pageSize = resourceParameters.PageSize,
                         parentCategoryId = parentId,
@@ -176,6 +179,7 @@ namespace cAPParel.API.Controllers
                     return Url.Link("GetCategories",
                     new
                     {
+                        fields = resourceParameters.Fields,
                         pageNumber = resourceParameters.PageNumber,
                         pageSize = resourceParameters.PageSize,
                         parentCategoryId = parentId,
