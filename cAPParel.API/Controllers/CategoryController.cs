@@ -2,9 +2,11 @@
 using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
+using cAPParel.API.Services.FieldsValidationServices;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Newtonsoft.Json;
 using System.Runtime.Versioning;
 using System.Security.Permissions;
@@ -16,9 +18,16 @@ namespace cAPParel.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-        public CategoryController(ICategoryService categoryService)
+        private readonly IFieldsValidationService _fieldsValidationService;
+        private readonly ProblemDetailsFactory _problemDetailsFactory;
+
+        public CategoryController(ICategoryService categoryService,
+            IFieldsValidationService fieldsValidationService,
+            ProblemDetailsFactory problemDetailsFactory)
         {
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            _fieldsValidationService = fieldsValidationService ?? throw new ArgumentNullException(nameof(fieldsValidationService));
+            _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
 
         [HttpGet(Name = "GetCategories")]
@@ -26,6 +35,14 @@ namespace cAPParel.API.Controllers
         public async Task<IActionResult> GetCategories(
             int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters)
         {
+            if(!_fieldsValidationService.TypeHasProperties<CategoryDto>(resourceParameters.Fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {resourceParameters.Fields}"));
+            }
             List<IFilter> filters = new List<IFilter>();
             if(parentCategoryId != null)
             {
@@ -77,8 +94,17 @@ namespace cAPParel.API.Controllers
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
         public async Task<IActionResult> GetCategory(int categoryid, string? fields)
-        {       
-                var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
+        {
+            if (!_fieldsValidationService.TypeHasProperties<CategoryDto>(fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {fields}"));
+            }
+
+            var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
                 if (item!=null)
                 {
                     return Ok(item.ShapeData(fields));

@@ -2,6 +2,7 @@ using cAPParel.API.DbContexts;
 using cAPParel.API.Entities;
 using cAPParel.API.Services.Basic;
 using cAPParel.API.Services.CategoryServices;
+using cAPParel.API.Services.FieldsValidationServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IFieldsValidationService, FieldsValidationService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBasicRepository<Category>, BasicRepository<Category>>();
