@@ -40,17 +40,20 @@ namespace cAPParel.API.Helpers
                     propertyInfoList.Add(propertyInfo);
                 }
 
-                foreach(TSource sourceObject in source)
-                { 
-                    var dataShapedObject = new ExpandoObject();
-                    foreach(var propertyInfo in propertyInfoList)
-                    {
-                        var propertyValue = propertyInfo.GetValue(sourceObject);
-                        ((IDictionary<string, object?>)dataShapedObject).Add(propertyInfo.Name, propertyValue);
-                    }
-                    expandoObjectList.Add(dataShapedObject);
-                }
+
             }
+
+            foreach (TSource sourceObject in source)
+            {
+                var dataShapedObject = new ExpandoObject();
+                foreach (var propertyInfo in propertyInfoList)
+                {
+                    var propertyValue = propertyInfo.GetValue(sourceObject);
+                    ((IDictionary<string, object?>)dataShapedObject).Add(propertyInfo.Name, propertyValue);
+                }
+                expandoObjectList.Add(dataShapedObject);
+            }
+
             return expandoObjectList;
         }
     }

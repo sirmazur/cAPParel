@@ -48,7 +48,7 @@ namespace cAPParel.API.Controllers
             {
                 filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
             }
-            PagedList<CategoryDto> categories = null;
+            PagedList<CategoryDto>? categories = null;
             try
             {
                 categories = await _categoryService.GetAllAsync(filters, resourceParameters);
@@ -60,30 +60,45 @@ namespace cAPParel.API.Controllers
                     detail: ex.Message));
             }
            
-            var previousPageLink = categories.HasPrevious 
-                ? CreateCategoriesResourceUri(
-                    resourceParameters,
-                    filters,
-                    ResourceUriType.PreviousPage) : null;
-
-            var nextPageLink = categories.HasNext
-                ? CreateCategoriesResourceUri(
-                    resourceParameters,
-                    filters,
-                    ResourceUriType.NextPage) : null;
 
             var paginationMetadata = new
             {
                 totalCount = categories.TotalCount,
                 pageSize = categories.PageSize,
                 currentPage = categories.CurrentPage,
-                totalPages = categories.TotalPages,
-                previousPageLink,
-                nextPageLink
+                totalPages = categories.TotalPages
             };
 
             Response.Headers.Add("X-Pagination",
                 JsonConvert.SerializeObject(paginationMetadata));
+
+            var links = CreateLinksForCollection(
+                resourceParameters, 
+                filters, 
+                categories.HasNext,
+                categories.HasPrevious
+                );
+
+            var shapedCategories = categories
+                .ShapeData(resourceParameters.Fields);
+            int categoriesIenumerator = 0;
+            var shapedCategoriesWithLinks = shapedCategories
+                .Select(category =>
+                {
+                    var categoryAsDictionary = category as IDictionary<string, object?>;
+                    var categoryLinks = CreateLinks(
+                        categories[categoriesIenumerator].Id, 
+                        resourceParameters.Fields);
+                    categoriesIenumerator++;
+                    categoryAsDictionary.Add("links", categoryLinks);
+                    return categoryAsDictionary;
+                });
+            
+            var linkedCollectionResource = new
+            {
+                value = shapedCategoriesWithLinks,
+                links
+            };
 
             if(categories.Count() == 0)
             {
@@ -91,7 +106,7 @@ namespace cAPParel.API.Controllers
             }
             else
             {
-                return Ok(categories.ShapeData(resourceParameters.Fields));
+                return Ok(linkedCollectionResource);
             }
         }
         [HttpGet("{categoryid}", Name = "GetCategory")]
@@ -107,9 +122,12 @@ namespace cAPParel.API.Controllers
             }
 
             var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
+            var links = CreateLinks(categoryid, fields);
+            var linkedResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
+            linkedResourceToReturn.Add("links", links);
                 if (item!=null)
                 {
-                    return Ok(item.ShapeData(fields));
+                    return Ok(linkedResourceToReturn);
                 }
                 else
                 {
@@ -118,7 +136,7 @@ namespace cAPParel.API.Controllers
         }
        
 
-        [HttpDelete("{categorytodeleteid}")]
+        [HttpDelete("{categorytodeleteid}", Name = "DeleteCategory")]
         public async Task<ActionResult> DeleteCategory(int categorytodeleteid)
         {
             var operationResult = await _categoryService.DeleteByIdAsync(categorytodeleteid);
@@ -132,14 +150,17 @@ namespace cAPParel.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateCategory")]
         public async Task<ActionResult<CategoryDto>> CreateCategoryAsync(CategoryForCreationDto category)
         {
             var categoryDto = await _categoryService.CreateAsync(category);
-            return CreatedAtRoute("GetCategory", new { categoryId = categoryDto.Id }, categoryDto);
+            var links = CreateLinks(categoryDto.Id, null);
+            var linkedResourceToReturn = categoryDto.ShapeDataForObject(null) as IDictionary<string, object>;
+            linkedResourceToReturn.Add("links", links);
+            return CreatedAtRoute("GetCategory", new { categoryId = linkedResourceToReturn["Id"] }, linkedResourceToReturn);
         }
 
-        [HttpPut("{categorytoupdateid}")]
+        [HttpPut("{categorytoupdateid}", Name = "UpdateCategory")]
         public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForUpdateDto category)
         {
             var operationResult = await _categoryService.UpdateAsync(categorytoupdateid, category);
@@ -152,7 +173,7 @@ namespace cAPParel.API.Controllers
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
             }
         }
-        [HttpPatch("{categorytoupdateid}")]
+        [HttpPatch("{categorytoupdateid}", Name = "PartiallyUpdateCategory")]
         public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForUpdateDto> patchDocument)
         {
             var operationResult = await _categoryService.PartialUpdateAsync(categorytoupdateid, patchDocument);
@@ -217,6 +238,69 @@ namespace cAPParel.API.Controllers
                     });
             }
 
+        }
+
+        private IEnumerable<LinkDto> CreateLinks(
+            int categoryid,
+            string? fields)
+        {
+            var links = new List<LinkDto>();
+            if(string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(
+                    new (Url.Link("GetCategory", new { categoryid }),
+                    "self",
+                    "GET"));
+            }
+            else
+            {
+                links.Add(
+                    new (Url.Link("GetCategory", new { categoryid, fields }),
+                    "self",
+                    "GET"));
+            }
+            
+            return links;
+        }
+
+        private IEnumerable<LinkDto> CreateLinksForCollection(
+            ResourceParameters resourceParameters,
+            List<IFilter> filters,
+            bool hasNext,
+            bool hasPrevious)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(
+            new (CreateCategoriesResourceUri(
+            resourceParameters,
+            filters,
+            ResourceUriType.Current),
+            "self",
+            "GET"));
+
+            if(hasNext)
+            {
+                links.Add(
+                    new (CreateCategoriesResourceUri(
+                        resourceParameters,
+                        filters,
+                        ResourceUriType.NextPage),
+                        "nextPage",
+                        "GET"));
+            }
+
+            if (hasPrevious)
+            {
+                links.Add(
+                    new(CreateCategoriesResourceUri(
+                        resourceParameters,
+                        filters,
+                        ResourceUriType.PreviousPage),
+                        "nextPage",
+                        "GET"));
+            }
+            return links;
         }
 
     }

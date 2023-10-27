@@ -5,6 +5,7 @@ using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
@@ -46,7 +47,6 @@ builder.Services.AddControllers(options =>
         };
     };
 });
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IFieldsValidationService, FieldsValidationService>();

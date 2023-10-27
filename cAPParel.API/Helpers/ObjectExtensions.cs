@@ -5,7 +5,7 @@ namespace cAPParel.API.Helpers
 {
     public static class ObjectExtensions
     {
-        public static ExpandoObject ShapeData<TSource>(
+        public static ExpandoObject ShapeDataForObject<TSource>(
           this TSource source,
           string? fields)
         {
