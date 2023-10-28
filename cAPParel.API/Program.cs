@@ -4,6 +4,7 @@ using cAPParel.API.Services.Basic;
 using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,19 @@ builder.Services.AddControllers(options =>
         };
     };
 });
+
+builder.Services.Configure<MvcOptions>(options =>
+{
+    var newtonsoftJsonOutputFormatter = options.OutputFormatters
+        .OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
+
+    if (newtonsoftJsonOutputFormatter != null)
+    {
+        newtonsoftJsonOutputFormatter.SupportedMediaTypes
+            .Add("application/vnd.capparel.hateoas+json");
+    }
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IFieldsValidationService, FieldsValidationService>();

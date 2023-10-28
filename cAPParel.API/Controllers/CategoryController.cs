@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Runtime.Versioning;
 using System.Security.Permissions;
@@ -109,9 +110,27 @@ namespace cAPParel.API.Controllers
                 return Ok(linkedCollectionResource);
             }
         }
+
+        [Produces("application/json",
+            "application/vnd.capparel.hateoas+json",
+            "application/vnd.capparel.category.full+json",
+            "application/vnd.capparel.category.full.hateoas+json",
+            "application/vnd.capparel.category.friendly+json",
+            "application/vnd.capparel.category.friendly.hateoas+json")]
         [HttpGet("{categoryid}", Name = "GetCategory")]
-        public async Task<IActionResult> GetCategory(int categoryid, string? fields)
+        public async Task<IActionResult> GetCategory(
+            int categoryid, 
+            string? fields,
+            [FromHeader(Name ="Accept")] string? mediaType)
         {
+            if(!MediaTypeHeaderValue.TryParse(mediaType, out var parsedMediaType))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Accept header media type value is not supported"));
+            }
+
             if (!_fieldsValidationService.TypeHasProperties<CategoryDto>(fields))
             {
                 return BadRequest(
@@ -121,18 +140,40 @@ namespace cAPParel.API.Controllers
                     $" on the resource: {fields}"));
             }
 
+            
+
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+
+            if(includeLinks)
+            {
+                links = CreateLinks(categoryid, fields);
+            }
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix.Substring(
+                0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+            if(primaryMediaType == "vnd.capparel.category.full")
+            {
+                var fullItem = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
+                var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
+                if(includeLinks)
+                {
+                    fullResourceToReturn.Add("links", links);
+                }
+                return Ok(fullResourceToReturn);
+            }
             var item = await _categoryService.GetExtendedByIdWithEagerLoadingAsync(categoryid);
-            var links = CreateLinks(categoryid, fields);
-            var linkedResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
-            linkedResourceToReturn.Add("links", links);
-                if (item!=null)
-                {
-                    return Ok(linkedResourceToReturn);
-                }
-                else
-                {
-                    return NotFound();
-                }
+        
+            var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
+            if(includeLinks)
+            {
+                lightResourceToReturn.Add("links", links);
+            }
+            return Ok(lightResourceToReturn);
         }
        
 

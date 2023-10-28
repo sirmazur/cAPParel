@@ -10,6 +10,5 @@ namespace cAPParel.API.Models
 
         public string CategoryName { get; set; }
         public int? ParentCategoryId { get; set; }
-        public ICollection<CategoryDto> ChildCategories { get; set; }
     }
 }
