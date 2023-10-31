@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using System.Dynamic;
+using System.Linq;
 using System.Runtime.Versioning;
 using System.Security.Permissions;
 
@@ -31,11 +33,23 @@ namespace cAPParel.API.Controllers
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
 
+        [Produces("application/json",
+           "application/vnd.capparel.hateoas+json",
+           "application/vnd.capparel.category.full+json",
+           "application/vnd.capparel.category.full.hateoas+json",
+           "application/vnd.capparel.category.friendly+json",
+           "application/vnd.capparel.category.friendly.hateoas+json")]
         [HttpGet(Name = "GetCategories")]
         [HttpHead]
         public async Task<IActionResult> GetCategories(
-            int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters)
+            int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name ="Accept")]string? mediaType)
         {
+            if(!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+            {
+                return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                statusCode: 400,
+                detail: $"Accept header media type value is not supported"));
+            }
             if(!_fieldsValidationService.TypeHasProperties<CategoryDto>(resourceParameters.Fields))
             {
                 return BadRequest(
@@ -49,66 +63,138 @@ namespace cAPParel.API.Controllers
             {
                 filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
             }
-            PagedList<CategoryDto>? categories = null;
-            try
-            {
-                categories = await _categoryService.GetAllAsync(filters, resourceParameters);
-            }
-            catch (Exception ex) 
-            {
-                return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
-                    statusCode: 400,
-                    detail: ex.Message));
-            }
+            
            
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
 
-            var paginationMetadata = new
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix
+                .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+           IEnumerable<ExpandoObject> shapedCategories = new List<ExpandoObject>();
+            IEnumerable<IDictionary<string, object?>>? shapedCategoriesToReturn = new List<IDictionary<string,object?>>();
+            if(primaryMediaType == "vnd.capparel.category.full")
             {
-                totalCount = categories.TotalCount,
-                pageSize = categories.PageSize,
-                currentPage = categories.CurrentPage,
-                totalPages = categories.TotalPages
-            };
+                PagedList<CategoryFullDto>? categories = null;
+                try
+                {
+                    categories = await _categoryService.GetFullAllAsync(filters, resourceParameters);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                        statusCode: 400,
+                        detail: ex.Message));
+                }
+                var paginationMetadata = new
+                {
+                    totalCount = categories.TotalCount,
+                    pageSize = categories.PageSize,
+                    currentPage = categories.CurrentPage,
+                    totalPages = categories.TotalPages
+                };
 
-            Response.Headers.Add("X-Pagination",
-                JsonConvert.SerializeObject(paginationMetadata));
+                Response.Headers.Add("X-Pagination",
+                    JsonConvert.SerializeObject(paginationMetadata));
 
-            var links = CreateLinksForCollection(
-                resourceParameters, 
-                filters, 
+                links = CreateLinksForCollection(
+                resourceParameters,
+                filters,
                 categories.HasNext,
                 categories.HasPrevious
                 );
-
-            var shapedCategories = categories
-                .ShapeData(resourceParameters.Fields);
-            int categoriesIenumerator = 0;
-            var shapedCategoriesWithLinks = shapedCategories
-                .Select(category =>
-                {
-                    var categoryAsDictionary = category as IDictionary<string, object?>;
-                    var categoryLinks = CreateLinks(
-                        categories[categoriesIenumerator].Id, 
-                        resourceParameters.Fields);
-                    categoriesIenumerator++;
-                    categoryAsDictionary.Add("links", categoryLinks);
-                    return categoryAsDictionary;
-                });
-            
-            var linkedCollectionResource = new
-            {
-                value = shapedCategoriesWithLinks,
-                links
-            };
-
-            if(categories.Count() == 0)
-            {
-                return NotFound();
+                shapedCategories = categories.ShapeData(resourceParameters.Fields);
+                int categoriesIenumerator = 0;
+                shapedCategoriesToReturn = shapedCategories
+                    .Select(category =>
+                    {
+                        var categoryAsDictionary = category as IDictionary<string, object?>;
+                        
+                            var categoryLinks = CreateLinks(
+                            categories[categoriesIenumerator].Id,
+                            resourceParameters.Fields);
+                            categoriesIenumerator++;
+                            categoryAsDictionary.Add("links", categoryLinks);
+                                                                                            
+                        return categoryAsDictionary;
+                    }).ToArray();
             }
             else
             {
+               PagedList<CategoryDto>? categories = null;
+                try
+                {
+                    categories = await _categoryService.GetAllAsync(filters, resourceParameters);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                        statusCode: 400,
+                        detail: ex.Message));
+                }
+                var paginationMetadata = new
+                {
+                    totalCount = categories.TotalCount,
+                    pageSize = categories.PageSize,
+                    currentPage = categories.CurrentPage,
+                    totalPages = categories.TotalPages
+                };
+
+                Response.Headers.Add("X-Pagination",
+                    JsonConvert.SerializeObject(paginationMetadata));
+
+                links = CreateLinksForCollection(
+                resourceParameters,
+                filters,
+                categories.HasNext,
+                categories.HasPrevious
+                );
+                shapedCategories = categories.ShapeData(resourceParameters.Fields);
+                int categoriesIenumerator = 0;
+                shapedCategoriesToReturn = shapedCategories
+                    .Select(category =>
+                    {
+                        var categoryAsDictionary = category as IDictionary<string, object?>;
+                        if (includeLinks)
+                        {
+                            var categoryLinks = CreateLinks(
+                            categories[categoriesIenumerator].Id,
+                            resourceParameters.Fields);
+                            categoryAsDictionary.Add("links", categoryLinks);
+                        }
+                        categoriesIenumerator++;
+
+                        return categoryAsDictionary;
+                    }).ToArray();
+
+            }
+
+
+            if(shapedCategoriesToReturn.Count() == 0)
+            {
+                return NotFound();
+            }
+
+            if (includeLinks)
+            {
+                var linkedCollectionResource = new
+                {
+                    value = shapedCategoriesToReturn,
+                    links
+                };
                 return Ok(linkedCollectionResource);
             }
+            else
+            {
+                return Ok(shapedCategoriesToReturn);
+            }
+            
+
+
+
         }
 
         [Produces("application/json",
@@ -177,6 +263,7 @@ namespace cAPParel.API.Controllers
         }
        
 
+
         [HttpDelete("{categorytodeleteid}", Name = "DeleteCategory")]
         public async Task<ActionResult> DeleteCategory(int categorytodeleteid)
         {
@@ -191,6 +278,8 @@ namespace cAPParel.API.Controllers
             }
         }
 
+
+
         [HttpPost(Name = "CreateCategory")]
         public async Task<ActionResult<CategoryDto>> CreateCategoryAsync(CategoryForCreationDto category)
         {
@@ -200,6 +289,9 @@ namespace cAPParel.API.Controllers
             linkedResourceToReturn.Add("links", links);
             return CreatedAtRoute("GetCategory", new { categoryId = linkedResourceToReturn["Id"] }, linkedResourceToReturn);
         }
+
+
+
 
         [HttpPut("{categorytoupdateid}", Name = "UpdateCategory")]
         public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForUpdateDto category)

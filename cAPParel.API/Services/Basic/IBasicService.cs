@@ -10,6 +10,7 @@ namespace cAPParel.API.Services.Basic
     {
         Task<TDto> GetByIdAsync(int id);
         Task<PagedList<TDto>> GetAllAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters);
+        Task<PagedList<TExtendedDto>> GetFullAllAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters);
         Task<TDto> CreateAsync(TCreationDto creationDto);
         Task<OperationResult<TDto>> UpdateAsync(int id, TUpdateDto creationDto);
         Task<OperationResult<TDto>> PartialUpdateAsync(int id, JsonPatchDocument<TUpdateDto> patchDocument);

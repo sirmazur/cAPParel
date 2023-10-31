@@ -89,6 +89,30 @@ namespace cAPParel.API.Services.Basic
             return finalListToReturn;
         }
 
+        public async Task<PagedList<TExtendedDto>> GetFullAllAsync(IEnumerable<IFilter> filters, ResourceParameters parameters)
+        {
+            var listToReturn = _basicRepository.GetQueryableAll();
+
+            foreach (var filter in filters)
+            {
+                listToReturn = FilterEntity(listToReturn, filter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
+            }
+
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
+
+            var finalList = await PagedList<TEntity>
+                .CreateAsync(listToReturn,
+                parameters.PageNumber,
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<TExtendedDto>>(finalList);
+            return finalListToReturn;
+        }
+
         private IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> source, string orderBy)
         {
             var orderParams = orderBy.Split(',');
