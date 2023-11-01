@@ -18,6 +18,7 @@ namespace cAPParel.API.Controllers
 {
     [ApiController]
     [Route("api/categories")]
+    [ResponseCache(CacheProfileName = "240SecondsCacheProfile")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

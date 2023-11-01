@@ -18,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options =>
 {
     options.ReturnHttpNotAcceptable = true;
+    options.CacheProfiles.Add("240SecondsCacheProfile",
+               new CacheProfile { Duration = 240 });
 })
 .AddNewtonsoftJson(options =>
 {
@@ -70,6 +72,7 @@ builder.Services.AddScoped<IBasicRepository<Category>, BasicRepository<Category>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<cAPParelContext>(options =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:cAPParelDbConnectionString"]));
+builder.Services.AddResponseCaching();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -80,6 +83,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseResponseCaching();
 
 app.UseAuthorization();
 
