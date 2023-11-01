@@ -3,6 +3,7 @@ using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Dynamic;
-using System.Linq;
-using System.Runtime.Versioning;
-using System.Security.Permissions;
 
 namespace cAPParel.API.Controllers
 {
     [ApiController]
     [Route("api/categories")]
-    [ResponseCache(CacheProfileName = "240SecondsCacheProfile")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
