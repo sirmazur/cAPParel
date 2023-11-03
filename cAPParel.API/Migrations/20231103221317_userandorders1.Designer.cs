@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cAPParel.API.DbContexts;
 
@@ -11,9 +12,10 @@ using cAPParel.API.DbContexts;
 namespace cAPParel.API.Migrations
 {
     [DbContext(typeof(cAPParelContext))]
-    partial class cAPParelContextModelSnapshot : ModelSnapshot
+    [Migration("20231103221317_userandorders1")]
+    partial class userandorders1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,10 +142,10 @@ namespace cAPParel.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
+                    b.Property<int>("State")
+                        .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -248,13 +250,9 @@ namespace cAPParel.API.Migrations
 
             modelBuilder.Entity("cAPParel.API.Entities.Order", b =>
                 {
-                    b.HasOne("cAPParel.API.Entities.User", "User")
+                    b.HasOne("cAPParel.API.Entities.User", null)
                         .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("cAPParel.API.Entities.Piece", b =>

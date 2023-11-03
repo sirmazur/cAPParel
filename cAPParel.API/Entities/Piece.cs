@@ -13,6 +13,8 @@ namespace cAPParel.API.Entities
         public Item Item { get; set; }
         [Required]
         public int ItemId { get; set; }
+
+        public bool IsAvailable { get; set; } = true;
     }
     
 }

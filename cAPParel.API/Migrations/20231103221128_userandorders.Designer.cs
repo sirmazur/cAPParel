@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cAPParel.API.DbContexts;
 
@@ -11,9 +12,10 @@ using cAPParel.API.DbContexts;
 namespace cAPParel.API.Migrations
 {
     [DbContext(typeof(cAPParelContext))]
-    partial class cAPParelContextModelSnapshot : ModelSnapshot
+    [Migration("20231103221128_userandorders")]
+    partial class userandorders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,27 +134,6 @@ namespace cAPParel.API.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("cAPParel.API.Entities.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Orders");
-                });
-
             modelBuilder.Entity("cAPParel.API.Entities.Piece", b =>
                 {
                     b.Property<int>("Id")
@@ -167,9 +148,6 @@ namespace cAPParel.API.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Size")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -178,38 +156,7 @@ namespace cAPParel.API.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("OrderId");
-
                     b.ToTable("Piece");
-                });
-
-            modelBuilder.Entity("cAPParel.API.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Saldo")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("cAPParel.API.Entities.Category", b =>
@@ -246,17 +193,6 @@ namespace cAPParel.API.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("cAPParel.API.Entities.Order", b =>
-                {
-                    b.HasOne("cAPParel.API.Entities.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("cAPParel.API.Entities.Piece", b =>
                 {
                     b.HasOne("cAPParel.API.Entities.Item", "Item")
@@ -264,10 +200,6 @@ namespace cAPParel.API.Migrations
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("cAPParel.API.Entities.Order", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("OrderId");
 
                     b.Navigation("Item");
                 });
@@ -284,16 +216,6 @@ namespace cAPParel.API.Migrations
                     b.Navigation("OtherData");
 
                     b.Navigation("Pieces");
-                });
-
-            modelBuilder.Entity("cAPParel.API.Entities.Order", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("cAPParel.API.Entities.User", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }
