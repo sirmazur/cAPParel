@@ -17,7 +17,7 @@ namespace cAPParel.API.Entities
         public double TotalPrice { get; set; }
         public User User { get; set; }
         public int UserId { get; set; }
-        public State State = State.Accepted;
-        public ICollection<Piece> Orders { get; set; } = new List<Piece>();
+        public State State { get; set; } = State.Accepted;
+        public ICollection<Piece> Pieces { get; set; } = new List<Piece>();
     }
 }
