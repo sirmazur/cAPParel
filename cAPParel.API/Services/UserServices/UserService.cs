@@ -22,21 +22,21 @@ namespace cAPParel.API.Services.UserServices
             _configuration = configuration;
             _userRepository = userRepository;
         }
-        public async Task<(int userId, bool credentialsCorrect)> AuthenticateUser(UserParams userParams)
+        public async Task<UserFullDto> AuthenticateUser(UserParams userParams)
         {
             var account = await _userRepository.GetUserByName(userParams.Username);
             if(account == null || account.Password!=userParams.Password)
             {
-                return (-1, false);
+                throw new Exception("Wrong username or password");
             }
             else
             {
-                return (account.Id, true);
+                return _mapper.Map<UserFullDto>(account);
             }
 
         }
 
-        public string GenerateToken(int userId)
+        public string GenerateToken(UserFullDto user)
         {
             var securityKey = new SymmetricSecurityKey(
                 Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
@@ -45,7 +45,9 @@ namespace cAPParel.API.Services.UserServices
 
             var claimsForToken = new List<Claim>
             {
-                new Claim("sub", userId.ToString())
+                new Claim("sub", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("username", user.Username)
             };
 
             var token = new JwtSecurityToken(

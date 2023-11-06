@@ -7,10 +7,10 @@ namespace cAPParel.API.Services.UserServices
 {
     public interface IUserService : IBasicService<UserDto, User, UserFullDto, UserForCreationDto, UserForUpdateDto>
     {
-        public Task<(int userId, bool credentialsCorrect)> AuthenticateUser(UserParams userParams);  
+        public Task<UserFullDto> AuthenticateUser(UserParams userParams);  
         public Task<Role> AuthorizeUser(int userId);
         public Task<UserDto> CreateUser(UserForClientCreation user);
         public Task TopUp(string username, double amount);
-        public string GenerateToken(int userId);
+        public string GenerateToken(UserFullDto user);
     }
 }

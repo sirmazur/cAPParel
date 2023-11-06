@@ -4,6 +4,7 @@ using cAPParel.API.Models;
 using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
 using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -259,9 +260,9 @@ namespace cAPParel.API.Controllers
             }
             return Ok(lightResourceToReturn);
         }
-       
 
 
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpDelete("{categorytodeleteid}", Name = "DeleteCategory")]
         public async Task<ActionResult> DeleteCategory(int categorytodeleteid)
         {
@@ -277,7 +278,7 @@ namespace cAPParel.API.Controllers
         }
 
 
-
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpPost(Name = "CreateCategory")]
         public async Task<ActionResult<CategoryDto>> CreateCategoryAsync(CategoryForCreationDto category)
         {
@@ -290,7 +291,7 @@ namespace cAPParel.API.Controllers
 
 
 
-
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpPut("{categorytoupdateid}", Name = "UpdateCategory")]
         public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForUpdateDto category)
         {
@@ -304,6 +305,8 @@ namespace cAPParel.API.Controllers
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
             }
         }
+
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpPatch("{categorytoupdateid}", Name = "PartiallyUpdateCategory")]
         public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForUpdateDto> patchDocument)
         {

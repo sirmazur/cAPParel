@@ -1,11 +1,13 @@
-﻿using cAPParel.API.Services.UserServices;
+﻿using cAPParel.API.Models;
+using cAPParel.API.Services.UserServices;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace cAPParel.API.Controllers
 {
-    [Route("api/authentication")]
+    
     [ApiController]
+    [Route("api/authentication")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -14,19 +16,22 @@ namespace cAPParel.API.Controllers
             _userService = userService;
         }
 
-        [HttpPost("Authenticate")]
+        [HttpPost(Name = "Authenticate")]
         public async Task<ActionResult<string>> Authenticate(UserParams param)
         {
-            var result = await _userService.AuthenticateUser(param);
-            if(result.credentialsCorrect)
+            UserFullDto result;
+            try
             {
-                var token = _userService.GenerateToken(result.userId);
-                return Ok(token);
+                result = await _userService.AuthenticateUser(param);
             }
-            else
+            catch(Exception e)
             {
-                return Unauthorized();
+                return Unauthorized(e.Message);
             }
+            
+            var token = _userService.GenerateToken(result);
+            return Ok(token);
+
         }
     }
     public class UserParams

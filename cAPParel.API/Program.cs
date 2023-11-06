@@ -12,6 +12,8 @@ using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
 using Marvin.Cache.Headers;
 using cAPParel.API.Services.UserServices;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +88,34 @@ builder.Services.AddHttpCacheHeaders(
        {
         validationModelOptions.MustRevalidate = true;
        });
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Authentication:Issuer"],
+            ValidAudience = builder.Configuration["Authentication:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes(builder.Configuration["Authentication:SecretForKey"]))
+        };
+    }
+    );
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("MustBeAdmin", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole("Admin");
+    });
+
+    options.AddPolicy("MustBeLoggedIn", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+    });   
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -97,9 +127,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseHttpCacheHeaders();
+app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHttpCacheHeaders();
 
 app.MapControllers();
 

@@ -10,6 +10,7 @@ namespace cAPParel.API.Profiles
         {
             CreateMap<UserForCreationDto, User>();
             CreateMap<User, UserDto>();
+            CreateMap<User, UserFullDto>();
         }
     }
 }
