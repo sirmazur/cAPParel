@@ -11,5 +11,6 @@ namespace cAPParel.API.Services.UserServices
         public Task<Role> AuthorizeUser(int userId);
         public Task<UserDto> CreateUser(UserForClientCreation user);
         public Task TopUp(string username, double amount);
+        public string GenerateToken(int userId);
     }
 }

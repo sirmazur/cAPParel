@@ -3,7 +3,11 @@ using cAPParel.API.Controllers;
 using cAPParel.API.Entities;
 using cAPParel.API.Models;
 using cAPParel.API.Services.Basic;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace cAPParel.API.Services.UserServices
 {
@@ -32,6 +36,32 @@ namespace cAPParel.API.Services.UserServices
 
         }
 
+        public string GenerateToken(int userId)
+        {
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
+        
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claimsForToken = new List<Claim>
+            {
+                new Claim("sub", userId.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                        issuer: _configuration["Authentication:Issuer"],
+                        audience: _configuration["Authentication:Audience"],
+                        claims: claimsForToken,
+                        expires: DateTime.Now.AddMinutes(120),
+                        signingCredentials: credentials);
+
+            var tokenToReturn = new JwtSecurityTokenHandler()
+                .WriteToken(token);
+
+            return tokenToReturn;
+       
+        }
+
         public async Task<Role> AuthorizeUser(int userId)
         {
             var user = await _basicRepository.GetByIdAsync(userId);
@@ -53,7 +83,6 @@ namespace cAPParel.API.Services.UserServices
                 Password = user.Password,
                 Role = Role.User
             };
-
             if (user.AdminCode == _configuration["AdminCodes:AdminRegisterCode"])
             {
                 userToCreate.Role = Role.Admin;
@@ -62,7 +91,8 @@ namespace cAPParel.API.Services.UserServices
             var createdUser = _mapper.Map<User>(userToCreate);
 
             await _basicRepository.AddAsync(createdUser);
-            
+            await _basicRepository.SaveChangesAsync();
+
             return _mapper.Map<UserDto>(createdUser);
         }
 

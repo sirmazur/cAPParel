@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace cAPParel.API.Services.UserServices
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly cAPParelContext _context;
         public UserRepository(cAPParelContext context)
