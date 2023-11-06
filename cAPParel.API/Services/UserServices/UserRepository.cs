@@ -16,5 +16,10 @@ namespace cAPParel.API.Services.UserServices
         {
             return !(await _context.Users.AnyAsync(u => u.Username == name));
         }
+
+        public async Task<User?> GetUserByName(string name)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username == name);
+        }
     }
 }

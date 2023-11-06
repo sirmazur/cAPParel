@@ -10,7 +10,6 @@ namespace cAPParel.API.Services.UserServices
         public Task<(int userId, bool credentialsCorrect)> AuthenticateUser(UserParams userParams);  
         public Task<Role> AuthorizeUser(int userId);
         public Task<UserDto> CreateUser(UserForClientCreation user);
-        public Task<bool> CheckIfNameAvailable(string username);
         public Task TopUp(string username, double amount);
     }
 }

@@ -9,30 +9,35 @@ namespace cAPParel.API.Services.UserServices
 {
     public class UserService : BasicService<UserDto, User, UserFullDto, UserForCreationDto, UserForUpdateDto>, IUserService
     {
-        private readonly IMapper _mapper;
+
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
 
         public UserService(IMapper mapper, IConfiguration configuration, IBasicRepository<User> basicRepository, IUserRepository userRepository) : base(mapper, basicRepository)
         {
-            _mapper = mapper;
             _configuration = configuration;
             _userRepository = userRepository;
         }
-        public Task<(int userId, bool credentialsCorrect)> AuthenticateUser(UserParams userParams)
+        public async Task<(int userId, bool credentialsCorrect)> AuthenticateUser(UserParams userParams)
         {
-            throw new NotImplementedException();
+            var account = await _userRepository.GetUserByName(userParams.Username);
+            if(account == null || account.Password!=userParams.Password)
+            {
+                return (-1, false);
+            }
+            else
+            {
+                return (account.Id, true);
+            }
+
         }
 
-        public Task<Role> AuthorizeUser(int userId)
+        public async Task<Role> AuthorizeUser(int userId)
         {
-            throw new NotImplementedException();
+            var user = await _basicRepository.GetByIdAsync(userId);
+            return user.Role;
         }
 
-        public Task<bool> CheckIfNameAvailable(string username)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<UserDto> CreateUser(UserForClientCreation user)
         {
@@ -61,9 +66,19 @@ namespace cAPParel.API.Services.UserServices
             return _mapper.Map<UserDto>(createdUser);
         }
 
-        public Task TopUp(string username, double amount)
+        public async Task TopUp(string username, double amount)
         {
-            throw new NotImplementedException();
+            var user = await _userRepository.GetUserByName(username);
+            if(user is null)
+            {
+                throw new Exception("User not found");
+            }
+            else
+            {
+                user.Saldo += amount;
+                await _basicRepository.SaveChangesAsync();
+            }
+            
         }
     }
 }

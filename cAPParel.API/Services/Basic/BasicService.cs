@@ -65,10 +65,10 @@ namespace cAPParel.API.Services.Basic
             return await _basicRepository.GetByIdWithEagerLoadingAsync(id, includeProperties);
         }
 
-        public async Task<PagedList<TDto>> GetAllAsync(IEnumerable<IFilter> filters, ResourceParameters parameters)
+        public async Task<PagedList<TDto>> GetAllAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters)
         {
             var listToReturn = _basicRepository.GetQueryableAll();
-
+            if(filters is not null)
             foreach (var filter in filters)
             {
                 listToReturn = FilterEntity(listToReturn, filter);             
@@ -89,10 +89,10 @@ namespace cAPParel.API.Services.Basic
             return finalListToReturn;
         }
 
-        public async Task<PagedList<TExtendedDto>> GetFullAllAsync(IEnumerable<IFilter> filters, ResourceParameters parameters)
+        public async Task<PagedList<TExtendedDto>> GetFullAllAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters)
         {
             var listToReturn = _basicRepository.GetQueryableAll();
-
+            if(filters is not null)
             foreach (var filter in filters)
             {
                 listToReturn = FilterEntity(listToReturn, filter);
@@ -113,7 +113,7 @@ namespace cAPParel.API.Services.Basic
             return finalListToReturn;
         }
 
-        private IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> source, string orderBy)
+        private static IQueryable<TEntity> ApplyOrdering(IQueryable<TEntity> source, string orderBy)
         {
             var orderParams = orderBy.Split(',');
 
@@ -140,7 +140,7 @@ namespace cAPParel.API.Services.Basic
             return source;
         }
 
-        private IQueryable<TEntity> FilterEntity<TEntity>(IQueryable<TEntity> source, IFilter filter)
+        private static IQueryable<TEntity> FilterEntity(IQueryable<TEntity> source, IFilter filter)
         {
                 var entityType = typeof(TEntity);
                 var parameter = Expression.Parameter(entityType, "entity");
@@ -172,7 +172,7 @@ namespace cAPParel.API.Services.Basic
             return source;
         }
 
-        private IQueryable<TEntity> SearchEntityByProperty<TEntity>(IQueryable<TEntity> source, string searchQuery)
+        private static IQueryable<TEntity> SearchEntityByProperty(IQueryable<TEntity> source, string searchQuery)
         {
 
                 var entityType = typeof(TEntity);
