@@ -34,6 +34,8 @@ namespace cAPParel.API.Controllers
 
         }
     }
+
+
     public class UserParams
     {
         [Required]
