@@ -14,6 +14,7 @@ using Marvin.Cache.Headers;
 using cAPParel.API.Services.UserServices;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using cAPParel.API.Services.ItemServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,8 +73,11 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IBasicRepository<Category>, BasicRepository<Category>>();
 builder.Services.AddScoped<IBasicRepository<User>, BasicRepository<User>>();
+builder.Services.AddScoped<IBasicRepository<Item>, BasicRepository<Item>>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<cAPParelContext>(options =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:cAPParelDbConnectionString"]));

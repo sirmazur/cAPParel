@@ -9,11 +9,12 @@ namespace cAPParel.API.Models
         public string Name { get; set; }
         public double Price { get; set; }
         public ItemType Type { get; set; }
+        public Color Color { get; set; }
         public string Description { get; set; }
         public Category Category { get; set; }
         public int CategoryId { get; set; }
-        public ICollection<Piece> Pieces { get; set; }
-        public ICollection<Image> Images { get; set; }
-        public ICollection<FileData> OtherData { get; set; }
+        public ICollection<PieceDto> Pieces { get; set; }
+        public ICollection<ImageDto> Images { get; set; }
+        public ICollection<FileDataDto> OtherData { get; set; }
     }
 }

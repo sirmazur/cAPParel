@@ -27,6 +27,19 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
         }
 
+        [HttpPost]
+        public async Task<ActionResult<UserDto>> CreateUser(UserForClientCreation user)
+        {
+            try
+            {
+                var result = await _userService.CreateUser(user);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
         [Produces("application/json",
           "application/vnd.capparel.hateoas+json",

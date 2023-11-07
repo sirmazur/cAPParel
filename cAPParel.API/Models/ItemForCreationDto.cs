@@ -13,12 +13,14 @@ namespace cAPParel.API.Models
         [Required]
         public ItemType Type { get; set; }
         [Required]
+        public Color Color { get; set; }
+        [Required]
         [MaxLength(500)]
         public string Description { get; set; }
         [Required]
         public int CategoryId { get; set; }
 
-        public ICollection<Piece> Pieces { get; set; } = new List<Piece>();
+        public ICollection<PieceForCreationDto> Pieces { get; set; } = new List<PieceForCreationDto>();
         public ICollection<ImageForCreationDto> Images { get; set; } = new List<ImageForCreationDto>();
         public ICollection<FileDataForCreationDto> OtherData { get; set; } = new List<FileDataForCreationDto>();
     }
