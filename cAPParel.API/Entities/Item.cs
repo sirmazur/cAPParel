@@ -1,6 +1,7 @@
 ﻿using cAPParel.API.Entities.Hierarchy;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 
 namespace cAPParel.API.Entities
 {
@@ -28,23 +29,37 @@ namespace cAPParel.API.Entities
     }
     public enum ItemType
     {
+        [EnumMember(Value = "Men")]
         Men,
+        [EnumMember(Value = "Women")]
         Women,
+        [EnumMember(Value = "Kids")]
         Kids
     }
 
     public enum Color
     {
+        [EnumMember(Value = "Red")]
         Red,
+        [EnumMember(Value = "Blue")]
         Blue,
+        [EnumMember(Value = "Green")]
         Green,
+        [EnumMember(Value = "Yellow")]
         Yellow,
+        [EnumMember(Value = "Black")]
         Black,
+        [EnumMember(Value = "White")]
         White,
+        [EnumMember(Value = "Gray")]
         Gray,
+        [EnumMember(Value = "Brown")]
         Brown,
+        [EnumMember(Value = "Pink")]
         Pink,
+        [EnumMember(Value = "Purple")]
         Purple,
+        [EnumMember(Value = "Orange")]
         Orange
     }
 }

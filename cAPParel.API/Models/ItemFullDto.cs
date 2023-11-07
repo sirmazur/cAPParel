@@ -1,4 +1,6 @@
 ﻿using cAPParel.API.Entities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.ComponentModel.DataAnnotations;
 
 namespace cAPParel.API.Models
@@ -8,7 +10,9 @@ namespace cAPParel.API.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public ItemType Type { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public Color Color { get; set; }
         public string Description { get; set; }
         public Category Category { get; set; }

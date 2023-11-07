@@ -1,7 +1,6 @@
 ﻿using cAPParel.API.Models;
 using cAPParel.API.Services.FieldsValidationServices;
 using cAPParel.API.Services.ItemServices;
-using cAPParel.API.Services.UserServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
