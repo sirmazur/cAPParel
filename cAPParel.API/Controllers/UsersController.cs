@@ -4,6 +4,7 @@ using cAPParel.API.Models;
 using cAPParel.API.Services.FieldsValidationServices;
 using cAPParel.API.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
@@ -34,7 +35,7 @@ namespace cAPParel.API.Controllers
           "application/vnd.capparel.user.friendly+json",
           "application/vnd.capparel.user.friendly.hateoas+json")]
         [HttpGet(Name = "GetUsers")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpHead]
         public async Task<IActionResult> GetUsers([FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
         {
@@ -44,7 +45,7 @@ namespace cAPParel.API.Controllers
                 statusCode: 400,
                 detail: $"Accept header media type value is not supported"));
             }
-            if (!_fieldsValidationService.TypeHasProperties<CategoryDto>(resourceParameters.Fields))
+            if (!_fieldsValidationService.TypeHasProperties<UserFullDto>(resourceParameters.Fields))
             {
                 return BadRequest(
                     _problemDetailsFactory.CreateProblemDetails(HttpContext,
@@ -68,10 +69,10 @@ namespace cAPParel.API.Controllers
             IEnumerable<IDictionary<string, object?>>? shapedUsersToReturn = new List<IDictionary<string, object?>>();
             if (primaryMediaType == "vnd.capparel.user.full")
             {
-                PagedList<UserFullDto>? categories = null;
+                PagedList<UserFullDto>? users = null;
                 try
                 {
-                    categories = await _userService.GetFullAllAsync(filters, resourceParameters);
+                    users = await _userService.GetFullAllAsync(filters, resourceParameters);
                 }
                 catch (Exception ex)
                 {
@@ -81,10 +82,10 @@ namespace cAPParel.API.Controllers
                 }
                 var paginationMetadata = new
                 {
-                    totalCount = categories.TotalCount,
-                    pageSize = categories.PageSize,
-                    currentPage = categories.CurrentPage,
-                    totalPages = categories.TotalPages
+                    totalCount = users.TotalCount,
+                    pageSize = users.PageSize,
+                    currentPage = users.CurrentPage,
+                    totalPages = users.TotalPages
                 };
 
                 Response.Headers.Add("X-Pagination",
@@ -93,23 +94,23 @@ namespace cAPParel.API.Controllers
                 links = CreateLinksForCollection(
                 resourceParameters,
                 filters,
-                categories.HasNext,
-                categories.HasPrevious
+                users.HasNext,
+                users.HasPrevious
                 );
-                shapedUsers = categories.ShapeData(resourceParameters.Fields);
-                int categoriesIenumerator = 0;
+                shapedUsers = users.ShapeData(resourceParameters.Fields);
+                int usersIenumerator = 0;
                 shapedUsersToReturn = shapedUsers
-                    .Select(category =>
+                    .Select(user =>
                     {
-                        var categoryAsDictionary = category as IDictionary<string, object?>;
+                        var userAsDictionary = user as IDictionary<string, object?>;
 
-                        var categoryLinks = CreateLinks(
-                        categories[categoriesIenumerator].Id,
+                        var userLinks = CreateLinks(
+                        users[usersIenumerator].Id,
                         resourceParameters.Fields);
-                        categoriesIenumerator++;
-                        categoryAsDictionary.Add("links", categoryLinks);
+                        usersIenumerator++;
+                        userAsDictionary.Add("links", userLinks);
 
-                        return categoryAsDictionary;
+                        return userAsDictionary;
                     }).ToArray();
             }
             else
@@ -150,10 +151,10 @@ namespace cAPParel.API.Controllers
                         var userAsDictionary = user as IDictionary<string, object?>;
                         if (includeLinks)
                         {
-                            var categoryLinks = CreateLinks(
+                            var userLinks = CreateLinks(
                             users[usersIenumerator].Id,
                             resourceParameters.Fields);
-                            userAsDictionary.Add("links", categoryLinks);
+                            userAsDictionary.Add("links", userLinks);
                         }
                         usersIenumerator++;
 
@@ -285,6 +286,124 @@ namespace cAPParel.API.Controllers
                         "GET"));
             }
             return links;
+        }
+
+
+        [Produces("application/json",
+            "application/vnd.capparel.hateoas+json",
+            "application/vnd.capparel.user.full+json",
+            "application/vnd.capparel.user.full.hateoas+json",
+            "application/vnd.capparel.user.friendly+json",
+            "application/vnd.capparel.user.friendly.hateoas+json")]
+        [HttpGet("{userid}", Name = "GetUser")]
+        public async Task<IActionResult> GetUser(
+            int userid,
+            string? fields,
+            [FromHeader(Name = "Accept")] string? mediaType)
+        {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out var parsedMediaType))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Accept header media type value is not supported"));
+            }
+
+            if (!_fieldsValidationService.TypeHasProperties<UserFullDto>(fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {fields}"));
+            }
+
+
+
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+
+            if (includeLinks)
+            {
+                links = CreateLinks(userid, fields);
+            }
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix.Substring(
+                0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+            if (primaryMediaType == "vnd.capparel.user.full")
+            {
+                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(userid);
+                var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
+                if (includeLinks)
+                {
+                    fullResourceToReturn.Add("links", links);
+                }
+                return Ok(fullResourceToReturn);
+            }
+            var item = await _userService.GetExtendedByIdWithEagerLoadingAsync(userid);
+
+            var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
+            if (includeLinks)
+            {
+                lightResourceToReturn.Add("links", links);
+            }
+            return Ok(lightResourceToReturn);
+        }
+
+        [Authorize(Policy = "MustBeAdmin")]
+        [HttpDelete("{todeleteid}", Name = "DeleteUser")]
+        public async Task<ActionResult> DeleteCategory(int todeleteid)
+        {
+            var operationResult = await _userService.DeleteByIdAsync(todeleteid);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
+        }
+
+        [Authorize(Policy = "MustBeAdmin")]
+        [HttpPut("{toupdateid}", Name = "UpdateUser")]
+        public async Task<IActionResult> UpdateUser(int toupdateid, UserForUpdateDto item)
+        {
+            var operationResult = await _userService.UpdateAsync(toupdateid, item);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
+        }
+
+        [Authorize(Policy = "MustBeAdmin")]
+        [HttpPatch("{toupdateid}", Name = "PartialUpdateUser")]
+        public async Task<IActionResult> PartialUpdateUser(int toupdateid, JsonPatchDocument<UserForUpdateDto> patchDocument)
+        {
+            var operationResult = await _userService.PartialUpdateAsync(toupdateid, patchDocument);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
+        }
+
+        [HttpOptions()]
+        public IActionResult GetUsersOptions()
+        {
+            Response.Headers.Add("Allow", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
+            return Ok();
         }
     }
 }

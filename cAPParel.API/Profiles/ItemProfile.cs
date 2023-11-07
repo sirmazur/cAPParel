@@ -6,7 +6,7 @@ namespace cAPParel.API.Profiles
     {
         public ItemProfile() 
         {
-            CreateMap<Entities.Item, Models.ItemDto>();
+            CreateMap<Entities.Item, Models.ItemFullDto>();
             CreateMap<Models.ItemForCreationDto, Entities.Item>();
         }
     }
