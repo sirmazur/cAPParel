@@ -6,5 +6,6 @@ namespace cAPParel.API.Services.ItemServices
 {
     public interface IItemService : IBasicService<ItemDto, Item, ItemFullDto, ItemForCreationDto, ItemForUpdateDto>
     {
+        Task<PieceDto> CreatePieceAsync(PieceForCreationDto pieceForCreationDto, int itemid);
     }
 }

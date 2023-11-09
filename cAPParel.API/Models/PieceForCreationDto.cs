@@ -10,7 +10,5 @@ namespace cAPParel.API.Models
         public string Size { get; set; }
         [Required] 
         public Color Color { get; set; }
-        [Required]
-        public int ItemId { get; set; }
     }
 }

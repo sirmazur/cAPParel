@@ -13,5 +13,6 @@ namespace cAPParel.API.Services.Basic
         Task SaveChangesAsync();
         Task<TEntity> GetByIdWithEagerLoadingAsync(int id, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<TEntity> AddAsync(TEntity entity);
+        IQueryable<TEntity> GetQueryableAllWithEagerLoadingAsync(params Expression<Func<TEntity, object>>[] includeProperties);
     }
 }

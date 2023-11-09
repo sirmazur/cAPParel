@@ -1,8 +1,16 @@
-﻿using cAPParel.API.Models;
+﻿using cAPParel.API.Entities;
+using cAPParel.API.Filters;
+using cAPParel.API.Helpers;
+using cAPParel.API.Models;
 using cAPParel.API.Services.FieldsValidationServices;
 using cAPParel.API.Services.ItemServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
+using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace cAPParel.API.Controllers
 {
@@ -34,5 +42,282 @@ namespace cAPParel.API.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("{itemid}/pieces", Name = "CreatePiece")]
+        public async Task<ActionResult<PieceDto>> CreatePiece(int itemid, PieceForCreationDto piece)
+        {
+            try
+            {
+                var result = await _itemService.CreatePieceAsync(piece, itemid);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [Produces("application/json",
+          "application/vnd.capparel.hateoas+json",
+          "application/vnd.capparel.item.full+json",
+          "application/vnd.capparel.item.full.hateoas+json",
+          "application/vnd.capparel.item.friendly+json",
+          "application/vnd.capparel.item.friendly.hateoas+json")]
+        [HttpGet(Name = "GetItems")]
+        [HttpHead]
+        public async Task<IActionResult> GetItems([FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
+        {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+            {
+                return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                statusCode: 400,
+                detail: $"Accept header media type value is not supported"));
+            }
+            if (!_fieldsValidationService.TypeHasProperties<ItemFullDto>(resourceParameters.Fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {resourceParameters.Fields}"));
+            }
+            List<IFilter> filters = new List<IFilter>();
+
+
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix
+                .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+            IEnumerable<ExpandoObject> shapedObjects = new List<ExpandoObject>();
+            IEnumerable<IDictionary<string, object?>>? shapedObjectsToReturn = new List<IDictionary<string, object?>>();
+            if (primaryMediaType == "vnd.capparel.item.full")
+            {
+                PagedList<ItemFullDto>? items = null;
+                try
+                {
+                    Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images };
+                    items = await _itemService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                        statusCode: 400,
+                        detail: ex.Message));
+                }
+                var paginationMetadata = new
+                {
+                    totalCount = items.TotalCount,
+                    pageSize = items.PageSize,
+                    currentPage = items.CurrentPage,
+                    totalPages = items.TotalPages
+                };
+
+                Response.Headers.Add("X-Pagination",
+                    JsonConvert.SerializeObject(paginationMetadata));
+
+                links = CreateLinksForCollection(
+                resourceParameters,
+                filters,
+                items.HasNext,
+                items.HasPrevious
+                );
+                shapedObjects = items.ShapeData(resourceParameters.Fields);
+                int Ienumerator = 0;
+                shapedObjectsToReturn = shapedObjects
+                    .Select(selectedobj =>
+                    {
+                        var objectAsDictionary = selectedobj as IDictionary<string, object?>;
+
+                        var Links = CreateLinks(
+                        items[Ienumerator].Id,
+                        resourceParameters.Fields);
+                        Ienumerator++;
+                        objectAsDictionary.Add("links", Links);
+
+                        return objectAsDictionary;
+                    }).ToArray();
+            }
+            else
+            {
+                PagedList<ItemDto>? items = null;
+                try
+                {
+                    Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images };
+                    items = await _itemService.GetAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
+                        statusCode: 400,
+                        detail: ex.Message));
+                }
+                var paginationMetadata = new
+                {
+                    totalCount = items.TotalCount,
+                    pageSize = items.PageSize,
+                    currentPage = items.CurrentPage,
+                    totalPages = items.TotalPages
+                };
+
+                Response.Headers.Add("X-Pagination",
+                    JsonConvert.SerializeObject(paginationMetadata));
+
+                links = CreateLinksForCollection(
+                resourceParameters,
+                filters,
+                items.HasNext,
+                items.HasPrevious
+                );
+                shapedObjects = items.ShapeData(resourceParameters.Fields);
+                int Ienumerator = 0;
+                shapedObjectsToReturn = shapedObjects
+                    .Select(selectedobj =>
+                    {
+                        var objectAsDictionary = selectedobj as IDictionary<string, object?>;
+                        if (includeLinks)
+                        {
+                            var Links = CreateLinks(
+                            items[Ienumerator].Id,
+                            resourceParameters.Fields);
+                            objectAsDictionary.Add("links", Links);
+                        }
+                        Ienumerator++;
+
+                        return objectAsDictionary;
+                    }).ToArray();
+
+            }
+            if (shapedObjectsToReturn.Count() == 0)
+            {
+                return NotFound();
+            }
+
+            if (includeLinks)
+            {
+                var linkedCollectionResource = new
+                {
+                    value = shapedObjectsToReturn,
+                    links
+                };
+                return Ok(linkedCollectionResource);
+            }
+            else
+            {
+                return Ok(shapedObjectsToReturn);
+            }
+
+        }
+
+        private string? CreateResourceUri(
+          ResourceParameters resourceParameters,
+          List<IFilter> filters,
+          ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetItems",
+                     new
+                     {
+                         fields = resourceParameters.Fields,
+                         pageNumber = resourceParameters.PageNumber - 1,
+                         pageSize = resourceParameters.PageSize,
+                         searchQuery = resourceParameters.SearchQuery,
+                         orderBy = resourceParameters.OrderBy
+                     });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetItems",
+                    new
+                    {
+                        fields = resourceParameters.Fields,
+                        pageNumber = resourceParameters.PageNumber + 1,
+                        pageSize = resourceParameters.PageSize,
+                        searchQuery = resourceParameters.SearchQuery,
+                        orderBy = resourceParameters.OrderBy
+                    });
+                default:
+                    return Url.Link("GetItems",
+                    new
+                    {
+                        fields = resourceParameters.Fields,
+                        pageNumber = resourceParameters.PageNumber,
+                        pageSize = resourceParameters.PageSize,
+                        searchQuery = resourceParameters.SearchQuery,
+                        orderBy = resourceParameters.OrderBy
+
+                    });
+            }
+
+        }
+
+        private IEnumerable<LinkDto> CreateLinks(
+            int id,
+            string? fields)
+        {
+            var links = new List<LinkDto>();
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(
+                    new(Url.Link("GetItem", new { id }),
+                    "self",
+                    "GET"));
+            }
+            else
+            {
+                links.Add(
+                    new(Url.Link("GetItem", new { id, fields }),
+                    "self",
+                    "GET"));
+            }
+
+            return links;
+        }
+
+        private IEnumerable<LinkDto> CreateLinksForCollection(
+            ResourceParameters resourceParameters,
+            List<IFilter> filters,
+            bool hasNext,
+            bool hasPrevious)
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(
+            new(CreateResourceUri(
+            resourceParameters,
+            filters,
+            ResourceUriType.Current),
+            "self",
+            "GET"));
+
+            if (hasNext)
+            {
+                links.Add(
+                    new(CreateResourceUri(
+                        resourceParameters,
+                        filters,
+                        ResourceUriType.NextPage),
+                        "nextPage",
+                        "GET"));
+            }
+
+            if (hasPrevious)
+            {
+                links.Add(
+                    new(CreateResourceUri(
+                        resourceParameters,
+                        filters,
+                        ResourceUriType.PreviousPage),
+                        "nextPage",
+                        "GET"));
+            }
+            return links;
+        }
+
     }
 }

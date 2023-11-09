@@ -66,5 +66,17 @@ namespace cAPParel.API.Services.Basic
             return await query.SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         }
 
+        public IQueryable<TEntity> GetQueryableAllWithEagerLoadingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var query = _context.Set<TEntity>().AsQueryable();
+
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return query;
+        }
+
     }
 }

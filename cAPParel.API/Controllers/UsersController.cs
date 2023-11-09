@@ -128,10 +128,10 @@ namespace cAPParel.API.Controllers
             }
             else
             {
-                PagedList<UserFullDto>? users = null;
+                PagedList<UserDto>? users = null;
                 try
                 {
-                    users = await _userService.GetFullAllAsync(filters, resourceParameters);
+                    users = await _userService.GetAllAsync(filters, resourceParameters);
                 }
                 catch (Exception ex)
                 {

@@ -16,6 +16,11 @@ namespace cAPParel.API.Services.ItemServices
             _itemRepository = itemRepository;
         }
 
-
+        public async Task<PieceDto> CreatePieceAsync(PieceForCreationDto pieceForCreationDto, int itemid)
+        {
+            var piece = _mapper.Map<Piece>(pieceForCreationDto);
+            await _itemRepository.AddPieceAsync(piece,itemid);
+            return _mapper.Map<PieceDto>(piece);
+        }
     }
 }

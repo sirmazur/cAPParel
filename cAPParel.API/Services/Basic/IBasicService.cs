@@ -21,5 +21,7 @@ namespace cAPParel.API.Services.Basic
         Task<TDto> GetByIdWithEagerLoadingAsync(int id, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<TExtendedDto> GetExtendedByIdWithEagerLoadingAsync(int id, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<IEnumerable<TExtendedDto>> GetExtendedListWithEagerLoadingAsync(IEnumerable<int> ids, params Expression<Func<TEntity, object>>[] includeProperties);
+        Task<PagedList<TExtendedDto>> GetFullAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters, params Expression<Func<TEntity, object>>[] includeProperties);
+        Task<PagedList<TDto>> GetAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters, params Expression<Func<TEntity, object>>[] includeProperties);
     }
 }

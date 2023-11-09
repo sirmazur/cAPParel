@@ -89,6 +89,30 @@ namespace cAPParel.API.Services.Basic
             return finalListToReturn;
         }
 
+        public async Task<PagedList<TDto>> GetAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var listToReturn = _basicRepository.GetQueryableAllWithEagerLoadingAsync(includeProperties);
+            if (filters is not null)
+                foreach (var filter in filters)
+                {
+                    listToReturn = FilterEntity(listToReturn, filter);
+                }
+
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
+            }
+
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
+
+            var finalList = await PagedList<TEntity>
+                .CreateAsync(listToReturn,
+                parameters.PageNumber,
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<TDto>>(finalList);
+            return finalListToReturn;
+        }
+
         public async Task<PagedList<TExtendedDto>> GetFullAllAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters)
         {
             var listToReturn = _basicRepository.GetQueryableAll();
@@ -97,6 +121,30 @@ namespace cAPParel.API.Services.Basic
             {
                 listToReturn = FilterEntity(listToReturn, filter);
             }
+
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
+            }
+
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
+
+            var finalList = await PagedList<TEntity>
+                .CreateAsync(listToReturn,
+                parameters.PageNumber,
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<TExtendedDto>>(finalList);
+            return finalListToReturn;
+        }
+
+        public async Task<PagedList<TExtendedDto>> GetFullAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters, ResourceParameters parameters, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var listToReturn = _basicRepository.GetQueryableAllWithEagerLoadingAsync(includeProperties);
+            if (filters is not null)
+                foreach (var filter in filters)
+                {
+                    listToReturn = FilterEntity(listToReturn, filter);
+                }
 
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
             {
