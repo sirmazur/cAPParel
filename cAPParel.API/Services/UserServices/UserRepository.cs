@@ -21,5 +21,12 @@ namespace cAPParel.API.Services.UserServices
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == name);
         }
+
+        public async Task<User?> GetUserById(int id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+
     }
 }

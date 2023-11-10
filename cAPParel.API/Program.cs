@@ -15,6 +15,7 @@ using cAPParel.API.Services.UserServices;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using cAPParel.API.Services.ItemServices;
+using cAPParel.API.Services.OrderServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,9 +76,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IBasicRepository<Category>, BasicRepository<Category>>();
 builder.Services.AddScoped<IBasicRepository<User>, BasicRepository<User>>();
 builder.Services.AddScoped<IBasicRepository<Item>, BasicRepository<Item>>();
+builder.Services.AddScoped<IBasicRepository<Order>, BasicRepository<Order>>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<cAPParelContext>(options =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:cAPParelDbConnectionString"]));

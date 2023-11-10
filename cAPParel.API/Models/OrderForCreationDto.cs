@@ -7,6 +7,6 @@ namespace cAPParel.API.Models
     public class OrderForCreationDto
     {
         public int UserId { get; set; }
-        public ICollection<int> PiecesIds { get; set; } = new List<int>();
+        public List<int> PiecesIds { get; set; } = new List<int>();
     }
 }

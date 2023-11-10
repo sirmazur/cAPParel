@@ -12,6 +12,7 @@ namespace cAPParel.API.DbContexts
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Piece> Pieces { get; set; }
         
         public cAPParelContext(DbContextOptions<cAPParelContext> options)
             : base(options)

@@ -98,9 +98,9 @@ namespace cAPParel.API.Services.UserServices
             return _mapper.Map<UserDto>(createdUser);
         }
 
-        public async Task TopUp(string username, double amount)
+        public async Task<UserDto> TopUp(int userid, double amount)
         {
-            var user = await _userRepository.GetUserByName(username);
+            var user = await _userRepository.GetUserById(userid);
             if(user is null)
             {
                 throw new Exception("User not found");
@@ -109,6 +109,7 @@ namespace cAPParel.API.Services.UserServices
             {
                 user.Saldo += amount;
                 await _basicRepository.SaveChangesAsync();
+                return _mapper.Map<UserDto>(user);
             }
             
         }

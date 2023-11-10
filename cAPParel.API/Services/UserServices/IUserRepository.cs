@@ -6,5 +6,6 @@ namespace cAPParel.API.Services.UserServices
     {
         Task<bool> IsNameAvailable(string name);
         Task<User?> GetUserByName(string name);
+        Task<User?> GetUserById(int id);
     }
 }

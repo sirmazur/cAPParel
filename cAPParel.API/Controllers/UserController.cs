@@ -15,12 +15,12 @@ namespace cAPParel.API.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    public class UsersController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly ProblemDetailsFactory _problemDetailsFactory;
         private readonly IFieldsValidationService _fieldsValidationService;
-        public UsersController(IUserService userService, ProblemDetailsFactory problemDetailsFactory, IFieldsValidationService fieldsValidationService)
+        public UserController(IUserService userService, ProblemDetailsFactory problemDetailsFactory, IFieldsValidationService fieldsValidationService)
         {
             _userService = userService;
             _problemDetailsFactory = problemDetailsFactory;
@@ -33,7 +33,7 @@ namespace cAPParel.API.Controllers
             try
             {
                 var result = await _userService.CreateUser(user);
-                return Ok(result);
+                return CreatedAtRoute("GetUser", result.Id, result);
             }
             catch (Exception e)
             {
@@ -409,6 +409,21 @@ namespace cAPParel.API.Controllers
             else
             {
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
+        }
+
+        [Authorize(Policy = "MustBeAdmin")]
+        [HttpPost("{userid}/balance/{amount}")]
+        public async Task<UserDto> TopUp(int userid, double amount)
+        {
+            try
+            {
+                var userToReturn = await _userService.TopUp(userid, amount);
+                return userToReturn;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
