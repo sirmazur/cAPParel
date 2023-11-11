@@ -24,8 +24,7 @@ namespace cAPParel.API.Entities
         public int CategoryId { get; set; }
 
         public ICollection<Piece> Pieces { get; set; } = new List<Piece>();
-        public ICollection<Image> Images { get; set; } = new List<Image>();
-        public ICollection<FileData> OtherData { get; set; } = new List<FileData>();
+        public ICollection<FileData> FileData { get; set; } = new List<FileData>();
     }
     public enum ItemType
     {

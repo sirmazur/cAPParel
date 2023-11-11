@@ -15,7 +15,6 @@ namespace cAPParel.API.Models
         public string Description { get; set; }
         public int CategoryId { get; set; }
         public ICollection<PieceDto> Pieces { get; set; }
-        public ICollection<ImageDto> Images { get; set; }
-        public ICollection<FileDataDto> OtherData { get; set; }
+        public ICollection<FileDataDto> FileData { get; set; }
     }
 }

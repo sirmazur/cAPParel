@@ -20,10 +20,23 @@ namespace cAPParel.API.Services.ItemServices
             _itemRepository = itemRepository;
         }
 
+        //public async Task<ImageDto> AddImageToItemAsync(int itemid, ImageForCreationDto imageForCreationDto)
+        //{
+        //    var image = _mapper.Map<Image>(imageForCreationDto);
+        //    var item = await _basicRepository.GetByIdWithEagerLoadingAsync(itemid);
+        //    item.Images.Add(image);
+        //    await _basicRepository.SaveChangesAsync();
+        //    return _mapper.Map<ImageDto>(image);
+        //}
+
+        //public void DeleteImageFromItem(int itemid, int imageid)
+        //{
+        //    _itemRepository.DeleteImageFromItem(itemid, imageid);
+        //}
         public async Task<PieceDto> CreatePieceAsync(PieceForCreationDto pieceForCreationDto, int itemid)
         {
             var piece = _mapper.Map<Piece>(pieceForCreationDto);
-            await _itemRepository.AddPieceAsync(piece,itemid);
+            await _itemRepository.AddPieceAsync(piece, itemid);
             return _mapper.Map<PieceDto>(piece);
         }
 

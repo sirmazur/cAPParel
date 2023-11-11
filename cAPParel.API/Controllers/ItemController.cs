@@ -32,6 +32,20 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
             _categoryService = categoryService;
         }
+        //[HttpPost("{itemid}/images", Name = "CreateImage")]
+        //[Authorize(Policy = "MustBeAdmin")]
+        //public async Task<ActionResult<ImageDto>> CreateImage(int itemid, ImageForCreationDto image)
+        //{
+        //    try
+        //    {
+        //        var result = await _itemService.CreateImageAsync(image, itemid);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpPost(Name = "CreateItem")]
         public async Task<ActionResult<ItemDto>> CreateItem(ItemForCreationDto item)
@@ -174,7 +188,7 @@ namespace cAPParel.API.Controllers
                 PagedList<ItemFullDto>? items = null;
                 try
                 {
-                    Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images };
+                    Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.FileData};
                     items = await _itemService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
                 }
                 catch (Exception ex)
@@ -222,7 +236,7 @@ namespace cAPParel.API.Controllers
                 try
                 {
 
-                        Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images};
+                        Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.FileData};
                         items = await _itemService.GetAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
                                                         
                 }

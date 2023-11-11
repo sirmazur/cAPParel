@@ -11,7 +11,13 @@ namespace cAPParel.API.Entities
         public byte[] Data { get; set; }
         [Required]
         public string Description { get; set; }
-
+        [Required]
+        public dataType Type { get; set; }
         
+    }
+    public enum dataType
+    {
+        image,
+        other
     }
 }
