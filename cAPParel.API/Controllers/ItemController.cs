@@ -2,12 +2,14 @@
 using cAPParel.API.Filters;
 using cAPParel.API.Helpers;
 using cAPParel.API.Models;
+using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
 using cAPParel.API.Services.ItemServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Any;
 using Newtonsoft.Json;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -22,11 +24,13 @@ namespace cAPParel.API.Controllers
         private readonly IItemService _itemService;
         private readonly ProblemDetailsFactory _problemDetailsFactory;
         private readonly IFieldsValidationService _fieldsValidationService;
-        public ItemController(IItemService itemService, ProblemDetailsFactory problemDetailsFactory, IFieldsValidationService fieldsValidationService)
+        private readonly ICategoryService _categoryService;
+        public ItemController(IItemService itemService, ProblemDetailsFactory problemDetailsFactory, IFieldsValidationService fieldsValidationService, ICategoryService categoryService)
         {
             _itemService = itemService;
             _problemDetailsFactory = problemDetailsFactory;
             _fieldsValidationService = fieldsValidationService;
+            _categoryService = categoryService;
         }
 
         [HttpPost(Name = "CreateItem")]
@@ -57,6 +61,72 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        [Produces("application/json",
+            "application/vnd.capparel.hateoas+json",
+            "application/vnd.capparel.item.full+json",
+            "application/vnd.capparel.item.full.hateoas+json",
+            "application/vnd.capparel.item.friendly+json",
+            "application/vnd.capparel.item.friendly.hateoas+json")]
+        [HttpGet("{itemid}", Name = "GetItem")]
+        public async Task<IActionResult> GetItem(
+            int itemid,
+            string? fields,
+            [FromHeader(Name = "Accept")] string? mediaType)
+        {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out var parsedMediaType))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Accept header media type value is not supported"));
+            }
+
+            if (!_fieldsValidationService.TypeHasProperties<ItemFullDto>(fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {fields}"));
+            }
+
+
+
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+
+            if (includeLinks)
+            {
+                links = CreateLinks(itemid, fields);
+            }
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix.Substring(
+                0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+            if (primaryMediaType == "vnd.capparel.item.full")
+            {
+                var fullItem = await _itemService.GetExtendedByIdWithEagerLoadingAsync(itemid);
+                var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
+                if (includeLinks)
+                {
+                    fullResourceToReturn.Add("links", links);
+                }
+                return Ok(fullResourceToReturn);
+            }
+            var item = await _itemService.GetExtendedByIdWithEagerLoadingAsync(itemid);
+
+            var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
+            if (includeLinks)
+            {
+                lightResourceToReturn.Add("links", links);
+            }
+            return Ok(lightResourceToReturn);
+        }
+
+
 
         [Produces("application/json",
           "application/vnd.capparel.hateoas+json",
@@ -66,7 +136,7 @@ namespace cAPParel.API.Controllers
           "application/vnd.capparel.item.friendly.hateoas+json")]
         [HttpGet(Name = "GetItems")]
         [HttpHead]
-        public async Task<IActionResult> GetItems([FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
+        public async Task<IActionResult> GetItems(int? categoryid, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
         {
             if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
             {
@@ -82,11 +152,14 @@ namespace cAPParel.API.Controllers
                     detail: $"Not all provided data shaping fields exist" +
                     $" on the resource: {resourceParameters.Fields}"));
             }
-            List<IFilter> filters = new List<IFilter>();
 
+            List<IFilter> filters = new List<IFilter>();
+            var categoryIds = await _categoryService.GetRelatedCategoriesIds((int)categoryid);
+            filters.Add(new NumericFilter("CategoryIds", categoryIds));
 
             var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                 .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
             IEnumerable<LinkDto> links = new List<LinkDto>();
 
             var primaryMediaType = includeLinks ?
@@ -148,8 +221,10 @@ namespace cAPParel.API.Controllers
                 PagedList<ItemDto>? items = null;
                 try
                 {
-                    Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images };
-                    items = await _itemService.GetAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
+
+                        Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.OtherData, c => c.Images};
+                        items = await _itemService.GetAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
+                                                        
                 }
                 catch (Exception ex)
                 {

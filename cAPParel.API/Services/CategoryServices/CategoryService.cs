@@ -27,6 +27,32 @@ namespace cAPParel.API.Services.CategoryServices
 
         //    }
         //}
+        public async Task<IEnumerable<int>> GetRelatedCategoriesIds(int categoryId)
+        {
+            var categories = await GetAllSubcategories(categoryId);
+            var IdList = categories.Select(c => c.Id).ToList();
+            IdList.Add(categoryId);
+            return IdList;
+        }
+        public async Task<IEnumerable<CategoryDto>> GetAllSubcategories(int categoryId)
+        {
+            var items = await _basicRepository.GetAllAsync();
+            var subCategories = CreateSubCategoriesList(items, categoryId);
+            var subCategoriesDto = _mapper.Map<IEnumerable<CategoryDto>>(subCategories);
+            return subCategoriesDto;
+
+        }
+        private IEnumerable<Category> CreateSubCategoriesList(IEnumerable<Category> categories, int? parentId)
+        {
+            List<Category> categoriesList = new List<Category>();
+            var subCategories = categories.Where(c => c.ParentCategoryId == parentId);
+            foreach(var category in subCategories)
+            {
+                categoriesList.Add(category);
+                categoriesList.Concat(CreateSubCategoriesList(categories, category.Id));
+            }
+            return categoriesList;
+        }
         public override async Task<OperationResult<CategoryDto>> DeleteByIdAsync(int id)
         {
             (bool exists, Category? entity) result = await _basicRepository.CheckIfIdExistsAsync(id);

@@ -6,5 +6,7 @@ namespace cAPParel.API.Services.CategoryServices
 {
     public interface ICategoryService : IBasicService<CategoryDto, Category, CategoryFullDto, CategoryForCreationDto, CategoryForUpdateDto>
     {
+        Task<IEnumerable<CategoryDto>> GetAllSubcategories(int categoryId);
+        Task<IEnumerable<int>> GetRelatedCategoriesIds(int categoryId);
     }
 }
