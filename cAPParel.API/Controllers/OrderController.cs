@@ -229,7 +229,7 @@ namespace cAPParel.API.Controllers
             "application/vnd.capparel.order.full.hateoas+json",
             "application/vnd.capparel.order.friendly+json",
             "application/vnd.capparel.order.friendly.hateoas+json")]
-        [HttpGet("{orderid}", Name = "GetCategory")]
+        [HttpGet("{orderid}", Name = "GetOrder")]
         public async Task<IActionResult> GetOrder(
             int orderid,
             string? fields,

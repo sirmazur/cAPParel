@@ -5,6 +5,7 @@ using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.Basic;
 using Microsoft.OpenApi.Any;
+using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 
 namespace cAPParel.API.Services.ItemServices
@@ -20,19 +21,20 @@ namespace cAPParel.API.Services.ItemServices
             _itemRepository = itemRepository;
         }
 
-        //public async Task<ImageDto> AddImageToItemAsync(int itemid, ImageForCreationDto imageForCreationDto)
-        //{
-        //    var image = _mapper.Map<Image>(imageForCreationDto);
-        //    var item = await _basicRepository.GetByIdWithEagerLoadingAsync(itemid);
-        //    item.Images.Add(image);
-        //    await _basicRepository.SaveChangesAsync();
-        //    return _mapper.Map<ImageDto>(image);
-        //}
+        public async Task<OperationResult<FileDataDto>> DeleteFile(int id )
+        {
+            return await _itemRepository.DeleteFile(id);
+        }
 
-        //public void DeleteImageFromItem(int itemid, int imageid)
-        //{
-        //    _itemRepository.DeleteImageFromItem(itemid, imageid);
-        //}
+        public async Task<FileDataDto> AddFileDataToItemAsync(int itemid, FileDataForCreationDto fileDataForCreationDto)
+        {
+            var fileData = _mapper.Map<FileData>(fileDataForCreationDto);
+            var item = await _basicRepository.GetByIdWithEagerLoadingAsync(itemid);
+            item.FileData.Add(fileData);
+            await _basicRepository.SaveChangesAsync();
+            return _mapper.Map<FileDataDto>(fileData);
+        }
+
         public async Task<PieceDto> CreatePieceAsync(PieceForCreationDto pieceForCreationDto, int itemid)
         {
             var piece = _mapper.Map<Piece>(pieceForCreationDto);

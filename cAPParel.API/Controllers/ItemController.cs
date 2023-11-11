@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Any;
 using Newtonsoft.Json;
 using System.Dynamic;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace cAPParel.API.Controllers
 {
@@ -32,20 +33,35 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
             _categoryService = categoryService;
         }
-        //[HttpPost("{itemid}/images", Name = "CreateImage")]
-        //[Authorize(Policy = "MustBeAdmin")]
-        //public async Task<ActionResult<ImageDto>> CreateImage(int itemid, ImageForCreationDto image)
-        //{
-        //    try
-        //    {
-        //        var result = await _itemService.CreateImageAsync(image, itemid);
-        //        return Ok(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
+        [HttpPost("{itemid}/files", Name = "CreateFile")]
+        [Authorize(Policy = "MustBeAdmin")]
+        public async Task<ActionResult<FileDataDto>> CreateImage(int itemid, FileDataForCreationDto file)
+        {
+            try
+            {
+                var result = await _itemService.AddFileDataToItemAsync(itemid, file);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("/files/{fileid}", Name = "DeleteFile")]
+        [Authorize(Policy = "MustBeAdmin")]
+        public async Task<ActionResult> DeleteFile(int fileid)
+        {
+            var result = await _itemService.DeleteFile(fileid);
+            if(result.IsSuccess==true)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(result.HttpResponseCode, result.ErrorMessage);
+            }
+        }
 
         [HttpPost(Name = "CreateItem")]
         public async Task<ActionResult<ItemDto>> CreateItem(ItemForCreationDto item)
