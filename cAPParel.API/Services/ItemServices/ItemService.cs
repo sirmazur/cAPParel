@@ -80,9 +80,12 @@ namespace cAPParel.API.Services.ItemServices
         {
             var listToReturn = _basicRepository.GetQueryableAllWithEagerLoadingAsync(includeProperties);
             var IdFilter = filters.FirstOrDefault(c => c.FieldName == "CategoryIds");
-            List<int> ids = IdFilter.Value as List<int>;
-            listToReturn = listToReturn.Where(c => ids.Any(id => c.CategoryId == id));
-            if (filters is not null)
+            if(IdFilter is not null)
+            {
+                List<int> ids = IdFilter.Value as List<int>;
+                listToReturn = listToReturn.Where(c => ids.Any(id => c.CategoryId == id));
+            }
+            
                 foreach (var filter in filters)
                 {
                     if (filter.FieldName != "CategoryIds")

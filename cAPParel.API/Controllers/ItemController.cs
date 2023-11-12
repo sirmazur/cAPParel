@@ -184,8 +184,12 @@ namespace cAPParel.API.Controllers
             }
 
             List<IFilter> filters = new List<IFilter>();
-            var categoryIds = await _categoryService.GetRelatedCategoriesIds((int)categoryid);
-            filters.Add(new NumericFilter("CategoryIds", categoryIds));
+
+            if(categoryid is not null)
+            {
+                filters.Add(new NumericFilter("CategoryIds", await _categoryService.GetRelatedCategoriesIds((int)categoryid)));
+            }
+            
 
             var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                 .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);

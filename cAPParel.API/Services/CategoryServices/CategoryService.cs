@@ -37,29 +37,44 @@ namespace cAPParel.API.Services.CategoryServices
                     page.DefaultTextStyle(x => x.FontSize(20));
 
                     page.Header().AlignCenter()
-                    .Text($"{category.CategoryName} category price list.")
-                    .Bold().FontSize(30).FontColor(Colors.Black);
+                        .Text($"{category.CategoryName} Price List")
+                        .Bold().FontSize(30).FontColor(Colors.Black);
 
                     page.Content()
-                    .PaddingVertical(1, Unit.Centimetre)
-                    .Column(x =>
-                    {
-                        x.Spacing(20);
-                        foreach (var item in items)
+                        .PaddingVertical(1, Unit.Centimetre)
+                        .Column(x =>
                         {
-                            x.Item().Text($"{item.Name} - {item.Price} USD").FontSize(20).FontColor(Colors.Black);
-                            var bytes = item.FileData.FirstOrDefault(c => c.Type==0);
-                            x.Item().Image(bytes.Data);
-                        }
-                    });
+                            x.Spacing(20);
+                            foreach (var item in items)
+                            {
+                                x.Item().ShowEntire().Row(y =>
+                                {
+
+                                    y.RelativeItem().Text(t =>
+                                    {
+                                        t.Line($"{item.Name} - ${item.Price:F2}").FontSize(18).FontColor(Colors.Black);
+                                        t.Span(item.Description).FontSize(12).FontColor(Colors.Black);
+
+                                    });
+                                    if (item.FileData is not null && item.FileData.Count > 0)
+                                    {
+                                        var bytes = item.FileData.FirstOrDefault(c => c.Type == 0).Data;
+                                        if (bytes is not null)
+                                            y.RelativeItem().AlignRight().MaxHeight(100).MaxWidth(200).Image(bytes);
+                                    }
+
+                                });
+                            }
+                                                                                  
+                        });
 
                     page.Footer()
-                    .AlignCenter()
-                    .Text(x =>
-                    {
-                        x.Span("Page ");
-                        x.CurrentPageNumber();
-                    });
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Page ");
+                            x.CurrentPageNumber();
+                        });
                 });
             })
             .GeneratePdf($"cAPParel_{category.CategoryName}_Pricing.pdf");
