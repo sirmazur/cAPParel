@@ -14,6 +14,9 @@ namespace cAPParel.API.Entities
         [Required]
         public double Price { get; set; }
         [Required]
+        public double PriceMultiplier { get; set; } = 1;
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        [Required]
         public Color Color { get; set; } 
         [Required]
         public ItemType Type { get; set; }
@@ -28,37 +31,23 @@ namespace cAPParel.API.Entities
     }
     public enum ItemType
     {
-        [EnumMember(Value = "Men")]
         Men,
-        [EnumMember(Value = "Women")]
         Women,
-        [EnumMember(Value = "Kids")]
         Kids
     }
 
     public enum Color
     {
-        [EnumMember(Value = "Red")]
         Red,
-        [EnumMember(Value = "Blue")]
         Blue,
-        [EnumMember(Value = "Green")]
         Green,
-        [EnumMember(Value = "Yellow")]
         Yellow,
-        [EnumMember(Value = "Black")]
         Black,
-        [EnumMember(Value = "White")]
         White,
-        [EnumMember(Value = "Gray")]
         Gray,
-        [EnumMember(Value = "Brown")]
         Brown,
-        [EnumMember(Value = "Pink")]
         Pink,
-        [EnumMember(Value = "Purple")]
         Purple,
-        [EnumMember(Value = "Orange")]
         Orange
     }
 }

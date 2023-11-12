@@ -10,6 +10,7 @@ namespace cAPParel.API.Models
         public string Name { get; set; }
         [Required]
         public double Price { get; set; }
+        public double PriceMultiplier { get; set; }
         [Required]
         public ItemType Type { get; set; }
         [Required]

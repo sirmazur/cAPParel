@@ -11,6 +11,7 @@ namespace cAPParel.API.Models
         [Required]
         public double Price { get; set; }
         [Required]
+        
         public ItemType Type { get; set; }
         [Required]
         public Color Color { get; set; }

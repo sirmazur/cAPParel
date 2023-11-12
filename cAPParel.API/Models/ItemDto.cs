@@ -10,6 +10,8 @@ namespace cAPParel.API.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }
+        public double PriceMultiplier { get; set; } = 1;
+        public DateTime DateCreated { get; set; }
         public ItemType Type { get; set; }
         public Color Color { get; set; }
         public string Description { get; set; }

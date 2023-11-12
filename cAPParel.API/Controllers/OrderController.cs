@@ -34,11 +34,13 @@ namespace cAPParel.API.Controllers
         {
             try
             {
-                var createdOrder = await _orderService.CreateOrder(new OrderForCreationDto {
-                    PiecesIds = pieceIds, 
-                    UserId=int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value)});
-                
-                return Ok(createdOrder);
+                var createdOrder = await _orderService.CreateOrder(new OrderForCreationDto
+                {
+                    PiecesIds = pieceIds,
+                    UserId=int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value)
+                });
+
+                return CreatedAtRoute("GetOrder",createdOrder.Id,createdOrder);
             }
             catch (Exception ex)
             {
