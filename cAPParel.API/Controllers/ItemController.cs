@@ -48,7 +48,7 @@ namespace cAPParel.API.Controllers
             }
         }
 
-        [HttpDelete("/files/{fileid}", Name = "DeleteFile")]
+        [HttpDelete("files/{fileid}", Name = "DeleteFile")]
         [Authorize(Policy = "MustBeAdmin")]
         public async Task<ActionResult> DeleteFile(int fileid)
         {

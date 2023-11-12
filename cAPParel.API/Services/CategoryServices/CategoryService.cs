@@ -2,8 +2,13 @@
 using cAPParel.API.Entities;
 using cAPParel.API.Models;
 using cAPParel.API.Services.Basic;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Runtime.CompilerServices;
+using QuestPDF.Previewer;
+using QuestPDF.Helpers;
+using cAPParel.API.Migrations;
 
 namespace cAPParel.API.Services.CategoryServices
 {
@@ -15,18 +20,54 @@ namespace cAPParel.API.Services.CategoryServices
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
+            QuestPDF.Settings.License=LicenseType.Community;
         }
-        //public override async Task<IEnumerable<CategoryDto>> GetAllAsync(string? parentNameFilter, int? parentIdFilter)
-        //{
-        //    if(parentIdFilter==null && parentNameFilter==null)
-        //    {
-        //        return await base.GetAllAsync();
-        //    }
-        //    else
-        //    {
+        
+        public async Task<(byte[],string)> GeneratePdfForCategoryAsync(int id)
+        {
+            var items = await _categoryRepository.GetItemsByCategoryIdAsync(id);
+            var category = await _basicRepository.GetByIdAsync(id);
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(20));
 
-        //    }
-        //}
+                    page.Header().AlignCenter()
+                    .Text($"{category.CategoryName} category price list.")
+                    .Bold().FontSize(30).FontColor(Colors.Black);
+
+                    page.Content()
+                    .PaddingVertical(1, Unit.Centimetre)
+                    .Column(x =>
+                    {
+                        x.Spacing(20);
+                        foreach (var item in items)
+                        {
+                            x.Item().Text($"{item.Name} - {item.Price} USD").FontSize(20).FontColor(Colors.Black);
+                            var bytes = item.FileData.FirstOrDefault(c => c.Type==0);
+                            x.Item().Image(bytes.Data);
+                        }
+                    });
+
+                    page.Footer()
+                    .AlignCenter()
+                    .Text(x =>
+                    {
+                        x.Span("Page ");
+                        x.CurrentPageNumber();
+                    });
+                });
+            })
+            .GeneratePdf($"cAPParel_{category.CategoryName}_Pricing.pdf");
+            byte[] pdfBytes = await File.ReadAllBytesAsync($"cAPParel_{category.CategoryName}_Pricing.pdf");
+            File.Delete($"cAPParel_{category.CategoryName}_Pricing.pdf");
+            return (pdfBytes, $"cAPParel_{category.CategoryName}_Pricing.pdf");
+
+        }
         public async Task<IEnumerable<int>> GetRelatedCategoriesIds(int categoryId)
         {
             var categories = await GetAllSubcategories(categoryId);

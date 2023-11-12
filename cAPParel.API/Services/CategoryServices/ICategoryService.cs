@@ -8,5 +8,6 @@ namespace cAPParel.API.Services.CategoryServices
     {
         Task<IEnumerable<CategoryDto>> GetAllSubcategories(int categoryId);
         Task<IEnumerable<int>> GetRelatedCategoriesIds(int categoryId);
+        Task<(byte[],string)> GeneratePdfForCategoryAsync(int id);
     }
 }

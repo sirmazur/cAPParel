@@ -32,6 +32,17 @@ namespace cAPParel.API.Controllers
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
 
+        [HttpGet("{categoryid}/pricelists", Name = "GetPricing")]
+        public async Task<IActionResult> GetPricing(int categoryid)
+        {
+            var file = await _categoryService.GeneratePdfForCategoryAsync(categoryid);
+            if (file.Item1 == null)
+            {
+                return NotFound();
+            }
+            return File(file.Item1, "application/pdf", file.Item2);
+        }
+
         [Produces("application/json",
            "application/vnd.capparel.hateoas+json",
            "application/vnd.capparel.category.full+json",

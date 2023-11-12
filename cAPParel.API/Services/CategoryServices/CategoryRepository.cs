@@ -20,6 +20,12 @@ namespace cAPParel.API.Services.CategoryServices
             return category;
         }
 
+        public async Task<IEnumerable<Item>> GetItemsByCategoryIdAsync(int categoryId)
+        {
+            var result = await _context.Items.Where(i => i.CategoryId == categoryId).Include(c => c.FileData).ToListAsync();
+            return result;
+        }
+
         public async Task<IEnumerable<Category>> GetCategoriesWithParentIdAsync(int parentid)
         {
             var result = await _context.Categories.Where(c => c.ParentCategoryId == parentid).ToListAsync();
