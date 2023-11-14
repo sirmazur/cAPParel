@@ -46,5 +46,46 @@ namespace cAPParel.ConsoleClient
             return JsonSerializer.Deserialize<LinkedResourceList<T>>(
                 content, _jsonSerializerOptionsWrapper.Options);
         }
+
+        public async Task<string?> AuthenticateAsync(string username, string password)
+        {
+            var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/api/authentication");
+
+            request.Headers.Accept.Add(
+            new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var content = new StringContent(
+            JsonSerializer.Serialize(new UserParams
+            {
+                Username = username,
+                Password = password
+            }),
+            Encoding.UTF8,
+            "application/json");
+
+            request.Content = content;
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+
+        public async Task<T> GetCurrentUserAsync<T>(string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/users/self");
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var currentUser = JsonSerializer.Deserialize<T>(content, _jsonSerializerOptionsWrapper.Options);
+
+            return currentUser;
+        }
+
     }
 }

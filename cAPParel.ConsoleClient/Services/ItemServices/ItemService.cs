@@ -46,17 +46,5 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
                 return await _client.GetItemsAsync<ItemDto>("application/vnd.capparel.item.friendly+json");
             }
         }
-
-        public async Task<LinkedResourceList<ItemDto>?> GetItemsDefault(bool includeLinks = false)
-        {
-            if (includeLinks)
-            {
-                return await _client.GetItemsAsync<ItemDto>("application/json");
-            }
-            else
-            {
-                return await _client.GetItemsAsync<ItemDto>("application/json");
-            }
-        }
     }
 }

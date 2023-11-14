@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Dynamic;
+using System.Security.Claims;
 
 namespace cAPParel.API.Controllers
 {
@@ -312,6 +313,7 @@ namespace cAPParel.API.Controllers
             "application/vnd.capparel.user.full.hateoas+json",
             "application/vnd.capparel.user.friendly+json",
             "application/vnd.capparel.user.friendly.hateoas+json")]
+        [Authorize(Policy = "MustBeAdmin")]
         [HttpGet("{userid}", Name = "GetUser")]
         public async Task<IActionResult> GetUser(
             int userid,
@@ -362,6 +364,71 @@ namespace cAPParel.API.Controllers
                 return Ok(fullResourceToReturn);
             }
             var item = await _userService.GetExtendedByIdWithEagerLoadingAsync(userid);
+
+            var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
+            if (includeLinks)
+            {
+                lightResourceToReturn.Add("links", links);
+            }
+            return Ok(lightResourceToReturn);
+        }
+
+        [Produces("application/json",
+            "application/vnd.capparel.hateoas+json",
+            "application/vnd.capparel.user.full+json",
+            "application/vnd.capparel.user.full.hateoas+json",
+            "application/vnd.capparel.user.friendly+json",
+            "application/vnd.capparel.user.friendly.hateoas+json")]
+        [Authorize(Policy = "MustBeLoggedIn")]
+        [HttpGet("self",Name = "GetSelf")]
+        public async Task<IActionResult> GetSelf(
+            string? fields,
+            [FromHeader(Name = "Accept")] string? mediaType)
+        {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out var parsedMediaType))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Accept header media type value is not supported"));
+            }
+
+            if (!_fieldsValidationService.TypeHasProperties<UserFullDto>(fields))
+            {
+                return BadRequest(
+                    _problemDetailsFactory.CreateProblemDetails(HttpContext,
+                    statusCode: 400,
+                    detail: $"Not all provided data shaping fields exist" +
+                    $" on the resource: {fields}"));
+            }
+
+
+
+            var includeLinks = parsedMediaType.SubTypeWithoutSuffix
+                .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+
+            if (includeLinks)
+            {
+                links = CreateLinks(int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value), fields);
+            }
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix.Substring(
+                0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parsedMediaType.SubTypeWithoutSuffix;
+
+            if (primaryMediaType == "vnd.capparel.user.full")
+            {
+                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value));
+                var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
+                if (includeLinks)
+                {
+                    fullResourceToReturn.Add("links", links);
+                }
+                return Ok(fullResourceToReturn);
+            }
+            var item = await _userService.GetExtendedByIdWithEagerLoadingAsync(int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value));
 
             var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
             if (includeLinks)
