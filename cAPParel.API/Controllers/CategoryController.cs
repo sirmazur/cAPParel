@@ -199,7 +199,11 @@ namespace cAPParel.API.Controllers
             }
             else
             {
-                return Ok(shapedCategoriesToReturn);
+                var CollectionResource = new
+                {
+                    value = shapedCategoriesToReturn
+                };
+                return Ok(CollectionResource);
             }
             
 

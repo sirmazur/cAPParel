@@ -217,7 +217,11 @@ namespace cAPParel.API.Controllers
             }
             else
             {
-                return Ok(shapedOrdersToReturn);
+                var CollectionResource = new
+                {
+                    value = shapedOrdersToReturn
+                };
+                return Ok(CollectionResource);
             }
 
 
