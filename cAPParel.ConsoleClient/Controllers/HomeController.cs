@@ -24,33 +24,42 @@ namespace cAPParel.ConsoleClient.Controllers
 
         public async Task RunAsync()
         {
-            while(true)
+            List<Option> options = new List<Option>()
             {
+                new Option("Log in", async () => await Authenticate()),
+                new Option("Your Profile", async () => await GetSelfData()),
+                new Option("Exit", () => Task.CompletedTask)
+            };
+            
+            await CreateMenu(options);
 
-                Console.WriteLine("1. Log in");
-                Console.WriteLine("2. Your Profile");
-                var input = Console.ReadKey();
-                Console.Clear();
-                switch (input.Key)
-                {
-                    case ConsoleKey.D1:
-                        await Authenticate();
-                        break;
-                    case ConsoleKey.D2:
-                        await GetSelfData();
-                        break;
-                    default:
-                        Console.WriteLine("Invalid input");
-                        break;
-                }
-            }
+            //while (true)
+            //{
 
-            var items = await _itemService.GetItemsFriendly(true);
-            foreach (var item in items.Value)
-            {
-                Console.WriteLine(item.Name);
-            }
-            Console.ReadKey();
+            //    Console.WriteLine("1. Log in");
+            //    Console.WriteLine("2. Your Profile");
+            //    var input = Console.ReadKey();
+            //    Console.Clear();
+            //    switch (input.Key)
+            //    {
+            //        case ConsoleKey.D1:
+            //            await Authenticate();
+            //            break;
+            //        case ConsoleKey.D2:
+            //            await GetSelfData();
+            //            break;
+            //        default:
+            //            Console.WriteLine("Invalid input");
+            //            break;
+            //    }
+            //}
+
+            //var items = await _itemService.GetItemsFriendly(true);
+            //foreach (var item in items.Value)
+            //{
+            //    Console.WriteLine(item.Name);
+            //}
+            //Console.ReadKey();
         }
 
         public async Task GetSelfData()
@@ -87,6 +96,7 @@ namespace cAPParel.ConsoleClient.Controllers
 
         public async Task Authenticate()
         {
+            Console.Clear();
             Console.WriteLine("Enter username:");
             var userName = Console.ReadLine();
             Console.Clear();
@@ -130,6 +140,82 @@ namespace cAPParel.ConsoleClient.Controllers
             await Task.Delay(3000);
             Console.Clear();
 
+        }
+
+        async Task CreateMenu(List<Option> options)
+        {
+            int index = 0;
+            ConsoleKeyInfo keyinfo;
+            do
+            {
+                WriteMenu(options, options[index]);
+                keyinfo = Console.ReadKey();
+
+                if (keyinfo.Key == ConsoleKey.DownArrow)
+                {
+                    if (index + 1 < options.Count)
+                    {
+                        index++;
+                        WriteMenu(options, options[index]);
+                    }
+                }
+                if (keyinfo.Key == ConsoleKey.UpArrow)
+                {
+                    if (index - 1 >= 0)
+                    {
+                        index--;
+                        WriteMenu(options, options[index]);
+                    }
+                }
+
+                if (keyinfo.Key == ConsoleKey.Enter)
+                {   
+                    if(index == options.Count - 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        await options[index].Selected.Invoke();
+                        index = 0;
+                    }
+                    
+                }
+            }
+            while (true);
+        }
+
+        static void WriteMenu(List<Option> options, Option selectedOption)
+        {
+            Console.Clear();
+
+            foreach (Option option in options)
+            {
+                if (option == selectedOption)
+                {
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.BackgroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+
+                Console.WriteLine(option.Name);
+            }
+            Console.ResetColor();
+        }
+    }
+    internal class Option
+    {
+        public string Name { get; }
+        public Func<Task> Selected { get; }
+
+        public Option(string name, Func<Task> selected)
+        {
+            Name = name;
+            Selected = selected;
         }
     }
 }

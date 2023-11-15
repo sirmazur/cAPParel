@@ -20,8 +20,6 @@ using Microsoft.Extensions.Hosting;
 
             await host.Services.GetRequiredService<IHomeController>().RunAsync();
 
-            Console.ReadLine();
-
 
 
 
