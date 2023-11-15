@@ -1,16 +1,18 @@
-﻿using System;
+﻿using cAPParel.ConsoleClient.Models;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cAPParel.ConsoleClient.Models
+namespace cAPParel.ConsoleClient.Helpers
 {
     public class CurrentUserData
     {
         private static CurrentUserData? _instance;
         private string _token;
-        private List<int> _shoppingCart;
+        private List<PieceDto> _shoppingCart = new List<PieceDto>();
         private CurrentUserData() { }
         public static CurrentUserData Instance
         {
@@ -23,7 +25,7 @@ namespace cAPParel.ConsoleClient.Models
                 return _instance;
             }
         }
-        
+
         public void SetToken(string token)
         {
             _token = token;
@@ -32,17 +34,21 @@ namespace cAPParel.ConsoleClient.Models
         {
             return _token;
         }
-        public void AddToShoppingCart(int productId)
+        public void AddToShoppingCart(PieceDto piece)
         {
-            _shoppingCart.Add(productId);
+            _shoppingCart.Add(piece);
         }
-        public void RemoveFromShoppingCart(int productId)
+        public void RemoveFromShoppingCart(PieceDto piece)
         {
-            _shoppingCart.Remove(productId);
+            _shoppingCart.Remove(piece);
         }
         public void ClearShoppingCart()
         {
             _shoppingCart.Clear();
+        }
+        public List<PieceDto> GetShoppingCart()
+        {
+            return _shoppingCart;
         }
     }
 }

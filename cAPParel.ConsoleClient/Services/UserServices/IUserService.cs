@@ -1,8 +1,8 @@
 ﻿using cAPParel.ConsoleClient.Models;
 
-namespace cAPParel.ConsoleClient.Services.AuthenticationServices
+namespace cAPParel.ConsoleClient.Services.UserServices
 {
-    public interface IAuthenticationService
+    public interface IUserService
     {
         Task Authenticate(string username, string password);
         Task<UserDto> GetSelfFriendly();

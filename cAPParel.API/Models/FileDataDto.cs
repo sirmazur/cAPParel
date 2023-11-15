@@ -7,6 +7,6 @@ namespace cAPParel.API.Models
         public int Id { get; set; }
         public byte[] Data { get; set; }
         public string Description { get; set; }
-        public dataType Type { get; set; }
+        public DataType Type { get; set; }
     }
 }

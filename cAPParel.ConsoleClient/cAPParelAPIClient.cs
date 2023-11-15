@@ -14,6 +14,7 @@ namespace cAPParel.ConsoleClient
 
         private HttpClient _client { get; }
         private readonly JsonSerializerOptionsWrapper _jsonSerializerOptionsWrapper;
+        private CurrentUserData? _currentUserData;
 
         public cAPParelAPIClient(HttpClient client,
             JsonSerializerOptionsWrapper jsonSerializerOptionsWrapper)
@@ -22,22 +23,26 @@ namespace cAPParel.ConsoleClient
             _client.BaseAddress = new Uri("https://localhost:7003");
             _client.Timeout = new TimeSpan(0, 0, 30);
             _jsonSerializerOptionsWrapper = jsonSerializerOptionsWrapper;
+            _currentUserData = CurrentUserData.Instance;
         }
 
 
-        public async Task<LinkedResourceList<T>?> GetItemsAsync<T>(string acceptHeader = "application/json")
+        public async Task<LinkedResourceList<T>?> GetResourcesAsync<T>(string route, string acceptHeader = "application/json")
         {
             var request = new HttpRequestMessage(
             HttpMethod.Get,
-            "/api/items");
+            route);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
-            
+            if(_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
             var response = await _client.SendAsync(request);       
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             Console.WriteLine(content);
-           // var resultValue = JsonSerializer.Deserialize<IEnumerable<T>>(content, _jsonSerializerOptionsWrapper.Options);
+            // var resultValue = JsonSerializer.Deserialize<IEnumerable<T>>(content, _jsonSerializerOptionsWrapper.Options);
             //return new LinkedResourceList<T>
             //{
             //    LinkedResources = resultValue
@@ -69,14 +74,24 @@ namespace cAPParel.ConsoleClient
             var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadAsStringAsync();
-            return result;
+            var resultToReturn = JsonSerializer.Deserialize<string>(result, _jsonSerializerOptionsWrapper.Options);
+            return resultToReturn;
         }
 
-        public async Task<T> GetCurrentUserAsync<T>(string token)
+        public async Task<T> GetCurrentUserAsync<T>(string mediaType)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "/api/users/self");
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
+            else
+            {
+                throw new Exception("User is not logged in.");
+            }
+            request.Headers.Accept.Add(
+            new MediaTypeWithQualityHeaderValue(mediaType));
 
             var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();

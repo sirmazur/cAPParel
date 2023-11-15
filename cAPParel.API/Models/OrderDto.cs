@@ -8,6 +8,8 @@ namespace cAPParel.API.Models
     {
         public int Id { get; set; }
         public double TotalPrice { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime? DateCompleted { get; set; }
         public int UserId { get; set; }
         public State State { get; set;}
     }

@@ -1,7 +1,7 @@
 ﻿using cAPParel.ConsoleClient;
 using cAPParel.ConsoleClient.Controllers;
 using cAPParel.ConsoleClient.Helpers;
-using cAPParel.ConsoleClient.Services.AuthenticationServices;
+using cAPParel.ConsoleClient.Services.UserServices;
 using cAPParel.ConsoleClient.Services.ItemServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Hosting;
                     services.AddSingleton<JsonSerializerOptionsWrapper>();
                     services.AddHttpClient<cAPParelAPIClient>();
                     services.AddScoped<IItemService, ItemService>();
-                    services.AddScoped<IAuthenticationService, AuthenticationService>();
+                    services.AddScoped<IUserService, UserService>();
                     services.AddSingleton<IHomeController, HomeController>();
                 }).Build();
 

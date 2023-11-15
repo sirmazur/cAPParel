@@ -27,11 +27,11 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         {
             if (includeLinks)
             {
-                return await _client.GetItemsAsync<ItemFullDto>("application/vnd.capparel.item.full.hateoas+json");
+                return await _client.GetResourcesAsync<ItemFullDto>("api/items","application/vnd.capparel.item.full.hateoas+json");
             }
             else
             {
-                return await _client.GetItemsAsync<ItemFullDto>("application/vnd.capparel.item.full+json");
+                return await _client.GetResourcesAsync<ItemFullDto>("api/items", "application/vnd.capparel.item.full+json");
             }
         }
 
@@ -39,11 +39,11 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         {
             if (includeLinks)
             {
-                return await _client.GetItemsAsync<ItemDto>("application/vnd.capparel.item.friendly.hateoas+json");
+                return await _client.GetResourcesAsync<ItemDto>("api/items", "application/vnd.capparel.item.friendly.hateoas+json");
             }
             else
             {
-                return await _client.GetItemsAsync<ItemDto>("application/vnd.capparel.item.friendly+json");
+                return await _client.GetResourcesAsync<ItemDto>("api/items", "application/vnd.capparel.item.friendly+json");
             }
         }
     }

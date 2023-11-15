@@ -1,17 +1,18 @@
-﻿using cAPParel.ConsoleClient.Models;
+﻿using cAPParel.ConsoleClient.Helpers;
+using cAPParel.ConsoleClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cAPParel.ConsoleClient.Services.AuthenticationServices
+namespace cAPParel.ConsoleClient.Services.UserServices
 {
-    public class AuthenticationService : IAuthenticationService
+    public class UserService : IUserService
     {
         private readonly cAPParelAPIClient _client;
         private CurrentUserData _currentUserData = CurrentUserData.Instance;
-        public AuthenticationService(cAPParelAPIClient client)
+        public UserService(cAPParelAPIClient client)
         {
             _client = client ??
                 throw new ArgumentNullException(nameof(client));

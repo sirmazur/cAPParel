@@ -13,5 +13,7 @@ namespace cAPParel.API.Models
         public Role Role { get; set; }
 
         public double Saldo { get; set; }
+
+        public ICollection<OrderDto> Orders { get; set; }
     }
 }

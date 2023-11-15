@@ -355,7 +355,7 @@ namespace cAPParel.API.Controllers
 
             if (primaryMediaType == "vnd.capparel.user.full")
             {
-                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(userid);
+                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(userid, c => c.Orders);
                 var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
                 if (includeLinks)
                 {
@@ -420,7 +420,7 @@ namespace cAPParel.API.Controllers
 
             if (primaryMediaType == "vnd.capparel.user.full")
             {
-                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value));
+                var fullItem = await _userService.GetExtendedByIdWithEagerLoadingAsync(int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value), c=>c.Orders);
                 var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
                 if (includeLinks)
                 {

@@ -12,12 +12,12 @@ namespace cAPParel.API.Entities
         [Required]
         public string Description { get; set; }
         [Required]
-        public dataType Type { get; set; }
+        public DataType Type { get; set; }
         
     }
-    public enum dataType
+    public enum DataType
     {
-        image,
-        other
+        Image,
+        Other
     }
 }
