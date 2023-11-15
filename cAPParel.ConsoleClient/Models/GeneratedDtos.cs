@@ -36,6 +36,23 @@ namespace cAPParel.ConsoleClient.Models
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
+    public partial class CategoryFullDto
+    {
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("categoryName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string CategoryName { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("parentCategoryId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? ParentCategoryId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("childCategories", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ICollection<CategoryFullDto> ChildCategories { get; set; }
+    }
+
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class CategoryForCreationDto
     {
         [Newtonsoft.Json.JsonProperty("categoryName", Required = Newtonsoft.Json.Required.Always)]
@@ -380,16 +397,7 @@ namespace cAPParel.ConsoleClient.Models
 
     }
 
-    // Manually added Dtos
 
-    public partial class CategoryFullDto
-    {
-        public int Id { get; set; }
-
-        public string CategoryName { get; set; }
-        public int? ParentCategoryId { get; set; }
-        public ICollection<CategoryDto> ChildCategories { get; set; }
-    }
 
 
     

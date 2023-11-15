@@ -1,9 +1,11 @@
 ﻿using cAPParel.ConsoleClient.Models;
+using cAPParel.ConsoleClient.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Metadata.Ecma335;
 
 namespace cAPParel.ConsoleClient.Services.ItemServices
 {
@@ -23,28 +25,63 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         //    "application/vnd.capparel.item.friendly+json",
         //    "application/vnd.capparel.item.friendly.hateoas+json"
 
-        public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(bool includeLinks = false)
+        public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(ItemFilters? filters = null)
         {
-            if (includeLinks)
+            var route = "api/items";
+            if (filters is null)
             {
-                return await _client.GetResourcesAsync<ItemFullDto>("api/items","application/vnd.capparel.item.full.hateoas+json");
+                return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full+json");
             }
+
+            var queryString = QueryStringBuilder.BuildQueryString(
+                ("size", filters.size),
+                ("categoryid", filters.categoryid),
+                ("isavailable", filters.isAvailable)
+            );
+
+            if (!string.IsNullOrEmpty(queryString))
+            {
+                route = $"{route}?{queryString}";
+            }
+
+            if(filters.includeLinks is not null && filters.includeLinks is true)
+                return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full.hateoas+json");
             else
-            {
-                return await _client.GetResourcesAsync<ItemFullDto>("api/items", "application/vnd.capparel.item.full+json");
-            }
+                return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full+json");
+
+
         }
 
-        public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(bool includeLinks = false)
+        public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(ItemFilters? filters = null)
         {
-            if (includeLinks)
+            var route = "api/items";
+            if(filters is null)
             {
-                return await _client.GetResourcesAsync<ItemDto>("api/items", "application/vnd.capparel.item.friendly.hateoas+json");
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full+json");
             }
+            var queryString = QueryStringBuilder.BuildQueryString(
+                ("size", filters.size),
+                ("categoryid", filters.categoryid),
+                ("isAvailable", filters.isAvailable)
+            );
+
+            if (!string.IsNullOrEmpty(queryString))
+            {
+                route = $"{route}?{queryString}";
+            }
+
+            if (filters.includeLinks is not null && filters.includeLinks is true)
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full.hateoas+json");
             else
-            {
-                return await _client.GetResourcesAsync<ItemDto>("api/items", "application/vnd.capparel.item.friendly+json");
-            }
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full+json");
         }
+    }
+
+    public class ItemFilters
+    {
+        public string? size = null;
+        public int? categoryid = null;
+        public bool? includeLinks = null;
+        public bool isAvailable = false;
     }
 }

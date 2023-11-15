@@ -4,7 +4,7 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
 {
     public interface IItemService
     {
-        Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(bool includeLinks = false);
-        Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(bool includeLinks = false);
+        Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(ItemFilters? filters = null);
+        Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(ItemFilters? filters = null);
     }
 }

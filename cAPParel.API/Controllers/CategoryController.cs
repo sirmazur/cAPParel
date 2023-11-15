@@ -52,7 +52,7 @@ namespace cAPParel.API.Controllers
         [HttpGet(Name = "GetCategories")]
         [HttpHead]
         public async Task<IActionResult> GetCategories(
-            int? parentCategoryId, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name ="Accept")]string? mediaType)
+            int? parentcategoryid, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name ="Accept")]string? mediaType)
         {
             if(!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
             {
@@ -69,9 +69,9 @@ namespace cAPParel.API.Controllers
                     $" on the resource: {resourceParameters.Fields}"));
             }
             List<IFilter> filters = new List<IFilter>();
-            if(parentCategoryId != null)
+            if(parentcategoryid != null)
             {
-                filters.Add( new NumericFilter("ParentCategoryId", parentCategoryId));
+                filters.Add( new NumericFilter("ParentCategoryId", parentcategoryid));
             }
             
            

@@ -58,6 +58,10 @@ namespace cAPParel.API.Services.ItemServices
             {
                     if(filter.FieldName != "CategoryIds")
                     listToReturn = FilterEntity(listToReturn, filter);
+                    if(filter.FieldName == "HasPieces")
+                    listToReturn = listToReturn.Where(c => c.Pieces.Count > 0);
+                if (filter.FieldName == "Size")
+                    listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))

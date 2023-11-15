@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using cAPParel.ConsoleClient.Helpers;
 using System.Text.Json;
+using System.Web;
 
 namespace cAPParel.ConsoleClient
 {

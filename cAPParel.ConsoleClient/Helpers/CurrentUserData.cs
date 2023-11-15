@@ -13,6 +13,8 @@ namespace cAPParel.ConsoleClient.Helpers
         private static CurrentUserData? _instance;
         private string _token;
         private List<PieceDto> _shoppingCart = new List<PieceDto>();
+        private int _choice;
+        private CategoryFullDto _category;
         private CurrentUserData() { }
         public static CurrentUserData Instance
         {
@@ -24,6 +26,22 @@ namespace cAPParel.ConsoleClient.Helpers
                 }
                 return _instance;
             }
+        }
+        public void SetCategory(CategoryFullDto category)
+        {
+            _category = category;
+        }
+        public CategoryFullDto GetCategory()
+        {
+            return _category;
+        }
+        public void SetChoice(int choice)
+        {
+            _choice = choice;
+        }
+        public int GetChoice()
+        {
+            return _choice;
         }
 
         public void SetToken(string token)

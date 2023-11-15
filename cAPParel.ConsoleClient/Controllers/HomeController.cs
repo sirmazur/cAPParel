@@ -7,6 +7,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using cAPParel.ConsoleClient.Helpers;
+using cAPParel.ConsoleClient.Services.CategoryServices;
+using cAPParel.ConsoleClient.Models;
 
 namespace cAPParel.ConsoleClient.Controllers
 {
@@ -14,11 +16,13 @@ namespace cAPParel.ConsoleClient.Controllers
     {
         private readonly IItemService _itemService;
         private readonly IUserService _userService;
+        private readonly ICategoryService _categoryService;
         private CurrentUserData _currentUserData;
-        public HomeController(IItemService itemService, IUserService authenticationService)
+        public HomeController(IItemService itemService, IUserService authenticationService, ICategoryService categoryService)
         {
             _itemService = itemService;
             _userService = authenticationService;
+            _categoryService = categoryService;
             _currentUserData = CurrentUserData.Instance;
         }
 
@@ -28,6 +32,7 @@ namespace cAPParel.ConsoleClient.Controllers
             {
                 new Option("Log in", async () => await Authenticate()),
                 new Option("Your Profile", async () => await GetSelfData()),
+                new Option("Browse Clothing", async () => await GetItemsMenu()),
                 new Option("Exit", () => Task.CompletedTask)
             };
             
@@ -60,6 +65,84 @@ namespace cAPParel.ConsoleClient.Controllers
             //    Console.WriteLine(item.Name);
             //}
             //Console.ReadKey();
+        }
+
+        public async Task GetItemsMenu()
+        {
+            ItemFilters? itemFilters = null;
+            CategoryFullDto? category = null;
+
+            List<Option> options = new List<Option>()
+            {
+                new Option($"Category: {(category!=null ? category.CategoryName : "")}", async () => await Task.Run(async () =>{
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    category = await DisplayCategoriesSelectionMenu();
+                    itemFilters.categoryid = category.Id;
+                })),
+                new Option($"Size: {(itemFilters!=null&&itemFilters.size!=null ? itemFilters.size : "")}", async () => await Task.Run(() =>{
+                Console.Clear();
+                Console.WriteLine("Enter size:");
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    itemFilters.size = Console.ReadLine();
+                    Console.Clear();
+                })),
+                new Option($"ShowOnlyAvailable: {(itemFilters!=null&&itemFilters.isAvailable==true ? "on" : "off")}", async () => await Task.Run(() =>{
+                    Console.Clear();
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    itemFilters.isAvailable = !itemFilters.isAvailable;
+                })),
+                new Option($"Search results", async () => await Task.Run(async () =>{
+                    if(itemFilters is not null)
+                    {
+                        var items = await _itemService.GetItemsFull(itemFilters);
+                    }
+                    else
+                    {
+                        var items = await _itemService.GetItemsFull();
+                    }
+                    itemFilters = null;
+                    category = null;
+                })),
+                new Option("Exit", () => Task.CompletedTask)
+            };
+            await CreateMenu(options);
+        }
+        public async Task<CategoryFullDto> DisplayCategoriesSelectionMenu()
+        {
+            Console.Clear();
+            var categories = await _categoryService.GetCategoriesFull();
+            var baseCategory = categories.Value.FirstOrDefault(x => x.ParentCategoryId == null);
+            var listOfCategoryStrings = DisplayChildCategories(baseCategory, 0);
+            List<Option> categoryOptions = new List<Option>();
+            foreach(var categoryString in listOfCategoryStrings)
+            {
+                categoryOptions.Add(new Option(categoryString.Item1, async () => await Task.Run(() =>
+                {
+                    _currentUserData.SetCategory(categoryString.Item2);
+                    Console.Clear();
+                })));
+            }
+            await CreateSingularMenu(categoryOptions);
+            return _currentUserData.GetCategory();
+        }
+        List<(string,CategoryFullDto)> DisplayChildCategories(CategoryFullDto category, int prefix)
+        {
+            List<(string,CategoryFullDto)> strings = new List<(string,CategoryFullDto)>();
+            foreach (var childCategory in category.ChildCategories)
+            {
+                strings.Add(($"{new string(' ', prefix)}{childCategory.CategoryName}",childCategory));
+                strings.AddRange(DisplayChildCategories(childCategory, prefix+1));
+            }
+            return strings;
         }
 
         public async Task GetSelfData()
@@ -140,6 +223,48 @@ namespace cAPParel.ConsoleClient.Controllers
             await Task.Delay(3000);
             Console.Clear();
 
+        }
+        async Task CreateSingularMenu(List<Option> options)
+        {
+            int index = 0;
+            ConsoleKeyInfo keyinfo;
+            do
+            {
+                WriteMenu(options, options[index]);
+                keyinfo = Console.ReadKey();
+
+                if (keyinfo.Key == ConsoleKey.DownArrow)
+                {
+                    if (index + 1 < options.Count)
+                    {
+                        index++;
+                        WriteMenu(options, options[index]);
+                    }
+                }
+                if (keyinfo.Key == ConsoleKey.UpArrow)
+                {
+                    if (index - 1 >= 0)
+                    {
+                        index--;
+                        WriteMenu(options, options[index]);
+                    }
+                }
+
+                if (keyinfo.Key == ConsoleKey.Enter)
+                {
+                    if (index == options.Count - 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        await options[index].Selected.Invoke();
+                        break;
+                    }
+
+                }
+            }
+            while (true);
         }
 
         async Task CreateMenu(List<Option> options)
