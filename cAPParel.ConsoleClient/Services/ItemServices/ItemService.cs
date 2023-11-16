@@ -62,7 +62,8 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
             var queryString = QueryStringBuilder.BuildQueryString(
                 ("size", filters.size),
                 ("categoryid", filters.categoryid),
-                ("isAvailable", filters.isAvailable)
+                ("isAvailable", filters.isAvailable),
+                ("color", filters.color.ToString())
             );
 
             if (!string.IsNullOrEmpty(queryString))
@@ -83,5 +84,6 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         public int? categoryid = null;
         public bool? includeLinks = null;
         public bool isAvailable = false;
+        public Color? color = null;
     }
 }

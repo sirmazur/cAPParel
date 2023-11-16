@@ -39,7 +39,11 @@ namespace cAPParel.ConsoleClient
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
             }
-            var response = await _client.SendAsync(request);       
+            var response = await _client.SendAsync(request);
+            if(!response.IsSuccessStatusCode)
+            {
+                return new LinkedResourceList<T>();
+            }
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             Console.WriteLine(content);

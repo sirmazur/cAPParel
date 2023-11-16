@@ -15,6 +15,7 @@ namespace cAPParel.ConsoleClient.Helpers
         private List<PieceDto> _shoppingCart = new List<PieceDto>();
         private int _choice;
         private CategoryFullDto _category;
+        private Color _colorChoice;
         private CurrentUserData() { }
         public static CurrentUserData Instance
         {
@@ -26,6 +27,14 @@ namespace cAPParel.ConsoleClient.Helpers
                 }
                 return _instance;
             }
+        }
+        public void SetColorChoice(Color color)
+        {
+            _colorChoice = color;
+        }
+        public Color GetColorChoice()
+        {
+            return _colorChoice;
         }
         public void SetCategory(CategoryFullDto category)
         {
