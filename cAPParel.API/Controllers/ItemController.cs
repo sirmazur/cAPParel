@@ -199,7 +199,7 @@ namespace cAPParel.API.Controllers
             }
             if(color is not null)
             {
-                filters.Add(new TextFilter("Color", color.ToString()));
+                filters.Add(new TextFilter("Color", color));
             }
             
 

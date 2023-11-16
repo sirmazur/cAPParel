@@ -60,7 +60,7 @@ namespace cAPParel.API.Services.ItemServices
                     listToReturn = listToReturn.Where(c => c.Pieces.Count > 0);
                     else
                 if (filter.FieldName == "Size")
-                    listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
+                    listToReturn = listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
                 else
                 {
                     if (filter.FieldName != "CategoryIds")
