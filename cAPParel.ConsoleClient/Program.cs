@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using cAPParel.ConsoleClient.Services.CategoryServices;
+using cAPParel.ConsoleClient.Services.OrderServices;
 
 using IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
@@ -17,6 +18,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     services.AddScoped<IItemService, ItemService>();
                     services.AddScoped<IUserService, UserService>();
                     services.AddScoped<ICategoryService, CategoryService>();
+                    services.AddScoped<IOrderService, OrderService>();
                     services.AddSingleton<IHomeController, HomeController>();
                 }).Build();
 

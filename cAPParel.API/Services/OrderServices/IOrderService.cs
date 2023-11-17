@@ -8,5 +8,6 @@ namespace cAPParel.API.Services.OrderServices
     {
         Task<double> GetTotal(List<int> ids);
         Task<OrderDto> CreateOrder(OrderForCreationDto order);
+        Task CancelOrderAsync(int orderId, int userId, Role role);
     }
 }

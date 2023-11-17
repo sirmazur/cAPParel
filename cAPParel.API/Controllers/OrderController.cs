@@ -1,4 +1,5 @@
-﻿using cAPParel.API.Filters;
+﻿using cAPParel.API.Entities;
+using cAPParel.API.Filters;
 using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.FieldsValidationServices;
@@ -62,6 +63,23 @@ namespace cAPParel.API.Controllers
             {
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
             }
+        }
+        [HttpDelete("{orderid}", Name = "CancelOrder")]
+        [Authorize(Policy = "MustBeLoggedIn")]
+        public async Task<IActionResult> CancelOrder(int orderid)
+        {
+            try
+            {
+                await _orderService.CancelOrderAsync(orderid,
+                    int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value),
+                    (Role)Enum.Parse(typeof(Role), User.Claims.FirstOrDefault(d => d.Type == ClaimTypes.Role)?.Value));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return NoContent();
+
         }
 
         [Produces("application/json",
@@ -273,10 +291,9 @@ namespace cAPParel.API.Controllers
                 parsedMediaType.SubTypeWithoutSuffix.Substring(
                 0, parsedMediaType.SubTypeWithoutSuffix.Length - 8) :
                 parsedMediaType.SubTypeWithoutSuffix;
-
             if (primaryMediaType == "vnd.capparel.order.full")
             {
-                var fullItem = await _orderService.GetExtendedByIdWithEagerLoadingAsync(orderid);
+                var fullItem = await _orderService.GetExtendedByIdWithEagerLoadingAsync(orderid, c=> c.Pieces);
                 var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
                 if (includeLinks)
                 {
@@ -284,7 +301,7 @@ namespace cAPParel.API.Controllers
                 }
                 return Ok(fullResourceToReturn);
             }
-            var item = await _orderService.GetExtendedByIdWithEagerLoadingAsync(orderid);
+            var item = await _orderService.GetExtendedByIdWithEagerLoadingAsync(orderid, c => c.Pieces);
 
             var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;
             if (includeLinks)

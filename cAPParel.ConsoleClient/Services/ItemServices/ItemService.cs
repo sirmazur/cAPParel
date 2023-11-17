@@ -25,6 +25,11 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         //    "application/vnd.capparel.item.friendly+json",
         //    "application/vnd.capparel.item.friendly.hateoas+json"
 
+        public async Task<ItemDto> GetItemAsync(int itemId)
+        {
+            var item = await _client.GetResourceAsync<ItemDto>($"api/items/{itemId}", "application/vnd.capparel.item.friendly+json");
+            return item;
+        }
         public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(ItemFilters? filters = null)
         {
             var route = "api/items";
@@ -36,7 +41,8 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
             var queryString = QueryStringBuilder.BuildQueryString(
                 ("size", filters.size),
                 ("categoryid", filters.categoryid),
-                ("isavailable", filters.isAvailable)
+                ("isavailable", filters.isAvailable),
+                ("ids", filters.ids)
             );
 
             if (!string.IsNullOrEmpty(queryString))
@@ -63,7 +69,8 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
                 ("size", filters.size),
                 ("categoryid", filters.categoryid),
                 ("isAvailable", filters.isAvailable),
-                ("color", filters.color.ToString())
+                ("color", filters.color.ToString()),
+                ("ids", filters.ids)
             );
 
             if (!string.IsNullOrEmpty(queryString))
@@ -85,5 +92,6 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         public bool? includeLinks = null;
         public bool isAvailable = false;
         public Color? color = null;
+        public List<int>? ids = null;
     }
 }

@@ -9,6 +9,6 @@ namespace cAPParel.ConsoleClient.Models
     public class LinkedResource<T>
     {
         public T? Value { get; set; }
-        public IEnumerable<Link> Links { get; set; } = new List<Link>();
+        public ICollection<Link> Links { get; set; } = new List<Link>();
     }
 }

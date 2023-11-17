@@ -7,7 +7,8 @@ namespace cAPParel.API.Entities
     {
         Accepted,
         Ongoing,
-        Completed
+        Completed,
+        Cancelled
     }
     public class Order
     {

@@ -27,6 +27,60 @@ namespace cAPParel.ConsoleClient
             _currentUserData = CurrentUserData.Instance;
         }
 
+        public async Task DeleteResourceAsync(string route, string acceptHeader = "application/json")
+        {
+            var request = new HttpRequestMessage(
+            HttpMethod.Delete,
+            route);
+            request.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(acceptHeader));
+
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<TDto> CreateResourceAsync<TCreationDto, TDto>(TCreationDto itemToCreate, string route, string acceptHeader = "application/json")
+        {
+            var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            route);
+            request.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(acceptHeader));
+            request.Content = new StringContent(
+            JsonSerializer.Serialize(itemToCreate),
+            Encoding.UTF8,
+            "application/json");
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var createdItemDto = JsonSerializer.Deserialize<TDto>(content, _jsonSerializerOptionsWrapper.Options);
+
+            return createdItemDto;
+        }
+
+        public async Task<T> GetResourceAsync<T>(string route, string acceptHeader = "application/json")
+        {
+            var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            route);
+            request.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(acceptHeader));
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(content);
+            return JsonSerializer.Deserialize<T>(
+                content, _jsonSerializerOptionsWrapper.Options);
+        }
 
         public async Task<LinkedResourceList<T>?> GetResourcesAsync<T>(string route, string acceptHeader = "application/json")
         {
@@ -99,7 +153,8 @@ namespace cAPParel.ConsoleClient
             new MediaTypeWithQualityHeaderValue(mediaType));
 
             var response = await _client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+
+                response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
             var currentUser = JsonSerializer.Deserialize<T>(content, _jsonSerializerOptionsWrapper.Options);

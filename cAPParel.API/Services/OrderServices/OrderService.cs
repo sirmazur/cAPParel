@@ -17,6 +17,19 @@ namespace cAPParel.API.Services.OrderServices
             _orderRepository = orderRepository;
         }
 
+        public async Task CancelOrderAsync(int orderId, int userId, Role role)
+        {
+            var order = await _basicRepository.GetByIdWithEagerLoadingAsync(orderId, c => c.Pieces);
+            if(order.UserId != userId && role != Role.Admin)
+                throw new Exception("You are not allowed to cancel this order!");
+            foreach (var piece in order.Pieces)
+            {
+                piece.IsAvailable = true;
+            }
+            order.State = State.Cancelled;
+            await _basicRepository.SaveChangesAsync();
+        }
+
         public async Task<OrderDto> CreateOrder(OrderForCreationDto order)
         {
             var orderToAdd = _mapper.Map<Order>(order);

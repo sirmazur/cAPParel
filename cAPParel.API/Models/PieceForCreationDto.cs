@@ -8,7 +8,5 @@ namespace cAPParel.API.Models
     {
         [Required]
         public string Size { get; set; }
-        [Required] 
-        public Color Color { get; set; }
     }
 }

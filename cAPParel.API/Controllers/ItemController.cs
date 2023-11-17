@@ -166,8 +166,8 @@ namespace cAPParel.API.Controllers
           "application/vnd.capparel.item.friendly.hateoas+json")]
         [HttpGet(Name = "GetItems")]
         [HttpHead]
-        public async Task<IActionResult> GetItems(int? categoryid, bool? isavailable, string? size, [FromQuery]Color? color, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
-        {
+        public async Task<IActionResult> GetItems([FromQuery]IEnumerable<int>? ids, int? categoryid, bool? isavailable, string? size, [FromQuery]Color? color, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
+        {          
             if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
             {
                 return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext,
@@ -200,6 +200,10 @@ namespace cAPParel.API.Controllers
             if(color is not null)
             {
                 filters.Add(new TextFilter("Color", color));
+            }
+            if(ids is not null && ids.Count()>0)
+            {
+                filters.Add(new NumericFilter("Ids", ids));
             }
             
 
@@ -338,6 +342,7 @@ namespace cAPParel.API.Controllers
             }
 
         }
+
 
         private string? CreateResourceUri(
           ResourceParameters resourceParameters,

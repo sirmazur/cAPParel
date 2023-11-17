@@ -55,10 +55,16 @@ namespace cAPParel.API.Services.ItemServices
                 listToReturn = listToReturn.Where(c => ids.Any(id => c.CategoryId == id));
             }
             foreach (var filter in filters)
-            {                    
-                    if(filter.FieldName == "HasPieces")
+            {   
+                if(filter.FieldName == "Ids")
+                {
+                    List<int> values = filter.Value as List<int>;
+                    listToReturn = listToReturn.Where(c => values.Any(id => c.Id == id));
+                }
+                else
+                if(filter.FieldName == "HasPieces")
                     listToReturn = listToReturn.Where(c => c.Pieces.Count > 0);
-                    else
+                else
                 if (filter.FieldName == "Size")
                     listToReturn = listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
                 else
@@ -98,7 +104,13 @@ namespace cAPParel.API.Services.ItemServices
             
                 foreach (var filter in filters)
                 {
-                    if (filter.FieldName != "CategoryIds")
+                if (filter.FieldName == "Ids")
+                {
+                    List<int> values = filter.Value as List<int>;
+                    listToReturn = listToReturn.Where(c => values.Any(id => c.Id == id));
+                }
+                    else
+                if (filter.FieldName != "CategoryIds")
                         listToReturn = FilterEntity(listToReturn, filter);
                 }
 

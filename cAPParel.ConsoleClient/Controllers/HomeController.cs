@@ -11,6 +11,8 @@ using cAPParel.ConsoleClient.Services.CategoryServices;
 using cAPParel.ConsoleClient.Models;
 using System.Runtime.CompilerServices;
 using static System.Net.Mime.MediaTypeNames;
+using cAPParel.ConsoleClient.Services.OrderServices;
+using System.Reflection.Metadata.Ecma335;
 
 namespace cAPParel.ConsoleClient.Controllers
 {
@@ -18,12 +20,14 @@ namespace cAPParel.ConsoleClient.Controllers
     {
         private readonly IItemService _itemService;
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
         private readonly ICategoryService _categoryService;
         private CurrentUserData _currentUserData;
-        public HomeController(IItemService itemService, IUserService authenticationService, ICategoryService categoryService)
+        public HomeController(IItemService itemService, IUserService authenticationService, ICategoryService categoryService, IOrderService orderService)
         {
             _itemService = itemService;
             _userService = authenticationService;
+            _orderService = orderService;
             _categoryService = categoryService;
             _currentUserData = CurrentUserData.Instance;
         }
@@ -113,18 +117,46 @@ namespace cAPParel.ConsoleClient.Controllers
                     itemFilters.isAvailable = !itemFilters.isAvailable;
                 })),
                 new Option($"Search results", async () => await Task.Run(async () =>{
+                    Console.Clear();
+                    LinkedResourceList<ItemFullDto>? items;
                     if(itemFilters is not null)
                     {
-                        var items = await _itemService.GetItemsFull(itemFilters);
+                        items = await _itemService.GetItemsFull(itemFilters);                        
                     }
                     else
                     {
-                        var items = await _itemService.GetItemsFull();
+                        items = await _itemService.GetItemsFull();
                     }
                     itemFilters = null;
                     category = null;
+                    List<Option> options = new List<Option>();
+                    if(items is not null && items.Value is not null)
+                    {
+                        foreach(var item in items.Value)
+                        {
+                            options.Add(new Option($"{item.Name}", async () => await Task.Run(async () =>
+                            {
+                                bool exit = false;
+                                do{
+                                List<Option> piecesOptions = new List<Option>();
+                                foreach(var piece in item.Pieces)
+                                {
+                                    piecesOptions.Add(new Option($"{piece.Size}", async () => await Task.Run(async () =>
+                                    {
+                                        _currentUserData.AddToShoppingCart(piece);
+                                        item.Pieces.Remove(piece);
+                                    })));
+                                }
+                                piecesOptions.Add(new Option("Back", async () => await Task.Run(() =>{exit=true; })));
+                                    await CreateSingularMenu(piecesOptions);
+                                }while(!exit);
+                            })));                            
+                        }
+                         options.Add(new Option("Back", () => Task.CompletedTask));
+                        await CreateMenu(options);
+                    }
                 })),
-                new Option("Exit", async () => await Task.Run(() =>{
+                new Option("Back", async () => await Task.Run(() =>{
                    exit = true;
                 }))
                 };
@@ -132,6 +164,8 @@ namespace cAPParel.ConsoleClient.Controllers
             } 
             while (!exit);
         }
+
+
 
         public async Task<Color> DisplayColorsSelectionMenu()
         {
@@ -180,33 +214,111 @@ namespace cAPParel.ConsoleClient.Controllers
         public async Task GetSelfData()
         {
             Console.Clear();
-            if(_currentUserData.GetToken() is null)
+            bool exit = false;
+            do
             {
-                Console.WriteLine("You are not logged in");
-                await Task.Delay(3000);
                 Console.Clear();
-                return;
-            }
-            var user = await _userService.GetSelfFull();
-            Console.WriteLine($"Name: {user.Username}");
-            Console.WriteLine($"Role: {user.Role}");
-            Console.WriteLine($"Saldo: {user.Saldo:F2}");
-            Console.WriteLine($"Shopping cart:");
-            int enumerator = 1;
-            foreach(var item in _currentUserData.GetShoppingCart())
-            {               
-                Console.WriteLine($"{enumerator}: {item.Item.Name}, {item.Size}, {item.Color}");
-                enumerator++;
-            }
-            Console.WriteLine($"Orders:");
-            enumerator = 1;
-            foreach(var order in user.Orders)
+                if (_currentUserData.GetToken() is null)
+                {
+                    Console.WriteLine("You are not logged in");
+                    await Task.Delay(3000);
+                    Console.Clear();
+                    return;
+                }
+                var user = await _userService.GetSelfFull();
+                Console.WriteLine($"Name: {user.Username}");
+                Console.WriteLine($"Role: {user.Role}");
+                Console.WriteLine($"Saldo: {user.Saldo:F2}");
+                List<Option> options = new List<Option>()
             {
-                Console.WriteLine($"{enumerator}: Date - {order.DateCreated}, Total - {order.TotalPrice:F2}, State: {order.State} ");
-
-            }
-            Console.ReadKey();
-            Console.Clear();
+                new Option("Show shopping cart", async () => await Task.Run(async () =>{
+                    bool exitCart = false;
+                    do{
+                    Console.Clear();
+                    var cartItems = _currentUserData.GetShoppingCart();
+                    Console.WriteLine($"Shopping cart total: {cartItems.Sum(p => (p.Item.Price)*p.Item.PriceMultiplier):F2}\nSelect any item below to remove.");
+                    var shoppingCartItemOptions = new List<Option>();
+                    foreach (var item in _currentUserData.GetShoppingCart())
+                    {
+                        shoppingCartItemOptions.Add(new Option($"{item.Item.Name}, {item.Size}, {item.Item.Price}", async () => await Task.Run(() =>
+                        {
+                            _currentUserData.RemoveFromShoppingCart(item);
+                        })));
+                    }
+                    shoppingCartItemOptions.Add(new Option("Back", async () => await Task.Run(() =>{exitCart=true; })));
+                    await CreateSingularMenu(shoppingCartItemOptions);
+                    }while(!exitCart);
+                })),
+                new Option("Purchase cart items", async () => await Task.Run(async () =>
+                {
+                    Console.Clear();
+                    if(_currentUserData.GetShoppingCart().Count == 0)
+                    {
+                        Console.WriteLine("Your shopping cart is empty");
+                        await Task.Delay(3000);
+                        Console.Clear();
+                        return;
+                    }
+                    var idList = _currentUserData.GetShoppingCart().Select(x => x.Item.Id).ToList();
+                    var order = await _orderService.CreateOrderAsync(idList);
+                    Console.WriteLine($"Order created: {order.DateCreated}, Total: {order.TotalPrice:F2}");
+                    _currentUserData.ClearShoppingCart();
+                    await Task.Delay(3000);
+                    Console.Clear();
+                })),
+                new Option("Previous orders", async () => await Task.Run(async () =>
+                {
+                    bool exitOrders = false;
+                    do{
+                    List<Option> orderOptions = new List<Option>();
+                    foreach(var order in user.Orders)
+                    {
+                        orderOptions.Add(new Option($"{order.DateCreated}, {order.TotalPrice:F2}, {order.State}", async () => await Task.Run(async () =>
+                        {
+                            Console.Clear();
+                            var orderInfo = await _orderService.GetOrderFullAsync(order.Id);
+                            var orderItemIds = orderInfo.Pieces.Select(x => x.ItemId).ToList();
+                            var orderitems = await _itemService.GetItemsFull(new ItemFilters(){ids=orderItemIds});
+                            foreach(var piece in orderInfo.Pieces)
+                            {
+                                var item = orderitems.Value.FirstOrDefault(c=>c.Id == piece.ItemId);
+                                Console.WriteLine($"{item.Name}, {piece.Size}, {item.Price:F2}");
+                            }
+                            List<Option> manageOrderOptions = new List<Option>();
+                            manageOrderOptions.Add(new Option("View items", async () => await Task.Run(async () =>
+                            {
+                                Console.Clear();
+                                 foreach(var piece in orderInfo.Pieces)
+                                 {
+                                    var item = orderitems.Value.FirstOrDefault(c=>c.Id == piece.ItemId);
+                                    Console.WriteLine($"{item.Name}, {piece.Size}, {item.Price:F2}");
+                                 }
+                                 List<Option> viewItemOptions = new List<Option>()
+                                 {
+                                     new Option("Back",  () => Task.CompletedTask)
+                                 };
+                                Console.ReadKey();
+                            })));
+                            if(order.State == State.Accepted)
+                            {
+                                manageOrderOptions.Add(new Option("Cancel Order", async () => await Task.Run(async () =>
+                                {
+                                    await _orderService.CancelOrderAsync(order.Id);
+                                })));
+                            }
+                            manageOrderOptions.Add(new Option("Back", () => Task.CompletedTask));
+                            await CreateSingularMenu(manageOrderOptions);
+                        })));
+                    }
+                    orderOptions.Add(new Option("Back", async () => await Task.Run(() =>{exitOrders=true; })));
+                        await CreateSingularMenu(orderOptions);
+                    }
+                    while(!exitOrders);
+                }))
+            };
+                options.Add(new Option("Back", async () => await Task.Run(() => { exit=true; })));
+                await CreateSingularMenu(options);
+            } while (!exit);
         }
 
         public async Task Authenticate()
