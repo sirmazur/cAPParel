@@ -324,7 +324,8 @@ namespace cAPParel.ConsoleClient.Models
     {
         Accepted,
         Ongoing,
-        Completed
+        Completed,
+        Cancelled
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]

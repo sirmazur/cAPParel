@@ -140,7 +140,7 @@ namespace cAPParel.ConsoleClient.Controllers
                                 do{
                                 List<Option> piecesOptions = new List<Option>();
                                 foreach(var piece in item.Pieces)
-                                {
+                                {   if(piece.IsAvailable==true)
                                     piecesOptions.Add(new Option($"{piece.Size}", async () => await Task.Run(async () =>
                                     {
                                         _currentUserData.AddToShoppingCart(piece);
@@ -259,7 +259,7 @@ namespace cAPParel.ConsoleClient.Controllers
                         Console.Clear();
                         return;
                     }
-                    var idList = _currentUserData.GetShoppingCart().Select(x => x.Item.Id).ToList();
+                    var idList = _currentUserData.GetShoppingCart().Select(x => x.Id).ToList();
                     var order = await _orderService.CreateOrderAsync(idList);
                     Console.WriteLine($"Order created: {order.DateCreated}, Total: {order.TotalPrice:F2}");
                     _currentUserData.ClearShoppingCart();
@@ -271,6 +271,7 @@ namespace cAPParel.ConsoleClient.Controllers
                     bool exitOrders = false;
                     do{
                     List<Option> orderOptions = new List<Option>();
+                    var user = await _userService.GetSelfFull();
                     foreach(var order in user.Orders)
                     {
                         orderOptions.Add(new Option($"{order.DateCreated}, {order.TotalPrice:F2}, {order.State}", async () => await Task.Run(async () =>

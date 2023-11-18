@@ -34,6 +34,10 @@ namespace cAPParel.ConsoleClient
             route);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
 
             var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();

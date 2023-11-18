@@ -41,7 +41,7 @@ namespace cAPParel.API.Controllers
                     UserId=int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value)
                 });
 
-                return CreatedAtRoute("GetOrder",createdOrder.Id,createdOrder);
+                return CreatedAtRoute("GetOrder", new { orderid = createdOrder.Id }, createdOrder);
             }
             catch (Exception ex)
             {
