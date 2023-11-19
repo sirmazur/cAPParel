@@ -7,5 +7,6 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(ItemFilters? filters = null);
         Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(ItemFilters? filters = null);
         Task<ItemDto> GetItemAsync(int itemId);
+        Task<ItemDto> CreateItemAsync(ItemForCreationDto itemToCreate);
     }
 }

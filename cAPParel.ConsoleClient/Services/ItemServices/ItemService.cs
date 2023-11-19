@@ -25,6 +25,12 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
         //    "application/vnd.capparel.item.friendly+json",
         //    "application/vnd.capparel.item.friendly.hateoas+json"
 
+        public async Task<ItemDto> CreateItemAsync(ItemForCreationDto itemToCreate)
+        {
+            var item = await _client.CreateResourceAsync<ItemForCreationDto, ItemDto>(itemToCreate, "api/items", "application/vnd.capparel.item.friendly+json");
+            return item;
+        }
+
         public async Task<ItemDto> GetItemAsync(int itemId)
         {
             var item = await _client.GetResourceAsync<ItemDto>($"api/items/{itemId}", "application/vnd.capparel.item.friendly+json");

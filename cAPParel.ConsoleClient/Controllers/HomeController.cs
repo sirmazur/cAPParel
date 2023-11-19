@@ -14,6 +14,7 @@ using static System.Net.Mime.MediaTypeNames;
 using cAPParel.ConsoleClient.Services.OrderServices;
 using System.Reflection.Metadata.Ecma335;
 
+
 namespace cAPParel.ConsoleClient.Controllers
 {
     public class HomeController : IHomeController
@@ -31,7 +32,7 @@ namespace cAPParel.ConsoleClient.Controllers
             _categoryService = categoryService;
             _currentUserData = CurrentUserData.Instance;
         }
-
+        [STAThread]
         public async Task RunAsync()
         {
             List<Option> options = new List<Option>()
@@ -230,7 +231,7 @@ namespace cAPParel.ConsoleClient.Controllers
                 Console.WriteLine($"Role: {user.Role}");
                 Console.WriteLine($"Saldo: {user.Saldo:F2}");
                 List<Option> options = new List<Option>()
-            {
+                {
                 new Option("Show shopping cart", async () => await Task.Run(async () =>{
                     bool exitCart = false;
                     do{
@@ -317,6 +318,116 @@ namespace cAPParel.ConsoleClient.Controllers
                     while(!exitOrders);
                 }))
             };
+                if(user.Role is Role.Admin)
+                {
+                    options.Add(new Option("Open admin panel", async () => await Task.Run(async () => 
+                    {
+                        List<Option> adminOptions = new List<Option>();
+                        adminOptions.Add(new Option("Add Item", async () => await Task.Run(async () =>
+                        {
+                            bool exitItemCreation = false;
+                            ItemForCreationDto item = new ItemForCreationDto();
+                            string? name = null;
+                            double? price = null;
+                            string? description = null;
+                            Color? color = null;
+                            byte[]? image = null;
+                            CategoryFullDto? category = null;
+                            do
+                            {
+                                List<Option> itemInfoOptions = new List<Option>()
+                            {
+                                new Option($"Name: {(name is not null ? name : "")}", async () => await Task.Run(() =>
+                                {
+                                    Console.Clear();
+                                    Console.WriteLine("Enter name:");
+                                    name = Console.ReadLine();
+                                })),
+                                new Option($"Price: {(price is not null ? price : "")}", async () => await Task.Run(async () =>
+                                {
+                                    Console.Clear();
+                                    Console.WriteLine("Enter price:");
+                                    try
+                                    {
+                                        price = Convert.ToDouble(Console.ReadLine());
+                                    }catch(Exception ex)
+                                    {
+                                        Console.WriteLine("Invalid price");
+                                    }finally
+                                    {
+                                        await Task.Delay(3000);
+                                    }
+
+                                })),
+                                new Option($"Color: {(color is not null ? color.ToString() : "")}", async () => await Task.Run(async () =>
+                                {
+                                    Console.Clear();
+
+                                    color = await DisplayColorsSelectionMenu();
+
+                                })),
+                                new Option($"Category: {(category is not null ? category.CategoryName : "")}", async () => await Task.Run(async () =>{
+                                Console.Clear();
+                                category = await DisplayCategoriesSelectionMenu();
+
+                                })),
+                                new Option($"Description: {(description is not null ? description : "")}", async () => await Task.Run(() =>
+                                {
+                                    Console.Clear();
+                                    Console.WriteLine("Enter description:");
+                                    description = Console.ReadLine();
+                                })),
+                                new Option("Image", async () => await Task.Run(() =>
+                                {
+                                    Console.Clear();
+                                    string folderName = "Images";
+
+                                    string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, folderName);
+
+                                    Directory.CreateDirectory(folderPath);
+                                    List<Option> fileOptions = new List<Option>();
+                                    foreach (string filePath in Directory.GetFiles(folderPath))
+                                    {
+                                        fileOptions.Add(new Option(Path.GetFileName(filePath), async () => await Task.Run(() =>
+                                        {
+                                            Console.Clear();
+                                            image = File.ReadAllBytes(filePath);
+                                            Console.WriteLine();
+                                        })));
+                                    }
+                                })),
+                                new Option("Finalize Item Creation", async () => await Task.Run( async () =>
+                                {
+                                    ItemForCreationDto itemToCreate = new ItemForCreationDto()
+                                    {
+                                        Name = name,
+                                        Price = (double)price,
+                                        Description = description,
+                                        CategoryId = category.Id,
+                                        FileData =
+                                        {
+                                            new FileDataForCreationDto()
+                                            {
+                                                Data = image,
+                                                Description = "Main image",
+                                                Type = DataType.Image
+                                            }
+                                        }
+                                    };
+                                    var createdItem = await _itemService.CreateItemAsync(itemToCreate);
+                                    Console.WriteLine($"Item created with id: {createdItem.Id}");
+                                    await Task.Delay(3000);
+                                    exitItemCreation = true;
+                                })),
+                                new Option("Back", async () => await Task.Run(() => { exitItemCreation = true;}))
+                            };
+                                await CreateSingularMenu(itemInfoOptions);
+                            }while(!exitItemCreation);
+                        })));
+                        adminOptions.Add(new Option("Back", () => Task.CompletedTask));
+                        await CreateMenu(adminOptions);
+                    })));
+                }
                 options.Add(new Option("Back", async () => await Task.Run(() => { exit=true; })));
                 await CreateSingularMenu(options);
             } while (!exit);
