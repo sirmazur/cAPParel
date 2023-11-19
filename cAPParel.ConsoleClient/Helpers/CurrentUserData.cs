@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Color = cAPParel.ConsoleClient.Models.Color;
 
 namespace cAPParel.ConsoleClient.Helpers
 {

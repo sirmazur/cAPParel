@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 using static System.Net.Mime.MediaTypeNames;
 using cAPParel.ConsoleClient.Services.OrderServices;
 using System.Reflection.Metadata.Ecma335;
-
+using Color = cAPParel.ConsoleClient.Models.Color;
 
 namespace cAPParel.ConsoleClient.Controllers
 {
@@ -331,7 +331,7 @@ namespace cAPParel.ConsoleClient.Controllers
                             double? price = null;
                             string? description = null;
                             Color? color = null;
-                            byte[]? image = null;
+                            FileDataForCreationDto? image = null;
                             CategoryFullDto? category = null;
                             do
                             {
@@ -353,8 +353,6 @@ namespace cAPParel.ConsoleClient.Controllers
                                     }catch(Exception ex)
                                     {
                                         Console.WriteLine("Invalid price");
-                                    }finally
-                                    {
                                         await Task.Delay(3000);
                                     }
 
@@ -377,7 +375,7 @@ namespace cAPParel.ConsoleClient.Controllers
                                     Console.WriteLine("Enter description:");
                                     description = Console.ReadLine();
                                 })),
-                                new Option("Image", async () => await Task.Run(() =>
+                                new Option($"Image: \n{(image is not null ? ConvertImageToAscii(image.Data, 64) : "")}", async () => await Task.Run(async () =>
                                 {
                                     Console.Clear();
                                     string folderName = "Images";
@@ -391,10 +389,15 @@ namespace cAPParel.ConsoleClient.Controllers
                                         fileOptions.Add(new Option(Path.GetFileName(filePath), async () => await Task.Run(() =>
                                         {
                                             Console.Clear();
-                                            image = File.ReadAllBytes(filePath);
-                                            Console.WriteLine();
+                                            image = new FileDataForCreationDto()
+                                            {
+                                                Data = File.ReadAllBytes(filePath),
+                                                Description = "Main image",
+                                                Type = DataType.Image
+                                            };
                                         })));
                                     }
+                                    await CreateSingularMenu(fileOptions);
                                 })),
                                 new Option("Finalize Item Creation", async () => await Task.Run( async () =>
                                 {
@@ -408,7 +411,7 @@ namespace cAPParel.ConsoleClient.Controllers
                                         {
                                             new FileDataForCreationDto()
                                             {
-                                                Data = image,
+                                                Data = image.Data,
                                                 Description = "Main image",
                                                 Type = DataType.Image
                                             }
@@ -689,6 +692,47 @@ namespace cAPParel.ConsoleClient.Controllers
                 Console.WriteLine(prefix+option.Name);
             }
             Console.ResetColor();
+        }
+        static string ConvertImageToAscii(byte[] imageBytes, int width)
+        {
+            using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(imageBytes))
+            {
+                // Calculate the proportional height based on the provided width
+                int height = (int)Math.Ceiling((double)width * image.Height / image.Width);
+
+                image.Mutate(ctx => ctx.Resize(new ResizeOptions
+                {
+                    Size = new Size(width, height),
+                    Mode = ResizeMode.Max
+                }));
+
+                string asciiChars = "@%#*+=-:. ";
+                int totalChars = asciiChars.Length;
+
+                var result = new char[width * height + height]; // Use 'height' here
+                int index = 0;
+
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Ensure we stay within the bounds of the resized image
+                        if (x < image.Width && y < image.Height)
+                        {
+                            var pixel = image[x, y];
+                            int brightness = (int)(0.299 * pixel.R + 0.587 * pixel.G + 0.114 * pixel.B);
+
+                            int charIndex = brightness * (totalChars - 1) / 255;
+                            result[index++] = asciiChars[charIndex];
+                        }
+                    }
+
+                    if (y < height - 1)
+                        result[index++] = '\n'; // Add a newline character after each row, except the last row
+                }
+
+                return new string(result);
+            }
         }
     }
     internal class Option
