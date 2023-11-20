@@ -142,7 +142,7 @@ namespace cAPParel.ConsoleClient.Controllers
                                 do{
                                 List<Option> piecesOptions = new List<Option>();
                                 foreach(var piece in item.Pieces)
-                                {   if(piece.IsAvailable==true)
+                                {   if(piece.IsAvailable==true && !_currentUserData.GetShoppingCart().Any(c=>c.Id == piece.Id))
                                     piecesOptions.Add(new Option($"{piece.Size}", async () => await Task.Run(async () =>
                                     {
                                         _currentUserData.AddToShoppingCart(piece);
