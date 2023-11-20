@@ -48,6 +48,7 @@ namespace cAPParel.ConsoleClient
             var request = new HttpRequestMessage(
             HttpMethod.Post,
             route);
+            var serialized = JsonSerializer.Serialize(itemToCreate);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
             request.Content = new StringContent(
@@ -141,9 +142,9 @@ namespace cAPParel.ConsoleClient
             return resultToReturn;
         }
 
-        public async Task<T> GetCurrentUserAsync<T>(string mediaType)
+        public async Task<T> GetCurrentUserAsync<T>(string mediaType, string route)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "/api/users/self");
+            var request = new HttpRequestMessage(HttpMethod.Get, route);
 
             if (_currentUserData is not null && _currentUserData.GetToken() is not null)
             {

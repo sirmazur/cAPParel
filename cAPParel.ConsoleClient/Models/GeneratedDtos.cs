@@ -221,10 +221,10 @@ namespace cAPParel.ConsoleClient.Models
         public int CategoryId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("pieces", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<PieceForCreationDto> Pieces { get; set; }
+        public System.Collections.Generic.ICollection<PieceForCreationDto> Pieces { get; set; } = new List<PieceForCreationDto>();
 
         [Newtonsoft.Json.JsonProperty("fileData", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<FileDataForCreationDto> FileData { get; set; }
+        public System.Collections.Generic.ICollection<FileDataForCreationDto> FileData { get; set; } = new List<FileDataForCreationDto>();
 
     }
 

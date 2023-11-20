@@ -28,7 +28,7 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
 
         public async Task<ItemDto> CreateItemAsync(ItemForCreationDto itemToCreate)
         {
-            var item = await _client.CreateResourceAsync<ItemForCreationDto, ItemDto>(itemToCreate, "api/items", "application/vnd.capparel.item.friendly+json");
+            var item = await _client.CreateResourceAsync<ItemForCreationDto, ItemDto>(itemToCreate, "api/items", "application/json");
             return item;
         }
 
@@ -37,7 +37,7 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
             var item = await _client.GetResourceAsync<ItemDto>($"api/items/{itemId}", "application/vnd.capparel.item.friendly+json");
             return item;
         }
-        public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFull(ItemFilters? filters = null)
+        public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFullAsync(ItemFilters? filters = null)
         {
             var route = "api/items";
             if (filters is null)
@@ -65,7 +65,7 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
 
         }
 
-        public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendly(ItemFilters? filters = null)
+        public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendlyAsync(ItemFilters? filters = null)
         {
             var route = "api/items";
             if(filters is null)
@@ -89,6 +89,41 @@ namespace cAPParel.ConsoleClient.Services.ItemServices
                 return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full.hateoas+json");
             else
                 return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full+json");
+        }
+        
+        public async Task DeletePieceAsync(int pieceId)
+        {
+            var route = $"api/items/pieces/{pieceId}";
+            try
+            {
+                await _client.DeleteResourceAsync(route);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                await Task.Delay(3000);
+            }
+        }
+
+        public async Task DeleteItemAsync(int itemId)
+        {
+            var route = $"api/items/{itemId}";
+            try
+            {
+                await _client.DeleteResourceAsync(route);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                await Task.Delay(3000);
+            }
+        }
+
+        public async Task<PieceDto> CreatePieceAsync(int itemId, PieceForCreationDto piece)
+        {
+            var route = $"api/items/{itemId}/pieces";
+            var createdPiece = await _client.CreateResourceAsync<PieceForCreationDto, PieceDto>(piece, route);
+            return createdPiece;
         }
     }
 

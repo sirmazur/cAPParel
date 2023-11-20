@@ -30,11 +30,11 @@ namespace cAPParel.ConsoleClient.Services.UserServices
         }
         public async Task<UserDto> GetSelfFriendly()
         {
-            return await _client.GetCurrentUserAsync<UserDto>("application/vnd.capparel.user.friendly+json");
+            return await _client.GetCurrentUserAsync<UserDto>("application/vnd.capparel.user.friendly+json", "/api/users/self");
         }
         public async Task<UserFullDto> GetSelfFull()
         {
-            return await _client.GetCurrentUserAsync<UserFullDto>("application/vnd.capparel.user.full+json");
+            return await _client.GetCurrentUserAsync<UserFullDto>("application/vnd.capparel.user.full+json", "/api/users/self");
         }
     }
 }

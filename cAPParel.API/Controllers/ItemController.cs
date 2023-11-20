@@ -63,13 +63,28 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        [HttpDelete("pieces/{pieceid}", Name = "DeletePiece")]
+        [Authorize(Policy = "MustBeAdmin")]
+        public async Task<ActionResult> DeletePiece(int pieceid)
+        {
+            var result = await _itemService.DeleteByIdAsync(pieceid);
+            if (result.IsSuccess == true)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(result.HttpResponseCode, result.ErrorMessage);
+            }
+        }
+
         [HttpPost(Name = "CreateItem")]
         public async Task<ActionResult<ItemDto>> CreateItem(ItemForCreationDto item)
         {
             try
             {
                 var result = await _itemService.CreateAsync(item);
-                return Ok(result);
+                return CreatedAtRoute("GetItem", new { itemid = result.Id }, result);
             }
             catch (Exception e)
             {

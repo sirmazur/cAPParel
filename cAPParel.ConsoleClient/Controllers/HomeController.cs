@@ -118,18 +118,19 @@ namespace cAPParel.ConsoleClient.Controllers
                     itemFilters.isAvailable = !itemFilters.isAvailable;
                 })),
                 new Option($"Search results", async () => await Task.Run(async () =>{
+                    var exitResults = false;
+                    do
+                    {
                     Console.Clear();
                     LinkedResourceList<ItemFullDto>? items;
                     if(itemFilters is not null)
                     {
-                        items = await _itemService.GetItemsFull(itemFilters);                        
+                        items = await _itemService.GetItemsFullAsync(itemFilters);
                     }
                     else
                     {
-                        items = await _itemService.GetItemsFull();
-                    }
-                    itemFilters = null;
-                    category = null;
+                        items = await _itemService.GetItemsFullAsync();
+                    }                   
                     List<Option> options = new List<Option>();
                     if(items is not null && items.Value is not null)
                     {
@@ -137,7 +138,7 @@ namespace cAPParel.ConsoleClient.Controllers
                         {
                             options.Add(new Option($"{item.Name}", async () => await Task.Run(async () =>
                             {
-                                bool exit = false;
+                                bool exitOptions = false;
                                 do{
                                 List<Option> piecesOptions = new List<Option>();
                                 foreach(var piece in item.Pieces)
@@ -148,14 +149,22 @@ namespace cAPParel.ConsoleClient.Controllers
                                         item.Pieces.Remove(piece);
                                     })));
                                 }
-                                piecesOptions.Add(new Option("Back", async () => await Task.Run(() =>{exit=true; })));
+                                piecesOptions.Add(new Option("Back", async () => await Task.Run(() =>{exitOptions=true; })));
                                     await CreateSingularMenu(piecesOptions);
-                                }while(!exit);
-                            })));                            
+                                }while(!exitOptions);
+                            })));
                         }
-                         options.Add(new Option("Back", () => Task.CompletedTask));
-                        await CreateMenu(options);
+                         options.Add(new Option("Back",  async () => await Task.Run(() =>{
+                        exitResults = true;
+                        })));
+                        await CreateSingularMenu(options);
                     }
+                    }while(!exitResults);
+                })),
+                new Option("Clear filters", async() => await Task.Run(() =>
+                {
+                    itemFilters = null;
+                    category = null;
                 })),
                 new Option("Back", async () => await Task.Run(() =>{
                    exit = true;
@@ -280,7 +289,7 @@ namespace cAPParel.ConsoleClient.Controllers
                             Console.Clear();
                             var orderInfo = await _orderService.GetOrderFullAsync(order.Id);
                             var orderItemIds = orderInfo.Pieces.Select(x => x.ItemId).ToList();
-                            var orderitems = await _itemService.GetItemsFull(new ItemFilters(){ids=orderItemIds});
+                            var orderitems = await _itemService.GetItemsFullAsync(new ItemFilters(){ids=orderItemIds});
                             foreach(var piece in orderInfo.Pieces)
                             {
                                 var item = orderitems.Value.FirstOrDefault(c=>c.Id == piece.ItemId);
@@ -329,6 +338,7 @@ namespace cAPParel.ConsoleClient.Controllers
                             ItemForCreationDto item = new ItemForCreationDto();
                             string? name = null;
                             double? price = null;
+                            ItemType? type = null;
                             string? description = null;
                             Color? color = null;
                             FileDataForCreationDto? image = null;
@@ -369,13 +379,25 @@ namespace cAPParel.ConsoleClient.Controllers
                                 category = await DisplayCategoriesSelectionMenu();
 
                                 })),
+                                new Option($"Type: {(type is not null ? type.ToString() : "")}", async () => await Task.Run(async () =>{
+                                Console.Clear();
+                                List<Option> typeOptions = new List<Option>();
+                                    foreach(var typeOption in Enum.GetValues(typeof(ItemType)))
+                                    {
+                                    typeOptions.Add(new Option(typeOption.ToString(), async () => await Task.Run(() =>
+                                    {
+                                        type = (ItemType)typeOption;
+                                    })));
+                                    }                                    
+                                    await CreateSingularMenu(typeOptions);
+                                })),
                                 new Option($"Description: {(description is not null ? description : "")}", async () => await Task.Run(() =>
                                 {
                                     Console.Clear();
                                     Console.WriteLine("Enter description:");
                                     description = Console.ReadLine();
                                 })),
-                                new Option($"Image: \n{(image is not null ? ConvertImageToAscii(image.Data, 64) : "")}", async () => await Task.Run(async () =>
+                                new Option($"Image: \n{(image is not null ? ConvertImageToAscii(image.Data, 32) : "")}", async () => await Task.Run(async () =>
                                 {
                                     Console.Clear();
                                     string folderName = "Images";
@@ -405,17 +427,12 @@ namespace cAPParel.ConsoleClient.Controllers
                                     {
                                         Name = name,
                                         Price = (double)price,
+                                        Type = type.Value,
+                                        Color = color.Value,                                       
                                         Description = description,
                                         CategoryId = category.Id,
-                                        FileData =
-                                        {
-                                            new FileDataForCreationDto()
-                                            {
-                                                Data = image.Data,
-                                                Description = "Main image",
-                                                Type = DataType.Image
-                                            }
-                                        }
+                                        FileData = new List<FileDataForCreationDto>(){image}
+
                                     };
                                     var createdItem = await _itemService.CreateItemAsync(itemToCreate);
                                     Console.WriteLine($"Item created with id: {createdItem.Id}");
@@ -427,6 +444,7 @@ namespace cAPParel.ConsoleClient.Controllers
                                 await CreateSingularMenu(itemInfoOptions);
                             }while(!exitItemCreation);
                         })));
+                        adminOptions.Add(new Option("Add pieces to an item:", async () => await GetAdminItemsMenu()));
                         adminOptions.Add(new Option("Back", () => Task.CompletedTask));
                         await CreateMenu(adminOptions);
                     })));
@@ -434,6 +452,126 @@ namespace cAPParel.ConsoleClient.Controllers
                 options.Add(new Option("Back", async () => await Task.Run(() => { exit=true; })));
                 await CreateSingularMenu(options);
             } while (!exit);
+        }
+
+        public async Task GetAdminItemsMenu()
+        {
+            ItemFilters? itemFilters = null;
+            CategoryFullDto? category = null;
+            bool exit = false;
+            do
+            {
+                List<Option> options = new List<Option>()
+                {
+                new Option($"Category: {(category!=null ? category.CategoryName : "")}", async () => await Task.Run(async () =>{
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    category = await DisplayCategoriesSelectionMenu();
+                    itemFilters.categoryid = category.Id;
+                })),
+                new Option($"Size: {(itemFilters!=null&&itemFilters.size!=null ? itemFilters.size : "")}", async () => await Task.Run(() =>{
+                Console.Clear();
+                Console.WriteLine("Size:");
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    itemFilters.size = Console.ReadLine();
+                    Console.Clear();
+                })),
+                new Option($"Color: {(itemFilters!=null&&itemFilters.color!=null ? itemFilters.color : "")}", async () => await Task.Run(async () =>{
+                Console.Clear();
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    itemFilters.color = await DisplayColorsSelectionMenu();
+                })),
+                new Option($"ShowOnlyAvailable: {(itemFilters!=null&&itemFilters.isAvailable==true ? "on" : "off")}", async () => await Task.Run(() =>{
+                    Console.Clear();
+                    if(itemFilters is null)
+                    {
+                        itemFilters = new ItemFilters();
+                    }
+                    itemFilters.isAvailable = !itemFilters.isAvailable;
+                })),
+                new Option($"Search results", async () => await Task.Run(async () =>{
+                    bool exitResults = false;
+                    do{
+                    Console.Clear();
+                    LinkedResourceList<ItemFullDto>? items;
+                    if(itemFilters is not null)
+                    {
+                        items = await _itemService.GetItemsFullAsync(itemFilters);
+                    }
+                    else
+                    {
+                        items = await _itemService.GetItemsFullAsync();
+                    }
+                    itemFilters = null;
+                    category = null;
+                    List<Option> options = new List<Option>();
+                    if(items is not null && items.Value is not null)
+                    {
+                        foreach(var item in items.Value)
+                        {
+                            options.Add(new Option($"{item.Name}", async () => await Task.Run(async () =>
+                            {
+                                bool exitOptions = false;
+                                do{
+                                List<Option> piecesOptions = new List<Option>();
+                                foreach(var piece in item.Pieces)
+                                {   if(piece.IsAvailable==true)
+                                    piecesOptions.Add(new Option($"{piece.Size}", async () => await Task.Run(async () =>
+                                    {
+                                        await _itemService.DeletePieceAsync(piece.Id);
+                                    })));
+                                }
+                                piecesOptions.Add(new Option("Add more pieces", async () => await Task.Run(async () =>{
+                                string? size= null;
+                                do
+                                {
+                                Console.WriteLine("Size:");
+                                size = Console.ReadLine();
+                                }
+                                while(size is null);
+                                var pieceToCreate = new PieceForCreationDto()
+                                {
+                                    Size = size
+                                };
+                                await _itemService.CreatePieceAsync(item.Id, pieceToCreate);
+                                })));
+                                piecesOptions.Add(new Option("Remove item and every piece", async () => await Task.Run(async () =>
+                                {
+                                    await _itemService.DeleteItemAsync(item.Id);
+                                    exitOptions=true;
+                                })));
+                                piecesOptions.Add(new Option("Back", async () => await Task.Run(() =>{exitOptions=true; })));
+                                await CreateSingularMenu(piecesOptions);
+                                }while(!exitOptions);
+                            })));
+                        }
+                         options.Add(new Option("Back",async () => await Task.Run(() =>{
+                         exitResults = true;
+                        })));
+                        await CreateSingularMenu(options);                            
+                    }
+                    }while(!exitResults);
+                })),
+                 new Option("Clear filters", async() => await Task.Run(() =>
+                {
+                    itemFilters = null;
+                    category = null;
+                })),
+                new Option("Back", async () => await Task.Run(() =>{
+                   exit = true;
+                }))
+                };
+                await CreateSingularMenu(options);
+            }
+            while (!exit);
         }
 
         public async Task Authenticate()
@@ -697,7 +835,7 @@ namespace cAPParel.ConsoleClient.Controllers
         {
             using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(imageBytes))
             {
-                // Calculate the proportional height based on the provided width
+
                 int height = (int)Math.Ceiling((double)width * image.Height / image.Width);
 
                 image.Mutate(ctx => ctx.Resize(new ResizeOptions
@@ -709,14 +847,13 @@ namespace cAPParel.ConsoleClient.Controllers
                 string asciiChars = "@%#*+=-:. ";
                 int totalChars = asciiChars.Length;
 
-                var result = new char[width * height + height]; // Use 'height' here
+                var result = new char[width * height + height]; 
                 int index = 0;
 
                 for (int y = 0; y < height; y++)
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        // Ensure we stay within the bounds of the resized image
                         if (x < image.Width && y < image.Height)
                         {
                             var pixel = image[x, y];
@@ -728,7 +865,7 @@ namespace cAPParel.ConsoleClient.Controllers
                     }
 
                     if (y < height - 1)
-                        result[index++] = '\n'; // Add a newline character after each row, except the last row
+                        result[index++] = '\n'; 
                 }
 
                 return new string(result);

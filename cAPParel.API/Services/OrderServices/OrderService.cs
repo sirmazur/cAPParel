@@ -27,6 +27,8 @@ namespace cAPParel.API.Services.OrderServices
                 piece.IsAvailable = true;
             }
             order.State = State.Cancelled;
+            var user = await _orderRepository.GetUserAsync(order.UserId);
+            user.Saldo += order.TotalPrice;
             await _basicRepository.SaveChangesAsync();
         }
 
@@ -37,7 +39,7 @@ namespace cAPParel.API.Services.OrderServices
             double total = 0;
             foreach (var piece in pieces)
             {
-                total += piece.Item.Price;
+                total += piece.Item.Price * piece.Item.PriceMultiplier;
                 if (piece.IsAvailable == false)
                     throw new Exception("One or more pieces are not available");
                 piece.IsAvailable = false;

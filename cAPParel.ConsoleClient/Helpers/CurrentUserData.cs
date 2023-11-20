@@ -13,6 +13,7 @@ namespace cAPParel.ConsoleClient.Helpers
     {
         private static CurrentUserData? _instance;
         private string _token;
+        private Role _role;
         private List<PieceDto> _shoppingCart = new List<PieceDto>();
         private int _choice;
         private CategoryFullDto _category;
@@ -28,6 +29,14 @@ namespace cAPParel.ConsoleClient.Helpers
                 }
                 return _instance;
             }
+        }
+        public void SetRole(Role role)
+        {
+            _role = role;
+        }
+        public Role GetRole()
+        {
+            return _role;
         }
         public void SetColorChoice(Color color)
         {
