@@ -216,6 +216,86 @@ namespace cAPParel.ConsoleClient.Controllers
             await CreateSingularMenu(categoryOptions);
             return _currentUserData.GetCategory();
         }
+        public async Task DisplayAdminCategoriesSelectionMenu()
+        {
+            bool exicAdminCategoriesSelectionMenu = false;
+            do
+            {
+                Console.Clear();
+                var categories = await _categoryService.GetCategoriesFull();
+                var baseCategory = categories.Value.FirstOrDefault(x => x.ParentCategoryId == null);
+                var listOfCategoryStrings = DisplayChildCategories(baseCategory, 1);
+                List<Option> categoryOptions = new List<Option>();
+                categoryOptions.Add(new Option($"{baseCategory.CategoryName}", async () => await Task.Run(async () =>
+                {
+                    bool exitmanageCategoryOptions = false;
+                    do
+                    {
+                        List<Option> manageCategoryOptions = new List<Option>()
+                    {
+
+                    new Option("Add Subcategory", async () => await Task.Run(async () =>
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Enter category name:");
+                        var categoryName = Console.ReadLine();
+                        Console.Clear();
+                        await _categoryService.CreateCategoryAsync(new CategoryForCreationDto()
+                        {
+                            CategoryName = categoryName,
+                            ParentCategoryId = baseCategory.Id
+                        });
+                    })),
+                    new Option("Back", () => Task.Run(()=>{bool exitmanageCategoryOptions = false;}))
+                    };
+                        await CreateSingularMenu(manageCategoryOptions);
+                    } while (!exitmanageCategoryOptions);
+                })));
+                foreach (var categoryString in listOfCategoryStrings)
+                {
+                    categoryOptions.Add(new Option(categoryString.Item1, async () => await Task.Run(async () =>
+                    {
+                        bool exitmanageCategoryOptions = false;
+                        do
+                        {
+                            List<Option> manageCategoryOptions = new List<Option>()
+                    {
+                    new Option("Add Subcategory", async () => await Task.Run(async () =>
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Enter category name:");
+                        var categoryName = Console.ReadLine();
+                        Console.Clear();
+                        await _categoryService.CreateCategoryAsync(new CategoryForCreationDto()
+                        {
+                            CategoryName = categoryName,
+                            ParentCategoryId = categoryString.Item2.Id
+                        });
+                    })),
+                    new Option("Delete this category", async () => await Task.Run(async () =>
+                    {
+                        Console.Clear();
+                        exitmanageCategoryOptions=true;
+                        try
+                        {
+                        await _categoryService.DeleteCategoryAsync(categoryString.Item2.Id);
+                        }
+                        catch(Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            await Task.Delay(3000);
+                        }
+                    })),
+                    new Option("Back", () => Task.Run(()=>{exitmanageCategoryOptions=true; }))
+                    };
+                            await CreateSingularMenu(manageCategoryOptions);
+                        } while (!exitmanageCategoryOptions);
+                    })));
+                }
+                categoryOptions.Add(new Option("Back", () => Task.Run(() => { exicAdminCategoriesSelectionMenu = true; })));
+                await CreateSingularMenu(categoryOptions);
+            } while (!exicAdminCategoriesSelectionMenu);
+        }
         List<(string,CategoryFullDto)> DisplayChildCategories(CategoryFullDto category, int prefix)
         {
             List<(string,CategoryFullDto)> strings = new List<(string,CategoryFullDto)>();
@@ -451,8 +531,9 @@ namespace cAPParel.ConsoleClient.Controllers
                                 await CreateSingularMenu(itemInfoOptions);
                             }while(!exitItemCreation);
                         })));
-                        adminOptions.Add(new Option("Add or remove pieces of an item:", async () => await GetAdminItemsMenu()));
-                        adminOptions.Add(new Option("Manage clients' orders:", async () => await Task.Run(async () =>
+                        adminOptions.Add(new Option("Add or remove pieces of an item", async () => await GetAdminItemsMenu()));
+                        adminOptions.Add(new Option("Manage categories", async () => await DisplayAdminCategoriesSelectionMenu()));
+                        adminOptions.Add(new Option("Manage clients' orders", async () => await Task.Run(async () =>
                         {
                             await GetOrdersMenu();
                         })));

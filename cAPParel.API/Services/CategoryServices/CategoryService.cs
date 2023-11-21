@@ -123,6 +123,17 @@ namespace cAPParel.API.Services.CategoryServices
             }
             else
             {
+                var items = await _categoryRepository.GetItemsByCategoryIdAsync(id);
+                if(items.Count()>0)
+                {
+                    return new OperationResult<CategoryDto>
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = $"Category {result.entity.CategoryName} has items assigned to it thus cannot be deleted.",
+                        HttpResponseCode = 400
+                    };
+                }
+
                 if(result.entity.ParentCategoryId!=null)
                 {
                     var categories = await _categoryRepository.GetCategoriesWithParentIdAsync(id);

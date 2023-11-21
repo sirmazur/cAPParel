@@ -32,6 +32,7 @@ namespace cAPParel.API.Services.CategoryServices
             return result;
         }
 
+
         //public async Task<IEnumerable<Category>> GetFilteredCategoriesAsync(string? parentNameFilter, int? parentIdFilter)
         //{
         //    IQueryable<Category> result;

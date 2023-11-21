@@ -37,6 +37,35 @@ namespace cAPParel.ConsoleClient.Services.CategoryServices
 
         }
 
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryForCreationDto category)
+        {
+
+            try
+            {
+                var response = await _client.CreateResourceAsync<CategoryForCreationDto,CategoryDto>(category, "api/categories");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                await Task.Delay(3000);
+                return new CategoryDto();
+            }
+
+        }
+
+        public async Task DeleteCategoryAsync(int id)
+        {
+            try
+            {
+                await _client.DeleteResourceAsync($"api/categories/{id}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<LinkedResourceList<CategoryDto>?> GetCategoriesFriendly(int? parentcategoryid = null, bool? includeLinks = false)
         {
             var route = "api/categories";

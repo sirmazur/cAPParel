@@ -77,6 +77,20 @@ namespace cAPParel.API.Controllers
                 return StatusCode(result.HttpResponseCode, result.ErrorMessage);
             }
         }
+        [HttpDelete("{itemid}", Name = "DeleteItem")]
+        [Authorize(Policy = "MustBeAdmin")]
+        public async Task<ActionResult> DeleteItem(int itemid)
+        {
+            var result = await _itemService.DeleteByIdAsync(itemid);
+            if (result.IsSuccess == true)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(result.HttpResponseCode, result.ErrorMessage);
+            }
+        }
 
         [HttpPost(Name = "CreateItem")]
         public async Task<ActionResult<ItemDto>> CreateItem(ItemForCreationDto item)

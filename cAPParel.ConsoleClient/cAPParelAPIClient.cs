@@ -42,7 +42,27 @@ namespace cAPParel.ConsoleClient
             }
 
             var response = await _client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode.HasValue)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+
+                    throw new Exception(errorMessage, ex);
+                }
+                else
+                {
+                    throw new Exception(ex.Message, ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<TDto> CreateResourceAsync<TCreationDto, TDto>(TCreationDto itemToCreate, string route, string acceptHeader = "application/json")
@@ -62,6 +82,27 @@ namespace cAPParel.ConsoleClient
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
             }
             var response = await _client.SendAsync(request);
+            try 
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode.HasValue)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+
+                    throw new Exception(errorMessage, ex);
+                }
+                else
+                {
+                    throw new Exception(ex.Message, ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
