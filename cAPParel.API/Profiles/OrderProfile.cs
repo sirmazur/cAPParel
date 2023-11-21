@@ -9,6 +9,7 @@ namespace cAPParel.API.Profiles
         public OrderProfile()
         {
             CreateMap<OrderForCreationDto, Order>();
+            CreateMap<Order, OrderForUpdateDto>();
             CreateMap<OrderForUpdateDto, Order>();
             CreateMap<Order, OrderDto>();
             CreateMap<Order, OrderFullDto>();

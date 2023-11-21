@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using cAPParel.ConsoleClient.Helpers;
 using System.Text.Json;
 using System.Web;
+using Microsoft.AspNetCore.Routing;
+using System.Xml.XPath;
 
 namespace cAPParel.ConsoleClient
 {
@@ -22,7 +24,7 @@ namespace cAPParel.ConsoleClient
         {
             _client = client;
             _client.BaseAddress = new Uri("https://localhost:7003");
-            _client.Timeout = new TimeSpan(0, 0, 30);
+            _client.Timeout = new TimeSpan(0, 0, 60);
             _jsonSerializerOptionsWrapper = jsonSerializerOptionsWrapper;
             _currentUserData = CurrentUserData.Instance;
         }
@@ -166,6 +168,26 @@ namespace cAPParel.ConsoleClient
 
             return currentUser;
         }
+
+        public async Task PatchResourceAsync<TUpdateDto>(Microsoft.AspNetCore.JsonPatch.JsonPatchDocument<TUpdateDto> patchDoc, string route, string mediaType) where TUpdateDto : class
+        {
+            var request = new HttpRequestMessage(HttpMethod.Patch, route);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
+
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
+
+            // Serialize the JsonPatchDocument to a JSON string
+            var serializedPatch = Newtonsoft.Json.JsonConvert.SerializeObject(patchDoc);
+            request.Content = new StringContent(serializedPatch);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue(("application/json-patch+json"));
+            var response = await _client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+        }
+
 
     }
 }

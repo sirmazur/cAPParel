@@ -435,6 +435,7 @@ namespace cAPParel.ConsoleClient.Controllers
 
                                     };
                                     var createdItem = await _itemService.CreateItemAsync(itemToCreate);
+                                    Console.Clear();
                                     Console.WriteLine($"Item created with id: {createdItem.Id}");
                                     await Task.Delay(3000);
                                     exitItemCreation = true;
@@ -444,13 +445,84 @@ namespace cAPParel.ConsoleClient.Controllers
                                 await CreateSingularMenu(itemInfoOptions);
                             }while(!exitItemCreation);
                         })));
-                        adminOptions.Add(new Option("Add pieces to an item:", async () => await GetAdminItemsMenu()));
+                        adminOptions.Add(new Option("Add or remove pieces of an item:", async () => await GetAdminItemsMenu()));
+                        adminOptions.Add(new Option("Manage clients' orders:", async () => await Task.Run(async () =>
+                        {
+                            await GetOrdersMenu();
+                        })));
                         adminOptions.Add(new Option("Back", () => Task.CompletedTask));
                         await CreateMenu(adminOptions);
                     })));
                 }
                 options.Add(new Option("Back", async () => await Task.Run(() => { exit=true; })));
                 await CreateSingularMenu(options);
+            } while (!exit);
+        }
+
+        public async Task GetOrdersMenu()
+        {
+            Console.Clear();
+            bool exit = false;
+            do
+            {
+
+                var orders = await _orderService.GetOrdersFullAsync("DateCreated");
+                List<Option> orderMenuOptions = new List<Option>();
+                List<int> userIds = orders.Value
+                .Select(order => order.UserId)
+                .Distinct()
+                .ToList();
+                var users = await _userService.GetUsersFullAsync(userIds);
+                foreach (var order in orders.Value)
+                {
+
+                    if (order.State==State.Ongoing || order.State==State.Accepted)
+
+                        orderMenuOptions.Add(new Option($"{order.DateCreated}, State:{order.State.ToString()}, Total:{order.TotalPrice}, User:{users.Value.FirstOrDefault(u => u.Id == order.UserId).Username}", async () => await Task.Run(async () =>
+                        {
+                            bool exitOrderOptions = false;
+                            do
+                            {
+                                Console.Clear();
+                                List<Option> manageOrderOptions = new List<Option>()
+                            {
+                            new Option("Proceed order", async () => await Task.Run(async () =>
+                            {
+                                Console.Clear();
+                                order.State++;
+                                await _orderService.PatchOrderAsync(order.State++, order.Id);
+                                exitOrderOptions = true;
+                            })),
+
+                            new Option("Cancel order", async () => await Task.Run(async () =>
+                            {
+                                 Console.Clear();
+                                await _orderService.CancelOrderAsync(order.Id);
+                                exitOrderOptions = true;
+                            })),
+                            new Option("Display items", async () => await Task.Run(async () =>
+                            {
+                                Console.Clear();
+                                var orderItemIds = order.Pieces.Select(x => x.ItemId).ToList();
+                                var orderitems = await _itemService.GetItemsFullAsync(new ItemFilters(){ids=orderItemIds});
+                                foreach(var piece in order.Pieces)
+                                {
+                                    var item = orderitems.Value.FirstOrDefault(c=>c.Id == piece.ItemId);
+                                    Console.WriteLine($"{item.Name}, {piece.Size}, {item.Price:F2}");
+                                }
+                                Console.ReadKey();
+                            })),
+                            new Option("Back",() => Task.Run(() =>
+                            {
+                                exitOrderOptions = true;
+                            }))
+                        };
+                                await CreateSingularMenu(manageOrderOptions);
+                            } while (!exitOrderOptions);
+                        })));
+                }
+                orderMenuOptions.Add(new Option("Back", () => Task.Run(() => { exit=true; })));
+                await CreateSingularMenu(orderMenuOptions);
             } while (!exit);
         }
 
@@ -510,8 +582,6 @@ namespace cAPParel.ConsoleClient.Controllers
                     {
                         items = await _itemService.GetItemsFullAsync();
                     }
-                    itemFilters = null;
-                    category = null;
                     List<Option> options = new List<Option>();
                     if(items is not null && items.Value is not null)
                     {
@@ -527,12 +597,14 @@ namespace cAPParel.ConsoleClient.Controllers
                                     piecesOptions.Add(new Option($"{piece.Size}", async () => await Task.Run(async () =>
                                     {
                                         await _itemService.DeletePieceAsync(piece.Id);
+                                        item.Pieces.Remove(piece);
                                     })));
                                 }
                                 piecesOptions.Add(new Option("Add more pieces", async () => await Task.Run(async () =>{
                                 string? size= null;
                                 do
                                 {
+                                Console.Clear();
                                 Console.WriteLine("Size:");
                                 size = Console.ReadLine();
                                 }

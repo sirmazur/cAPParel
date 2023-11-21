@@ -51,7 +51,7 @@ namespace cAPParel.API.Controllers
         [HttpGet(Name = "GetUsers")]
         [Authorize(Policy = "MustBeAdmin")]
         [HttpHead]
-        public async Task<IActionResult> GetUsers([FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
+        public async Task<IActionResult> GetUsers([FromQuery] IEnumerable<int>? ids, [FromQuery] ResourceParameters resourceParameters, [FromHeader(Name = "Accept")] string? mediaType)
         {
             if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
             {
@@ -69,6 +69,10 @@ namespace cAPParel.API.Controllers
             }
             List<IFilter> filters = new List<IFilter>();
 
+            if (ids is not null && ids.Count()>0)
+            {
+                filters.Add(new NumericFilter("Ids", ids));
+            }
 
             var includeLinks = parsedMediaType.SubTypeWithoutSuffix
                 .EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
@@ -86,7 +90,7 @@ namespace cAPParel.API.Controllers
                 PagedList<UserFullDto>? users = null;
                 try
                 {
-                    users = await _userService.GetFullAllAsync(filters, resourceParameters);
+                    users = await _userService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters);
                 }
                 catch (Exception ex)
                 {

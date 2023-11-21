@@ -298,6 +298,7 @@ namespace cAPParel.API.Services.Basic
             {
                 var itemToPatch = _mapper.Map<TUpdateDto>(item);
                 patchDocument.ApplyTo(itemToPatch);
+                _mapper.Map(itemToPatch, item);
                 await _basicRepository.SaveChangesAsync();
                 return new OperationResult<TDto>
                 {

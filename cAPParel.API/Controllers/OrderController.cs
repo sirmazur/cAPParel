@@ -29,6 +29,7 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
         }
 
+
         [HttpPost(Name = "PlaceOrder")]
         [Authorize(Policy = "MustBeLoggedIn")]
         public async Task<ActionResult<OrderDto>> PlaceOrder(List<int> pieceIds)

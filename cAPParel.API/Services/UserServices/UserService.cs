@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using cAPParel.API.Controllers;
 using cAPParel.API.Entities;
+using cAPParel.API.Filters;
+using cAPParel.API.Helpers;
 using cAPParel.API.Models;
 using cAPParel.API.Services.Basic;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 
@@ -34,6 +37,74 @@ namespace cAPParel.API.Services.UserServices
                 return _mapper.Map<UserFullDto>(account);
             }
 
+        }
+
+        public async override Task<PagedList<UserFullDto>> GetFullAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters,
+            ResourceParameters parameters,
+            params Expression<Func<User,
+                object>>[] includeProperties)
+        {
+            var listToReturn = _basicRepository.GetQueryableAllWithEagerLoadingAsync(includeProperties);            
+            foreach (var filter in filters)
+            {
+                if (filter.FieldName == "Ids")
+                {
+                    List<int> values = filter.Value as List<int>;
+                    listToReturn = listToReturn.Where(c => values.Any(id => c.Id == id));
+                }              
+                else
+                {
+                        listToReturn = FilterEntity(listToReturn, filter);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
+            }
+
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
+
+            var finalList = await PagedList<User>
+                .CreateAsync(listToReturn,
+                parameters.PageNumber,
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<UserFullDto>>(finalList);
+            return finalListToReturn;
+        }
+
+        public async override Task<PagedList<UserDto>> GetAllWithEagerLoadingAsync(IEnumerable<IFilter>? filters,
+            ResourceParameters parameters,
+            params Expression<Func<User,
+                object>>[] includeProperties)
+        {
+            var listToReturn = _basicRepository.GetQueryableAllWithEagerLoadingAsync(includeProperties);
+
+            foreach (var filter in filters)
+            {
+                if (filter.FieldName == "Ids")
+                {
+                    List<int> values = filter.Value as List<int>;
+                    listToReturn = listToReturn.Where(c => values.Any(id => c.Id == id));
+                }
+                else
+                if (filter.FieldName != "CategoryIds")
+                    listToReturn = FilterEntity(listToReturn, filter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(parameters.SearchQuery))
+            {
+                listToReturn = SearchEntityByProperty(listToReturn, parameters.SearchQuery);
+            }
+
+            listToReturn = ApplyOrdering(listToReturn, parameters.OrderBy);
+
+            var finalList = await PagedList<User>
+                .CreateAsync(listToReturn,
+                parameters.PageNumber,
+                parameters.PageSize);
+            var finalListToReturn = _mapper.Map<PagedList<UserDto>>(finalList);
+            return finalListToReturn;
         }
 
         public string GenerateToken(UserFullDto user)
