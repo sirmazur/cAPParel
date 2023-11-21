@@ -14,6 +14,7 @@ using static System.Net.Mime.MediaTypeNames;
 using cAPParel.ConsoleClient.Services.OrderServices;
 using System.Reflection.Metadata.Ecma335;
 using Color = cAPParel.ConsoleClient.Models.Color;
+using SixLabors.ImageSharp;
 
 namespace cAPParel.ConsoleClient.Controllers
 {
@@ -78,6 +79,7 @@ namespace cAPParel.ConsoleClient.Controllers
         {
             ItemFilters? itemFilters = null;
             CategoryFullDto? category = null;
+            bool showImages = false;
             bool exit = false;
             do
             {
@@ -109,13 +111,17 @@ namespace cAPParel.ConsoleClient.Controllers
                     }
                     itemFilters.color = await DisplayColorsSelectionMenu();
                 })),
-                new Option($"ShowOnlyAvailable: {(itemFilters!=null&&itemFilters.isAvailable==true ? "on" : "off")}", async () => await Task.Run(() =>{
+                new Option($"Show Only Available: {(itemFilters!=null&&itemFilters.isAvailable==true ? "on" : "off")}", async () => await Task.Run(() =>{
                     Console.Clear();
                     if(itemFilters is null)
                     {
                         itemFilters = new ItemFilters();
                     }
                     itemFilters.isAvailable = !itemFilters.isAvailable;
+                })),
+                new Option($"Show Item Images: {(showImages==true ? "on" : "off")}", async () => await Task.Run(() =>{
+                    Console.Clear();
+                    showImages = !showImages;
                 })),
                 new Option($"Search results", async () => await Task.Run(async () =>{
                     var exitResults = false;
@@ -135,11 +141,11 @@ namespace cAPParel.ConsoleClient.Controllers
                     if(items is not null && items.Value is not null)
                     {
                         foreach(var item in items.Value)
-                        {
-                            options.Add(new Option($"{item.Name}", async () => await Task.Run(async () =>
                             {
-                                bool exitOptions = false;
-                                do{
+                                options.Add(new Option($"{item.Name}, ({item.Description} {(item.FileData.Any(c=>c.Type==DataType.Image)&&showImages ? "\n"+ConvertImageToAscii(item.FileData.FirstOrDefault(c=>c.Type==DataType.Image).Data, 32) : "")})", async () => await Task.Run(async () =>
+                                {
+                                    bool exitOptions = false;
+                                    do{
                                 List<Option> piecesOptions = new List<Option>();
                                 foreach(var piece in item.Pieces)
                                 {   if(piece.IsAvailable==true && !_currentUserData.GetShoppingCart().Any(c=>c.Id == piece.Id))
