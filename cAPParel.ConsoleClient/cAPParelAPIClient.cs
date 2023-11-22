@@ -103,7 +103,6 @@ namespace cAPParel.ConsoleClient
             {
                 throw new Exception(ex.Message);
             }
-            response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
             var createdItemDto = JsonSerializer.Deserialize<TDto>(content, _jsonSerializerOptionsWrapper.Options);
@@ -226,6 +225,48 @@ namespace cAPParel.ConsoleClient
             request.Content.Headers.ContentType = new MediaTypeHeaderValue(("application/json-patch+json"));
             var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();
+
+        }
+
+        public async Task DownloadFileAsync(string route, string destinationFilePath)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, route);
+
+            if (_currentUserData is not null && _currentUserData.GetToken() is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentUserData.GetToken());
+            }
+                var response = await _client.GetAsync(route);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode.HasValue)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+
+                    throw new Exception(errorMessage, ex);
+                }
+                else
+                {
+                    throw new Exception(ex.Message, ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+                using (var contentStream = await response.Content.ReadAsStreamAsync())
+                {
+                    using (var fileStream = new FileStream(Path.Combine(destinationFilePath,response.Content.Headers.ContentDisposition.FileNameStar), FileMode.Create, FileAccess.Write))
+                    {
+                        await contentStream.CopyToAsync(fileStream);
+                    }
+                }
+
 
         }
 

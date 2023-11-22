@@ -38,7 +38,8 @@ namespace cAPParel.ConsoleClient.Controllers
         {
             List<Option> options = new List<Option>()
             {
-                new Option("Log in", async () => await Authenticate()),
+                new Option("Register", async () => await Register()),
+                new Option("Log in", async () => await Authenticate()),               
                 new Option("Your Profile", async () => await GetSelfData()),
                 new Option("Browse Clothing", async () => await GetItemsMenu()),
                 new Option("Exit", () => Task.CompletedTask)
@@ -73,6 +74,36 @@ namespace cAPParel.ConsoleClient.Controllers
             //    Console.WriteLine(item.Name);
             //}
             //Console.ReadKey();
+        }
+        public async Task Register()
+        {
+            Console.Clear();
+            Console.WriteLine("Enter your desired username:");
+            var username = Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine("Enter your desired password:");
+            var password = Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine("Enter your invitation code if you have one:");
+            var invitationCode = Console.ReadLine();
+            Console.Clear();
+            try
+            {
+                await _userService.Register(new UserForClientCreation()
+                {
+                    Username = username,
+                    Password = password,
+                    AdminCode = invitationCode
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                await Task.Delay(3000);
+                return;
+            }
+            Console.WriteLine("Registration successful! You can now log in.");
+            await Task.Delay(3000);
         }
 
         public async Task GetItemsMenu()
@@ -166,6 +197,27 @@ namespace cAPParel.ConsoleClient.Controllers
                         await CreateSingularMenu(options);
                     }
                     }while(!exitResults);
+                })),
+                new Option("Generate pricing pdf for category", async() => await Task.Run(async () =>
+                {
+                    Console.Clear();
+                    if(category is not null)
+                    {
+                        try
+                        {
+                            await _categoryService.GeneratePricingPdf(category.Id);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            await Task.Delay(3000);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please select a category first");
+                        await Task.Delay(3000);
+                    }
                 })),
                 new Option("Clear filters", async() => await Task.Run(() =>
                 {

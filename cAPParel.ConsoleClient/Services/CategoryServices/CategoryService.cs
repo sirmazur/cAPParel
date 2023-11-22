@@ -37,6 +37,20 @@ namespace cAPParel.ConsoleClient.Services.CategoryServices
 
         }
 
+        public async Task GeneratePricingPdf(int categoryId)
+        {
+
+            string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            try
+            {
+                await _client.DownloadFileAsync($"api/categories/{categoryId}/pricelists", folderPath);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<CategoryDto> CreateCategoryAsync(CategoryForCreationDto category)
         {
 

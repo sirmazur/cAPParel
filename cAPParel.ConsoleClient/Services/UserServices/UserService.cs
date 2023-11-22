@@ -30,6 +30,18 @@ namespace cAPParel.ConsoleClient.Services.UserServices
 
         }
 
+        public async Task Register(UserForClientCreation userToCreate)
+        {
+            try
+            { 
+                var user = await _client.CreateResourceAsync<UserForClientCreation, UserDto>(userToCreate, "api/users");
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public async Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(List<int>? ids, bool? includeLinks = false)
         {
             var route = "api/users";

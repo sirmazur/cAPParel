@@ -34,7 +34,7 @@ namespace cAPParel.API.Controllers
             try
             {
                 var result = await _userService.CreateUser(user);
-                return CreatedAtRoute("GetUser", result.Id, result);
+                return CreatedAtRoute("GetUser", new { userid = result.Id }, result);
             }
             catch (Exception e)
             {
