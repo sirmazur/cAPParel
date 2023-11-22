@@ -378,7 +378,13 @@ namespace cAPParel.ConsoleClient.Controllers
                 Console.WriteLine($"Role: {user.Role}");
                 Console.WriteLine($"Saldo: {user.Saldo:F2}");
                 List<Option> options = new List<Option>()
-                {
+                {                    
+                new Option($"Top up your account | current balance: {user.Saldo:F2}", async () => await Task.Run(async () =>{
+                    Console.Clear();
+                    Console.WriteLine("Enter target balance:");
+                    double amount = double.Parse(Console.ReadLine());
+                    await _userService.TopUpAccountAsync(user.Id, amount);                    
+                })),
                 new Option("Show shopping cart", async () => await Task.Run(async () =>{
                     bool exitCart = false;
                     do{

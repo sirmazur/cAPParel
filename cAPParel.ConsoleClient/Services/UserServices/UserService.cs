@@ -1,8 +1,10 @@
 ﻿using cAPParel.ConsoleClient.Helpers;
 using cAPParel.ConsoleClient.Models;
 using cAPParel.ConsoleClient.Services.ItemServices;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +42,13 @@ namespace cAPParel.ConsoleClient.Services.UserServices
             {
                 throw e;
             }
+        }
+
+        public async Task TopUpAccountAsync(int id, double amount)
+        {
+            var patchDocument = new JsonPatchDocument<UserForUpdateDto>();
+            patchDocument.Replace(o => o.Saldo, amount);
+            await _client.PatchResourceAsync<UserForUpdateDto>(patchDocument, $"api/users/{id}", "application/json");
         }
 
         public async Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(List<int>? ids, bool? includeLinks = false)

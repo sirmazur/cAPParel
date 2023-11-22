@@ -472,7 +472,7 @@ namespace cAPParel.API.Controllers
             }
         }
 
-        [Authorize(Policy = "MustBeAdmin")]
+        [Authorize(Policy = "MustBeLoggedIn")]
         [HttpPatch("{toupdateid}", Name = "PartialUpdateUser")]
         public async Task<IActionResult> PartialUpdateUser(int toupdateid, JsonPatchDocument<UserForUpdateDto> patchDocument)
         {
@@ -487,7 +487,7 @@ namespace cAPParel.API.Controllers
             }
         }
 
-        [Authorize(Policy = "MustBeAdmin")]
+        [Authorize(Policy = "MustBeLoggedIn")]
         [HttpPost("{userid}/balance/{amount}")]
         public async Task<UserDto> TopUp(int userid, double amount)
         {

@@ -15,5 +15,6 @@ namespace cAPParel.API.Models
         public string Password { get; set; }
 
         public Role Role { get; set; }
+        public double Saldo { get; set; }
     }
 }
