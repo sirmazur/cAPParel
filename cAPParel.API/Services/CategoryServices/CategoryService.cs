@@ -52,7 +52,7 @@ namespace cAPParel.API.Services.CategoryServices
 
                                     y.RelativeItem().Text(t =>
                                     {
-                                        t.Line($"{item.Name} - ${item.Price:F2}").FontSize(18).FontColor(Colors.Black);
+                                        t.Line($"{item.Name} - ${item.Price:F2}").FontSize(16).FontColor(Colors.Black);
                                         t.Span(item.Description).FontSize(12).FontColor(Colors.Black);
 
                                     });
@@ -60,7 +60,7 @@ namespace cAPParel.API.Services.CategoryServices
                                     {
                                         var bytes = item.FileData.FirstOrDefault(c => c.Type == 0).Data;
                                         if (bytes is not null)
-                                            y.RelativeItem().AlignRight().MaxHeight(100).MaxWidth(200).Image(bytes);
+                                            y.RelativeItem().AlignRight().MaxHeight(150).Image(bytes).FitHeight();
                                     }
 
                                 });

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using cAPParel.ConsoleClient.Services.CategoryServices;
 using cAPParel.ConsoleClient.Services.OrderServices;
+using cAPParel.ConsoleClient.Views;
 
 using IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
@@ -19,6 +20,10 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     services.AddScoped<IUserService, UserService>();
                     services.AddScoped<ICategoryService, CategoryService>();
                     services.AddScoped<IOrderService, OrderService>();
+                    services.AddSingleton<BrowserView>();
+                    services.AddSingleton<RegisterView>();
+                    services.AddSingleton<LoginView>();
+                    services.AddSingleton<ProfileView>();
                     services.AddSingleton<IHomeController, HomeController>();
                 }).Build();
 
