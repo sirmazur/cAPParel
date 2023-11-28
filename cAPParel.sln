@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cAPParel.API", "cAPParel.AP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cAPParel.ConsoleClient", "cAPParel.ConsoleClient\cAPParel.ConsoleClient.csproj", "{89BB5B08-CDEF-4C14-AFC3-2F60C10FE07D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cAPParel.BlazorApp", "cAPParel.BlazorApp\cAPParel.BlazorApp\cAPParel.BlazorApp.csproj", "{FDE75F6F-BA89-410E-B779-ED419D4B2FC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cAPParel.BlazorApp.Client", "cAPParel.BlazorApp\cAPParel.BlazorApp.Client\cAPParel.BlazorApp.Client.csproj", "{3904DF29-68AD-42BB-B18F-B8E3E3E87981}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{89BB5B08-CDEF-4C14-AFC3-2F60C10FE07D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89BB5B08-CDEF-4C14-AFC3-2F60C10FE07D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89BB5B08-CDEF-4C14-AFC3-2F60C10FE07D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDE75F6F-BA89-410E-B779-ED419D4B2FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDE75F6F-BA89-410E-B779-ED419D4B2FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDE75F6F-BA89-410E-B779-ED419D4B2FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDE75F6F-BA89-410E-B779-ED419D4B2FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3904DF29-68AD-42BB-B18F-B8E3E3E87981}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3904DF29-68AD-42BB-B18F-B8E3E3E87981}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3904DF29-68AD-42BB-B18F-B8E3E3E87981}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3904DF29-68AD-42BB-B18F-B8E3E3E87981}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
