@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>cAPParel.API</name>
+    </assembly>
+    <members>
+        <member name="M:cAPParel.API.Controllers.AuthenticationController.Authenticate(cAPParel.API.Controllers.UserParams)">
+            <summary>
+            Gets a token for the user
+            </summary>
+            <param name="param">Username and password</param>
+            <returns>Bearer token</returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.GetPricing(System.Int32)">
+            <summary>
+            Generates a pdf file with the pricing for the category
+            </summary>
+            <param name="categoryid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.GetCategories(System.Nullable{System.Int32},cAPParel.API.Helpers.ResourceParameters,System.String)">
+            <summary>
+            Gets categories
+            </summary>
+            <param name="parentcategoryid">Parent category filter</param>
+            <param name="resourceParameters"></param>
+            <param name="mediaType"></param>
+            <returns>Linked/Unlinked IEnumerable of categories</returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.GetCategory(System.Int32,System.String,System.String)">
+            <summary>
+            Gets a single category by id
+            </summary>
+            <param name="categoryid"></param>
+            <param name="fields">Optional desired fields for data shaping</param>
+            <param name="mediaType"></param>
+            <returns>Shaped or unshaped Category</returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.DeleteCategory(System.Int32)">
+            <summary>
+            Deletes a category by id, Requires admin token
+            </summary>
+            <param name="categorytodeleteid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.CreateCategoryAsync(cAPParel.API.Models.CategoryForCreationDto)">
+            <summary>
+            Creates a new category, Requires admin token
+            </summary>
+            <param name="category"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.UpdateCategory(System.Int32,cAPParel.API.Models.CategoryForUpdateDto)">
+            <summary>
+            Updates a category by id, Requires admin token
+            </summary>
+            <param name="categorytoupdateid"></param>
+            <param name="category"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.CategoryController.PartialUpdateCategory(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{cAPParel.API.Models.CategoryForUpdateDto})">
+            <summary>
+            Partially updates a category by id, Requires admin token
+            </summary>
+            <param name="categorytoupdateid"></param>
+            <param name="patchDocument"></param>
+            <returns></returns>
+        </member>
+        <member name="T:cAPParel.API.Migrations.fixfiledataitemid">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.fixfiledataitemid.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.fixfiledataitemid.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.fixfiledataitemid.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:cAPParel.API.Models.CategoryDto">
+            <summary>
+            Item Category
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Models.CategoryDto.ParentCategoryId">
+            <summary>
+            Id of the parent category
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Models.CategoryFullDto.ChildCategories">
+            <summary>
+            Collection of child categories
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Models.CategoryToModifyDto.CategoryName">
+            <summary>
+            Category name has to start with a capital letter
+            </summary>
+        </member>
+    </members>
+</doc>

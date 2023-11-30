@@ -16,6 +16,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using cAPParel.API.Services.ItemServices;
 using cAPParel.API.Services.OrderServices;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using cAPParel.API.Helpers;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,7 +71,14 @@ builder.Services.Configure<MvcOptions>(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SchemaFilter<EnumSchemaFilter>();
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    options.IncludeXmlComments(xmlPath);
+});
 builder.Services.AddTransient<IFieldsValidationService, FieldsValidationService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();

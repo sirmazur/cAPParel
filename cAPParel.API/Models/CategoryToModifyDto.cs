@@ -4,6 +4,9 @@ namespace cAPParel.API.Models
 {
     public abstract class CategoryToModifyDto : IValidatableObject
     {  
+        /// <summary>
+        /// Category name has to start with a capital letter
+        /// </summary>
         [Required]
         [MaxLength(50)]
         public string CategoryName { get; set; }

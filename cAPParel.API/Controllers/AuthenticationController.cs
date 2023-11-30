@@ -16,6 +16,11 @@ namespace cAPParel.API.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Gets a token for the user
+        /// </summary>
+        /// <param name="param">Username and password</param>
+        /// <returns>Bearer token</returns>
         [HttpPost(Name = "Authenticate")]
         public async Task<ActionResult<string>> Authenticate(UserParams param)
         {

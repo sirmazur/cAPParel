@@ -31,7 +31,11 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService ?? throw new ArgumentNullException(nameof(fieldsValidationService));
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
-
+        /// <summary>
+        /// Generates a pdf file with the pricing for the category
+        /// </summary>
+        /// <param name="categoryid"></param>
+        /// <returns></returns>
         [HttpGet("{categoryid}/pricelists", Name = "GetPricing")]
         public async Task<IActionResult> GetPricing(int categoryid)
         {
@@ -43,6 +47,13 @@ namespace cAPParel.API.Controllers
             return File(file.Item1, "application/pdf", file.Item2);
         }
 
+        /// <summary>
+        /// Gets categories
+        /// </summary>
+        /// <param name="parentcategoryid">Parent category filter</param>
+        /// <param name="resourceParameters"></param>
+        /// <param name="mediaType"></param>
+        /// <returns>Linked/Unlinked IEnumerable of categories</returns>
         [Produces("application/json",
            "application/vnd.capparel.hateoas+json",
            "application/vnd.capparel.category.full+json",
@@ -211,6 +222,13 @@ namespace cAPParel.API.Controllers
 
         }
 
+        /// <summary>
+        /// Gets a single category by id
+        /// </summary>
+        /// <param name="categoryid"></param>
+        /// <param name="fields">Optional desired fields for data shaping</param>
+        /// <param name="mediaType"></param>
+        /// <returns>Shaped or unshaped Category</returns>
         [Produces("application/json",
             "application/vnd.capparel.hateoas+json",
             "application/vnd.capparel.category.full+json",
@@ -276,7 +294,11 @@ namespace cAPParel.API.Controllers
             return Ok(lightResourceToReturn);
         }
 
-
+        /// <summary>
+        /// Deletes a category by id, Requires admin token
+        /// </summary>
+        /// <param name="categorytodeleteid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpDelete("{categorytodeleteid}", Name = "DeleteCategory")]
         public async Task<ActionResult> DeleteCategory(int categorytodeleteid)
@@ -292,7 +314,11 @@ namespace cAPParel.API.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Creates a new category, Requires admin token
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpPost(Name = "CreateCategory")]
         public async Task<ActionResult<CategoryDto>> CreateCategoryAsync(CategoryForCreationDto category)
@@ -305,7 +331,12 @@ namespace cAPParel.API.Controllers
         }
 
 
-
+        /// <summary>
+        /// Updates a category by id, Requires admin token
+        /// </summary>
+        /// <param name="categorytoupdateid"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpPut("{categorytoupdateid}", Name = "UpdateCategory")]
         public async Task<IActionResult> UpdateCategory(int categorytoupdateid, CategoryForUpdateDto category)
@@ -321,6 +352,12 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Partially updates a category by id, Requires admin token
+        /// </summary>
+        /// <param name="categorytoupdateid"></param>
+        /// <param name="patchDocument"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpPatch("{categorytoupdateid}", Name = "PartiallyUpdateCategory")]
         public async Task<IActionResult> PartialUpdateCategory(int categorytoupdateid, JsonPatchDocument<CategoryForUpdateDto> patchDocument)
