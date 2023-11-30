@@ -28,6 +28,11 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
         }
 
+        /// <summary>
+        /// Creates a user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateUser(UserForClientCreation user)
         {
@@ -42,6 +47,13 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets users, requires admin token
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="resourceParameters"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
           "application/vnd.capparel.hateoas+json",
           "application/vnd.capparel.user.full+json",
@@ -310,7 +322,13 @@ namespace cAPParel.API.Controllers
             return links;
         }
 
-
+        /// <summary>
+        /// Gets user by id, requires admin token
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="fields"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
             "application/vnd.capparel.hateoas+json",
             "application/vnd.capparel.user.full+json",
@@ -377,6 +395,12 @@ namespace cAPParel.API.Controllers
             return Ok(lightResourceToReturn);
         }
 
+        /// <summary>
+        /// Gets current user based on provided token, requires authenticated user token
+        /// </summary>
+        /// <param name="fields"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
             "application/vnd.capparel.hateoas+json",
             "application/vnd.capparel.user.full+json",
@@ -442,6 +466,11 @@ namespace cAPParel.API.Controllers
             return Ok(lightResourceToReturn);
         }
 
+        /// <summary>
+        /// Deletes user by id, requires admin token
+        /// </summary>
+        /// <param name="todeleteid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpDelete("{todeleteid}", Name = "DeleteUser")]
         public async Task<ActionResult> DeleteCategory(int todeleteid)
@@ -457,6 +486,12 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates user by id, requires admin token
+        /// </summary>
+        /// <param name="toupdateid"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpPut("{toupdateid}", Name = "UpdateUser")]
         public async Task<IActionResult> UpdateUser(int toupdateid, UserForUpdateDto item)
@@ -472,6 +507,12 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Partially updates user by id, requires admin token
+        /// </summary>
+        /// <param name="toupdateid"></param>
+        /// <param name="patchDocument"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeLoggedIn")]
         [HttpPatch("{toupdateid}", Name = "PartialUpdateUser")]
         public async Task<IActionResult> PartialUpdateUser(int toupdateid, JsonPatchDocument<UserForUpdateDto> patchDocument)
@@ -487,6 +528,13 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Sets user's balance to provided amount
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         [Authorize(Policy = "MustBeLoggedIn")]
         [HttpPost("{userid}/balance/{amount}")]
         public async Task<UserDto> TopUp(int userid, double amount)

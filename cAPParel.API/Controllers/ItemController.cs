@@ -33,6 +33,13 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
             _categoryService = categoryService;
         }
+
+        /// <summary>
+        /// Adds a file to an item
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost("{itemid}/files", Name = "CreateFile")]
         [Authorize(Policy = "MustBeAdmin")]
         public async Task<ActionResult<FileDataDto>> CreateImage(int itemid, FileDataForCreationDto file)
@@ -48,6 +55,11 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a file by id
+        /// </summary>
+        /// <param name="fileid"></param>
+        /// <returns></returns>
         [HttpDelete("files/{fileid}", Name = "DeleteFile")]
         [Authorize(Policy = "MustBeAdmin")]
         public async Task<ActionResult> DeleteFile(int fileid)
@@ -63,6 +75,11 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a piece by id
+        /// </summary>
+        /// <param name="pieceid"></param>
+        /// <returns></returns>
         [HttpDelete("pieces/{pieceid}", Name = "DeletePiece")]
         [Authorize(Policy = "MustBeAdmin")]
         public async Task<ActionResult> DeletePiece(int pieceid)
@@ -77,6 +94,12 @@ namespace cAPParel.API.Controllers
                 return StatusCode(result.HttpResponseCode, result.ErrorMessage);
             }
         }
+
+        /// <summary>
+        /// Deletes an item by id
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <returns></returns>
         [HttpDelete("{itemid}", Name = "DeleteItem")]
         [Authorize(Policy = "MustBeAdmin")]
         public async Task<ActionResult> DeleteItem(int itemid)
@@ -92,6 +115,11 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates an item
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         [HttpPost(Name = "CreateItem")]
         public async Task<ActionResult<ItemDto>> CreateItem(ItemForCreationDto item)
         {
@@ -106,6 +134,12 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a piece of an item with the given id
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <param name="piece"></param>
+        /// <returns></returns>
         [HttpPost("{itemid}/pieces", Name = "CreatePiece")]
         public async Task<ActionResult<PieceDto>> CreatePiece(int itemid, PieceForCreationDto piece)
         {
@@ -120,6 +154,13 @@ namespace cAPParel.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets shaped or unshaped item
+        /// </summary>
+        /// <param name="itemid"></param>
+        /// <param name="fields"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
             "application/vnd.capparel.hateoas+json",
             "application/vnd.capparel.item.full+json",
@@ -186,7 +227,17 @@ namespace cAPParel.API.Controllers
         }
 
 
-
+        /// <summary>
+        /// Gets optionally filtered or shaped items
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="categoryid"></param>
+        /// <param name="isavailable"></param>
+        /// <param name="size"></param>
+        /// <param name="color"></param>
+        /// <param name="resourceParameters"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
           "application/vnd.capparel.hateoas+json",
           "application/vnd.capparel.item.full+json",

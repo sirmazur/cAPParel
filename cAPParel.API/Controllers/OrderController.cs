@@ -29,7 +29,11 @@ namespace cAPParel.API.Controllers
             _fieldsValidationService = fieldsValidationService;
         }
 
-
+        /// <summary>
+        /// Creates an order, requires an authenticated user token
+        /// </summary>
+        /// <param name="pieceIds"></param>
+        /// <returns></returns>
         [HttpPost(Name = "PlaceOrder")]
         [Authorize(Policy = "MustBeLoggedIn")]
         public async Task<ActionResult<OrderDto>> PlaceOrder(List<int> pieceIds)
@@ -50,7 +54,12 @@ namespace cAPParel.API.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Partially updates an order, requires an admin token
+        /// </summary>
+        /// <param name="ordertoupdateid"></param>
+        /// <param name="patchDocument"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MustBeAdmin")]
         [HttpPatch("{ordertoupdateid}", Name = "PartiallyUpdateOrder")]
         public async Task<IActionResult> PartialUpdateOrder(int ordertoupdateid, JsonPatchDocument<OrderForUpdateDto> patchDocument)
@@ -65,6 +74,12 @@ namespace cAPParel.API.Controllers
                 return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
             }
         }
+        
+        /// <summary>
+        /// Cancels an order, requires token of the user who placed the order or an admin token
+        /// </summary>
+        /// <param name="orderid"></param>
+        /// <returns></returns>
         [HttpDelete("{orderid}", Name = "CancelOrder")]
         [Authorize(Policy = "MustBeLoggedIn")]
         public async Task<IActionResult> CancelOrder(int orderid)
@@ -83,6 +98,13 @@ namespace cAPParel.API.Controllers
 
         }
 
+
+        /// <summary>
+        /// Gets orders, requires an admin token
+        /// </summary>
+        /// <param name="resourceParameters"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
            "application/vnd.capparel.hateoas+json",
            "application/vnd.capparel.order.full+json",
@@ -248,6 +270,14 @@ namespace cAPParel.API.Controllers
 
         }
 
+
+        /// <summary>
+        /// Gets order by id
+        /// </summary>
+        /// <param name="orderid"></param>
+        /// <param name="fields"></param>
+        /// <param name="mediaType"></param>
+        /// <returns></returns>
         [Produces("application/json",
             "application/vnd.capparel.hateoas+json",
             "application/vnd.capparel.order.full+json",
