@@ -66,6 +66,176 @@
             <param name="patchDocument"></param>
             <returns></returns>
         </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.CreateImage(System.Int32,cAPParel.API.Models.FileDataForCreationDto)">
+            <summary>
+            Adds a file to an item
+            </summary>
+            <param name="itemid"></param>
+            <param name="file"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.DeleteFile(System.Int32)">
+            <summary>
+            Deletes a file by id
+            </summary>
+            <param name="fileid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.DeletePiece(System.Int32)">
+            <summary>
+            Deletes a piece by id
+            </summary>
+            <param name="pieceid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.DeleteItem(System.Int32)">
+            <summary>
+            Deletes an item by id
+            </summary>
+            <param name="itemid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.CreateItem(cAPParel.API.Models.ItemForCreationDto)">
+            <summary>
+            Creates an item
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.CreatePiece(System.Int32,cAPParel.API.Models.PieceForCreationDto)">
+            <summary>
+            Creates a piece of an item with the given id
+            </summary>
+            <param name="itemid"></param>
+            <param name="piece"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.GetItem(System.Int32,System.String,System.String)">
+            <summary>
+            Gets shaped or unshaped item
+            </summary>
+            <param name="itemid"></param>
+            <param name="fields"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.ItemController.GetItems(System.Collections.Generic.IEnumerable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Boolean},System.String,System.Nullable{cAPParel.API.Entities.Color},cAPParel.API.Helpers.ResourceParameters,System.String)">
+            <summary>
+            Gets optionally filtered or shaped items
+            </summary>
+            <param name="ids"></param>
+            <param name="categoryid"></param>
+            <param name="isavailable"></param>
+            <param name="size"></param>
+            <param name="color"></param>
+            <param name="resourceParameters"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.OrderController.PlaceOrder(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Creates an order, requires an authenticated user token
+            </summary>
+            <param name="pieceIds"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.OrderController.PartialUpdateOrder(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{cAPParel.API.Models.OrderForUpdateDto})">
+            <summary>
+            Partially updates an order, requires an admin token
+            </summary>
+            <param name="ordertoupdateid"></param>
+            <param name="patchDocument"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.OrderController.CancelOrder(System.Int32)">
+            <summary>
+            Cancels an order, requires token of the user who placed the order or an admin token
+            </summary>
+            <param name="orderid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.OrderController.GetOrders(cAPParel.API.Helpers.ResourceParameters,System.String)">
+            <summary>
+            Gets orders, requires an admin token
+            </summary>
+            <param name="resourceParameters"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.OrderController.GetOrder(System.Int32,System.String,System.String)">
+            <summary>
+            Gets order by id
+            </summary>
+            <param name="orderid"></param>
+            <param name="fields"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.CreateUser(cAPParel.API.Models.UserForClientCreation)">
+            <summary>
+            Creates a user
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.GetUsers(System.Collections.Generic.IEnumerable{System.Int32},cAPParel.API.Helpers.ResourceParameters,System.String)">
+            <summary>
+            Gets users, requires admin token
+            </summary>
+            <param name="ids"></param>
+            <param name="resourceParameters"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.GetUser(System.Int32,System.String,System.String)">
+            <summary>
+            Gets user by id, requires admin token
+            </summary>
+            <param name="userid"></param>
+            <param name="fields"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.GetSelf(System.String,System.String)">
+            <summary>
+            Gets current user based on provided token, requires authenticated user token
+            </summary>
+            <param name="fields"></param>
+            <param name="mediaType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.DeleteCategory(System.Int32)">
+            <summary>
+            Deletes user by id, requires admin token
+            </summary>
+            <param name="todeleteid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.UpdateUser(System.Int32,cAPParel.API.Models.UserForUpdateDto)">
+            <summary>
+            Updates user by id, requires admin token
+            </summary>
+            <param name="toupdateid"></param>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.PartialUpdateUser(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{cAPParel.API.Models.UserForUpdateDto})">
+            <summary>
+            Partially updates user by id, requires admin token
+            </summary>
+            <param name="toupdateid"></param>
+            <param name="patchDocument"></param>
+            <returns></returns>
+        </member>
+        <member name="M:cAPParel.API.Controllers.UserController.TopUp(System.Int32,System.Double)">
+            <summary>
+            Sets user's balance to provided amount
+            </summary>
+            <param name="userid"></param>
+            <param name="amount"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
         <member name="T:cAPParel.API.Migrations.fixfiledataitemid">
             <inheritdoc />
         </member>
