@@ -236,6 +236,26 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
+        <member name="T:cAPParel.API.Helpers.ResourceParameters">
+            <summary>
+            Resource parameters for pagination, search, ordering and field selection
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Helpers.ResourceParameters.SearchQuery">
+            <summary>
+            Search query string
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Helpers.ResourceParameters.OrderBy">
+            <summary>
+            Orderby "{Field} {Order}" where Order is asc or desc
+            </summary>
+        </member>
+        <member name="P:cAPParel.API.Helpers.ResourceParameters.Fields">
+            <summary>
+            Fields for data shaping
+            </summary>
+        </member>
         <member name="T:cAPParel.API.Migrations.fixfiledataitemid">
             <inheritdoc />
         </member>

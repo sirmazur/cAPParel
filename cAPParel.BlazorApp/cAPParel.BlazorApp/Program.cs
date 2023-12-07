@@ -1,5 +1,12 @@
-using cAPParel.BlazorApp.Client.Pages;
+using Blazored.LocalStorage;
+using cAPParel.BlazorApp;
+//using cAPParel.BlazorApp.Client.Pages;
 using cAPParel.BlazorApp.Components;
+using cAPParel.BlazorApp.Helpers;
+using cAPParel.BlazorApp.HttpClients;
+using cAPParel.BlazorApp.Services.CategoryServices;
+using cAPParel.BlazorApp.Services.ItemServices;
+using cAPParel.BlazorApp.Services.UserServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
-
+builder.Services.AddHttpClient<cAPParelAPIClient>();
+builder.Services.AddSingleton<JsonSerializerOptionsWrapper>();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddBlazoredLocalStorage();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,7 +41,7 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(Register).Assembly);
+    .AddInteractiveWebAssemblyRenderMode();
+//    .AddAdditionalAssemblies();
 
 app.Run();

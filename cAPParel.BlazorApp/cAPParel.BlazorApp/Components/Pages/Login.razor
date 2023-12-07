@@ -1,0 +1,55 @@
+﻿@page "/login"
+@inject cAPParel.BlazorApp.Services.UserServices.IUserService userService
+@rendermode InteractiveServer
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form @onsubmit="LoginUser">
+                <div class="form-group">
+                    <label for="accountName">Account Name</label>
+                    <input @bind="accountName" type="text" class="form-control" id="accountName" placeholder="Enter your account name" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input @bind="password" type="password" class="form-control" id="password" placeholder="Enter your password" />
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+@if(message != null)
+{
+    <p>@message</p>
+}
+
+<a>@amount</a>
+<button @onclick="Increment">+</button>
+@code {
+    string? message;
+    private async Task Increment()
+    {
+        amount++;
+    }
+    private int amount = 0;
+    private string accountName;
+    private string password;
+
+    private async Task LoginUser()
+    {
+        var result = await userService.Authenticate(accountName, password);
+        if(result.IsSuccesss==true)
+        {
+            message = "You are now logged in";
+        }
+        else
+        {
+            message = result.Message;
+            password = string.Empty;
+        }
+    }
+}

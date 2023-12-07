@@ -1,5 +1,5 @@
 ﻿@page "/register"
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 <PageTitle>Register</PageTitle>
 
 <h1>Register</h1>
@@ -22,10 +22,16 @@
     </div>
 </div>
 
-
+<a>@amount</a>
+<button @onclick="Increment">+</button>
 
 @code 
 {
+    private async Task Increment()
+    {
+        amount++;
+    }
+    private int amount = 0;
 	private string accountName;
 	private string password;
 

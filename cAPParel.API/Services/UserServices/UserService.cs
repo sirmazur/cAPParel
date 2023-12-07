@@ -125,7 +125,7 @@ namespace cAPParel.API.Services.UserServices
                         issuer: _configuration["Authentication:Issuer"],
                         audience: _configuration["Authentication:Audience"],
                         claims: claimsForToken,
-                        expires: DateTime.Now.AddMinutes(120),
+                        expires: DateTime.Now.AddDays(30),
                         signingCredentials: credentials);
 
             var tokenToReturn = new JwtSecurityTokenHandler()
