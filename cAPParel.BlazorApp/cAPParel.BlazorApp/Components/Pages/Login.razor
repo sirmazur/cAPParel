@@ -24,18 +24,12 @@
 </div>
 @if(message != null)
 {
-    <p>@message</p>
+    <p class="alert-warning">@message</p>
 }
 
-<a>@amount</a>
-<button @onclick="Increment">+</button>
+
 @code {
     string? message;
-    private async Task Increment()
-    {
-        amount++;
-    }
-    private int amount = 0;
     private string accountName;
     private string password;
 

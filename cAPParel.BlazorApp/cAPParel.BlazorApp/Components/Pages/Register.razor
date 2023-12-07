@@ -1,4 +1,7 @@
 ﻿@page "/register"
+@using cAPParel.BlazorApp.Models
+@inject cAPParel.BlazorApp.Services.UserServices.IUserService userService
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 <PageTitle>Register</PageTitle>
 
@@ -7,36 +10,61 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <form @onsubmit="RegisterUser">
-                <div class="form-group">
-                    <label for="accountName">Account Name</label>
-                    <input bind="@accountName" type="text" class="form-control" id="accountName" placeholder="Enter your account name" />
+            <EditForm Model="@user" OnValidSubmit="RegisterUser">
+                <DataAnnotationsValidator />
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="username">Account Name</label>
+                                <InputText @bind-Value="user.Username" class="form-control" id="username" placeholder="Enter your account name" />
+                                <ValidationMessage For="@(() => user.Username)" />
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <InputText @bind-Value="user.Password" type="password" class="form-control" id="password" placeholder="Enter your password" />
+                                <ValidationMessage For="@(() => user.Password)" />
+                            </div>
+                            <div class="form-group">
+                                <label for="code">Code</label>
+                                <InputText @bind-Value="user.AdminCode" type="password" class="form-control" id="code" placeholder="Enter invitation code if you have one" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input bind="@password" type="password" class="form-control" id="password" placeholder="Enter your password" />
+            </EditForm>
+            @if(message is not null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @message
                 </div>
-                <button type="submit" class="btn btn-primary">Register</button>
-            </form>
+            }           
         </div>
     </div>
 </div>
 
-<a>@amount</a>
-<button @onclick="Increment">+</button>
 
 @code 
 {
-    private async Task Increment()
-    {
-        amount++;
-    }
-    private int amount = 0;
-	private string accountName;
-	private string password;
+    private UserForClientCreation user = new UserForClientCreation();
+    private string adminCode;
+    private string? message;
 
-private async Task RegisterUser()
-	{
-		throw new NotImplementedException();
-	}
+    private async Task RegisterUser()
+    {
+
+        try
+        {
+            await userService.Register(user);
+        }
+        catch(Exception ex)
+        {
+            message = ex.Message.Trim('"');
+            user.Username = string.Empty;
+            user.Password = string.Empty;
+            return;
+        }
+        NavigationManager.NavigateTo("/Login");
+    }
 }

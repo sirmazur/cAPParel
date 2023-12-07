@@ -17,6 +17,7 @@
 
 namespace cAPParel.BlazorApp.Models
 {
+    using System.ComponentModel.DataAnnotations;
     using System = global::System;
 
     
@@ -365,9 +366,13 @@ namespace cAPParel.BlazorApp.Models
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class UserForClientCreation
     {
+        [Required]
+        [MinLength(7, ErrorMessage = "Account name must be at least 7 characters long.")]
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         public string Username { get; set; }
 
+        [Required]
+        [MinLength(7, ErrorMessage = "Password must be at least 7 characters long.")]
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         public string Password { get; set; }
 
