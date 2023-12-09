@@ -131,6 +131,7 @@ namespace cAPParel.BlazorApp.Services.ItemServices
     public class ItemFilters
     {
         public string? size = null;
+        public string? OrderBy = null;
         public int? categoryid = null;
         public bool? includeLinks = null;
         public bool isAvailable = false;

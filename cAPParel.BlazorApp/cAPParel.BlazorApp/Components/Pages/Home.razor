@@ -1,14 +1,125 @@
 ﻿@page "/"
-@inject cAPParel.BlazorApp.Services.UserServices.IUserService itemService
+@using cAPParel.BlazorApp.Models
+@using cAPParel.BlazorApp.Services.ItemServices
+@inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
 @rendermode InteractiveServer
 <PageTitle>Home</PageTitle>
 
+<h1>Newest items</h1>
+<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+       @if(newItems is not null){
 
+            first = true;
+            foreach(var item in newItems.Value)
+            {
+                var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c=>c.Type==DataType.Image).Data);
+                if (first is true)
+                {
+                    first = false;
+                    <div class="carousel-item active">
+                        <img class="d-block w-100" src="data:image/png;base64,@base64String" alt="@item.Name">
+                    </div>
+                }
+                else
+                {
+                    <div class="carousel-item">
+                        <img class="d-block w-100" src="data:image/png;base64,@base64String" alt="@item.Name">
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        }
+
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
+
+<h1>Discounted items</h1>
+<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+       @if(discountedItems is not null){
+
+            first = true;
+            foreach(var item in discountedItems.Value)
+            {
+                var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c=>c.Type==DataType.Image).Data);
+                if (first is true)
+                {
+                    first = false;
+                    <div class="carousel-item active">
+                        <img class="d-block w-100" src="data:image/png;base64,@base64String" alt="@item.Name">
+                    </div>
+                }
+                else
+                {
+                    <div class="carousel-item">
+                        <img class="d-block w-100" src="data:image/png;base64,@base64String" alt="@item.Name">
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        }
+
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
 
 
 
 
 @code
 {
+    private LinkedResourceList<ItemFullDto> newItems = new LinkedResourceList<ItemFullDto>();
+    private LinkedResourceList<ItemFullDto> discountedItems = new LinkedResourceList<ItemFullDto>();
+    private bool first;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var filters = new ItemFilters()
+                {
+                    OrderBy = "DateCreated desc"
+                };
+            newItems = await itemService.GetItemsFullAsync(filters);
+            filters.OrderBy = "PriceMultiplier asc";
+            discountedItems = await itemService.GetItemsFullAsync(filters);
+        }
+    }
+    // protected override async void OnInitialized()
+    // {
+    //     var filters = new ItemFilters()
+    //     {
+    //         OrderBy = "DateCreated desc"
+    //     };
+    //     newItems = await itemService.GetItemsFullAsync(filters);
+    //     filters.OrderBy = "PriceMultiplier asc";
+    //     discountedItems = await itemService.GetItemsFullAsync(filters);
 
+
+    // }
 }
