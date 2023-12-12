@@ -87,11 +87,31 @@ namespace cAPParel.BlazorApp.Services.ItemServices
             }
 
             if (filters.includeLinks is not null && filters.includeLinks is true)
-                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full.hateoas+json");
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.friendly.hateoas+json");
             else
-                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.full+json");
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.friendly+json");
         }
-        
+
+        public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendlyByQueryAsync(string query, bool? includeLinks = false)
+        {
+            var route = $"api/items?{query}";
+
+            if (includeLinks is not null && includeLinks is true)
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.friendly.hateoas+json");
+            else
+                return await _client.GetResourcesAsync<ItemDto>(route, "application/vnd.capparel.item.friendly+json");
+        }
+
+        public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFullByQueryAsync(string query, bool? includeLinks = false)
+        {
+            var route = $"api/items?{query}";
+
+            if (includeLinks is not null && includeLinks is true)
+                return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full.hateoas+json");
+            else
+                return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full+json");
+        }
+
         public async Task DeletePieceAsync(int pieceId)
         {
             var route = $"api/items/pieces/{pieceId}";

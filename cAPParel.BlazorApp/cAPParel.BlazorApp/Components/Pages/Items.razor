@@ -1,0 +1,30 @@
+﻿@page "/Items/{searchQuery}"
+@page "/Items"
+@using cAPParel.BlazorApp.Models
+@using cAPParel.BlazorApp.Services.ItemServices
+@inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
+@rendermode InteractiveServer
+
+
+@code {
+    [Parameter]
+    public string? searchQuery { get; set; }
+    private LinkedResourceList<ItemFullDto>? items;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            if(searchQuery is not null && searchQuery.Count()>0)
+            {
+                items = await itemService.GetItemsFullByQueryAsync(searchQuery);
+            }
+            else
+            {
+                items = await itemService.GetItemsFullAsync();
+            }
+            StateHasChanged();
+
+        }
+    }
+}

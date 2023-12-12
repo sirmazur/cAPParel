@@ -1,0 +1,107 @@
+﻿@using cAPParel.BlazorApp.Helpers
+@using cAPParel.BlazorApp.Models
+@using cAPParel.BlazorApp.Services.ItemServices
+@inject cAPParel.BlazorApp.Services.CategoryServices.ICategoryService categoryService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+<EditForm Model="@extendedFilters" OnValidSubmit="@Search">
+    <div class="input-group">
+        <InputText id="search" @bind-Value="extendedFilters.searchTerm" placeholder="Search" class="form-control" />
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</EditForm>
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Filters
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <form>
+            <div class="form-group px-4 py-2">
+                <label for="size">Size</label>
+                <input type="text" class="form-control" id="size" @bind="extendedFilters.filters.size">
+            </div>
+            <div class="form-group px-4 py-2">
+                <label for="orderBy">Order By</label>
+                <select class="form-control" id="orderBy" @bind="extendedFilters.filters.OrderBy">
+                    <option value="Price asc">Price asc</option>
+                    <option value="Price desc">Price desc</option>
+                    <option value="DateCreated asc">Release date asc</option>
+                    <option value="DateCreated desc">Release date desc</option>
+                </select>
+            </div>
+            <div class="form-group px-4 py-2">
+                <label for="categoryId">Category</label>
+                <select class="form-control" id="categoryId" @bind="extendedFilters.filters.categoryid" @onclick=LoadCategories>
+                    @if (categories is not null && categories.Value is not null)
+                    {
+                        <option value="">Any</option>
+                        @foreach (var category in categories.Value)
+                        {
+                            <option value=@category.Id>@category.CategoryName</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="">Any</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group form-check px-4 py-2">
+                <input type="checkbox" class="form-check-input" id="isAvailable" @bind="extendedFilters.filters.isAvailable">
+                <label class="form-check-label" for="isAvailable">Is Available</label>
+            </div>
+            <div class="form-group px-4 py-2">
+                <label for="color">Color</label>
+                <select class="form-control" id="color" @bind="extendedFilters.filters.color">
+                    <option value="">Any</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Green">Green</option>
+                    <option value="Yellow">Yellow</option>
+                    <option value="Black">Black</option>
+                    <option value="White">White</option>
+                    <option value="Gray">Gray</option>
+                    <option value="Brown">Brown</option>
+                    <option value="Pink">Pink</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Orange">Orange</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+@code {
+    private ExtendedFilters extendedFilters = new ExtendedFilters();
+    private LinkedResourceList<CategoryDto>? categories;
+    private async Task LoadCategories()
+    {
+        if(categories is null)
+        {
+            categories = await categoryService.GetCategoriesFriendly();
+            StateHasChanged();
+        }      
+    }
+    private void Search()
+    {
+        var queryString = QueryStringBuilder.BuildQueryString(
+                ("size", extendedFilters.filters.size),
+                ("categoryid", extendedFilters.filters.categoryid),
+                ("isAvailable", extendedFilters.filters.isAvailable),
+                ("color", extendedFilters.filters.color.ToString()),
+                ("SearchQuery", extendedFilters.searchTerm)
+            );
+        navigationManager.NavigateTo($"/Items/{queryString}");
+    }
+    internal class ExtendedFilters
+    {
+        public string searchTerm = "";
+        public ItemFilters filters = new ItemFilters();
+    }
+}
