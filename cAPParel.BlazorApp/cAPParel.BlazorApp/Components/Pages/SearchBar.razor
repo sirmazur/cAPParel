@@ -95,7 +95,8 @@
                 ("categoryid", extendedFilters.filters.categoryid),
                 ("isAvailable", extendedFilters.filters.isAvailable),
                 ("color", extendedFilters.filters.color.ToString()),
-                ("SearchQuery", extendedFilters.searchTerm)
+                ("SearchQuery", extendedFilters.searchTerm),
+                ("OrderBy", extendedFilters.filters.OrderBy)
             );
         navigationManager.NavigateTo($"/Items/{queryString}");
     }
