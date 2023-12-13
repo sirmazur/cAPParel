@@ -5,6 +5,28 @@
 @inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
 @rendermode InteractiveServer
 
+<div class="container">
+    @if(items != null)
+    {
+        <div class="row">
+            @if (items is not null && items.Value is not null)
+            {
+                @foreach (var item in items.Value)
+                {
+                    var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
+                    <div class="col-sm-4">
+                        <div class="card" style="width: 18rem;" @onclick="() => NavigateToItem(item.Id)">
+                            <img src="data:image/png;base64,@base64String" class="d-block w-100" alt="@item.Name">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Name</h5>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
 
 @code {
     [Parameter]
@@ -26,5 +48,10 @@
             StateHasChanged();
 
         }
+    }
+
+    private void NavigateToItem(int id)
+    {
+        throw new NotImplementedException();
     }
 }

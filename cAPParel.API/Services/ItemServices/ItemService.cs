@@ -68,6 +68,9 @@ namespace cAPParel.API.Services.ItemServices
                 if (filter.FieldName == "Size")
                     listToReturn = listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
                 else
+                if (filter.FieldName == "Color")
+                    listToReturn = listToReturn.Where(i => i.Color == (Color)Enum.Parse(typeof(Color), filter.Value.ToString()));
+                else
                 {
                     if (filter.FieldName != "CategoryIds")
                         listToReturn = FilterEntity(listToReturn, filter);
