@@ -11,12 +11,12 @@
     }
 </style>
 
-<div class="container">
-    @if (items != null)
+<div class="container">   
+    @if (items is not null && items.Value is not null)
     {
+        <h2>Items</h2>
         <div class="row">
-            @if (items is not null && items.Value is not null)
-            {
+
                 @foreach (var item in items.Value)
                 {
                     var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
@@ -36,9 +36,21 @@
                             </div>
                         </div>
                     </div>
+                
                 }
-            }
         </div>
+    }
+    else if (items is null)
+    {
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <h2>No matching results...</h2>
     }
 </div>
 
@@ -60,6 +72,10 @@
             {
                 items = await itemService.GetItemsFullAsync();
             }
+
+            if (items is null)
+            items = new LinkedResourceList<ItemFullDto>();
+
             StateHasChanged();
 
         }
@@ -70,3 +86,10 @@
         throw new NotImplementedException();
     }
 }
+<style>
+    h2 {
+        text-align: center;
+        color: orange;
+        font-weight: 800;
+    }
+</style>

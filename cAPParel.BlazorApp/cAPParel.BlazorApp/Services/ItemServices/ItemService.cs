@@ -154,7 +154,7 @@ namespace cAPParel.BlazorApp.Services.ItemServices
         public string? OrderBy = null;
         public int? categoryid = null;
         public bool? includeLinks = null;
-        public bool isAvailable = false;
+        public bool? isAvailable = null;
         public Color? color = null;
         public List<int>? ids = null;
     }
