@@ -1,0 +1,78 @@
+﻿@using cAPParel.BlazorApp.Models
+@inject cAPParel.BlazorApp.Services.CategoryServices.ICategoryService categoryService;
+
+@code {
+    [Parameter]
+    public CategoryFullDto Category { get; set; }
+
+    private bool isExpanded = false;
+
+    void Toggle()
+    {
+        isExpanded = !isExpanded;
+        StateHasChanged();
+    }
+}
+
+@if (Category != null)
+{
+    
+        @if (Category.ChildCategories != null && Category.ChildCategories.Any())
+        {
+        <li>
+            <span class="@("caret " + (isExpanded ? "caret-down" : ""))" @onclick="Toggle">@Category.CategoryName</span>
+            <ul class="@("nested " + (isExpanded ? "active" : ""))">
+                @foreach (var childCategory in Category.ChildCategories)
+                {
+                    <RecursiveComponent Category="childCategory" />
+                }
+            </ul>
+        </li>
+        }
+        else
+        {
+            <li>@Category.CategoryName</li>
+        }
+
+}
+<style>
+    /* Remove default bullets */
+    ul, #myUL {
+        list-style-type: none;
+    }
+
+    /* Remove margins and padding from the parent ul */
+    #myUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Style the caret/arrow */
+    .caret {
+        cursor: pointer;
+        user-select: none; /* Prevent text selection */
+    }
+
+        /* Create the caret/arrow with a unicode, and style it */
+        .caret::before {
+            content: "\25B6";
+            color: black;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    /* Hide the nested list */
+    .nested {
+        display: none;
+    }
+
+    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    .active {
+        display: block;
+    }
+</style>

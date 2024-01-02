@@ -7,7 +7,7 @@ namespace cAPParel.BlazorApp.Services.OrderServices
         Task<OrderDto> CreateOrderAsync(List<int> piecesIds);
         Task CancelOrderAsync(int orderId);
         Task<OrderFullDto> GetOrderFullAsync(int orderId);
-        Task<LinkedResourceList<OrderFullDto>?> GetOrdersFullAsync(string? orderBy, bool? includeLinks = false);
+        Task<LinkedResourceList<OrderFullDto>?> GetOrdersFullAsync(string? orderBy = null, bool? includeLinks = false);
         Task PatchOrderAsync(State targetState, int orderToUpdateId);
     }
 }

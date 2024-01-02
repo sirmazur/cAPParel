@@ -1,0 +1,132 @@
+﻿@page "/adminpanel"
+@using cAPParel.BlazorApp.Models
+@using Blazorise.TreeView
+@using Blazorise.Bootstrap
+@using Blazorise.Icons
+@inject ILocalStorageService storageService
+@inject NavigationManager NavigationManager
+@inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService;
+@inject cAPParel.BlazorApp.Services.CategoryServices.ICategoryService categoryService;
+@inject cAPParel.BlazorApp.Services.OrderServices.IOrderService orderService;
+@rendermode InteractiveServer
+
+<div class="form-group">
+    <label for="adminSelect">Choose an action:</label>
+    <select class="form-control" id="adminSelect" @onchange="OnSelectionChanged">
+        <option value="0">Manage Categories</option>
+        <option value="1">Manage Items</option>
+        <option value="2">Manage Orders</option>
+    </select>
+</div>
+
+@switch (selected)
+{
+    case 0:      
+        <ul class="myUL">
+        <RecursiveComponent Category="MainCategory" />
+        </ul>
+        break;
+    case 1:
+
+        break;
+    case 2:
+
+        break;
+    case -1:
+        break;
+}
+
+@code {
+    int selected = -1;
+    LinkedResourceList<ItemFullDto>? Items;
+    LinkedResourceList<OrderFullDto>? Orders;
+    LinkedResourceList<CategoryFullDto>? Categories;
+    [Parameter]
+    public CategoryFullDto? MainCategory { get; set; }
+    IList<CategoryFullDto> expandedNodes = new List<CategoryFullDto>();
+    CategoryFullDto? selectedNode;
+
+    private async Task OnSelectionChanged(ChangeEventArgs e)
+    {
+        var selectedValue = e.Value.ToString();
+        switch (selectedValue)
+        {
+            case "0":
+                try
+                {
+                    Categories = await categoryService.GetCategoriesFull();
+                    MainCategory = Categories.Value.FirstOrDefault(c => c.ParentCategoryId == null);
+                }
+                catch(Exception ex)
+                {
+                    
+                }
+                selected = 0;
+                break;
+            case "1":
+                Items = await itemService.GetItemsFullAsync();
+                selected = 1;
+                break;
+            case "2":
+                Orders = await orderService.GetOrdersFullAsync();
+                selected = 2;
+                break;
+        }
+    }
+
+    private async Task HandleCategoryClicked(CategoryFullDto category)
+    {
+        // Handle the clicked category here.
+    }
+
+    private async Task AddSubcategory(CategoryFullDto category)
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task DeleteCategory(CategoryFullDto category)
+    {
+        throw new NotImplementedException();
+    }
+}
+<style>
+    /* Remove default bullets */
+    ul, #myUL {
+        list-style-type: none;
+    }
+
+    /* Remove margins and padding from the parent ul */
+    #myUL {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Style the caret/arrow */
+    .caret {
+        cursor: pointer;
+        user-select: none; /* Prevent text selection */
+    }
+
+        /* Create the caret/arrow with a unicode, and style it */
+        .caret::before {
+            content: "\25B6";
+            color: black;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+    .caret-down::before {
+        transform: rotate(90deg);
+    }
+
+    /* Hide the nested list */
+    .nested {
+        display: none;
+    }
+
+    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    .active {
+        display: block;
+    }
+</style>

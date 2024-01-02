@@ -42,10 +42,11 @@ namespace cAPParel.BlazorApp.HttpClients
             route);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
             var response = await _client.SendAsync(request);
@@ -84,10 +85,11 @@ namespace cAPParel.BlazorApp.HttpClients
             JsonSerializer.Serialize(itemToCreate),
             Encoding.UTF8,
             "application/json");
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             var response = await _client.SendAsync(request);
             try 
@@ -125,10 +127,11 @@ namespace cAPParel.BlazorApp.HttpClients
             route);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -145,10 +148,11 @@ namespace cAPParel.BlazorApp.HttpClients
             route);
             request.Headers.Accept.Add(
                 new MediaTypeWithQualityHeaderValue(acceptHeader));
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             var response = await _client.SendAsync(request);
             if(!response.IsSuccessStatusCode)
@@ -202,10 +206,11 @@ namespace cAPParel.BlazorApp.HttpClients
         {
             var request = new HttpRequestMessage(HttpMethod.Get, route);
 
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             else
             {
@@ -229,10 +234,11 @@ namespace cAPParel.BlazorApp.HttpClients
             var request = new HttpRequestMessage(HttpMethod.Patch, route);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
 
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
             // Serialize the JsonPatchDocument to a JSON string
@@ -248,10 +254,11 @@ namespace cAPParel.BlazorApp.HttpClients
         {
             var request = new HttpRequestMessage(HttpMethod.Get, route);
 
-            var token = await _sessionStorage.GetAsync<string>("token");
-            if (token.Value is not null)
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            var token = data.Token;
+            if (token is not null)
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
             var response = await _client.GetAsync(route);
             try

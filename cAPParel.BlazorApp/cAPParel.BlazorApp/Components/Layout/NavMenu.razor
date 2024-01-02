@@ -1,38 +1,86 @@
-﻿<div class="diwek" style="background: linear-gradient(to bottom, #ECD11D, #AA098C); border: none">
+﻿@using System.IdentityModel.Tokens.Jwt
+@using cAPParel.BlazorApp.Models
+@inject ILocalStorageService storageService
+
+@rendermode InteractiveServer
+<div class="diwek" style="background: linear-gradient(to bottom, #ECD11D, #AA098C); border: none">
     <div class="container-fluid" style="flex: 0.2; display: flex; align-items: center; justify-content: center;">
         <img src="Images/TransparentLogo.png" style="max-width: 100%; max-height: 100%; object-fit: contain; margin-top: 20px" />
     </div>
 
     <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-    <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()" style="flex: 0.8; overflow-y: auto; width: 100%;">
+    <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()" style="flex: 0.8; overflow-y: auto; width: 100%;">       
         <nav class="flex-column" style="width: 100%;">
+            @if (userData is not null)
+            {
+                <div class="nav-item px-3" style="width: 100%;">
+                    <NavLink class="nav-link" href="profile" style="width: 100%; justify-content: center; font-weight: 800;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                        </svg>
+                        Your Profile
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3" style="width: 100%;">
+                    <NavLink class="nav-link" href="adminpanel" style="width: 100%; justify-content: center; font-weight: 800;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-workspace" viewBox="0 0 16 16">
+                            <path d="M4 16s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-5.95a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+                            <path d="M2 1a2 2 0 0 0-2 2v9.5A1.5 1.5 0 0 0 1.5 14h.653a5.373 5.373 0 0 1 1.066-2H1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9h-2.219c.554.654.89 1.373 1.066 2h.653a1.5 1.5 0 0 0 1.5-1.5V3a2 2 0 0 0-2-2z" />
+                        </svg>
+                        Admin Panel
+                    </NavLink>
+                </div>
+
+            }
             <div class="nav-item px-3" style="width: 100%;">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All" style="width: 100%; justify-content: center; font-weight: 800;">
                     <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
                 </NavLink>
             </div>
+            @if(userData is null)
+            {
+                <div class="nav-item px-3" style="width: 100%;">
+                    <NavLink class="nav-link" href="register" style="width: 100%; justify-content: center; font-weight: 800;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-add" viewBox="0 0 16 16">
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0m-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
+                            <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1z" />
+                        </svg>
+                        Register
+                    </NavLink>
+                </div>
 
-            <div class="nav-item px-3" style="width: 100%;">
-                <NavLink class="nav-link" href="register" style="width: 100%; justify-content: center; font-weight: 800;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-add" viewBox="0 0 16 16">
-                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0m-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
-                        <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1z" />
-                    </svg>
-                    Register
-                </NavLink>
-            </div>
+                <div class="nav-item px-3" style="width: 100%;">
+                    <NavLink class="nav-link" href="login" style="width: 100%; justify-content: center; font-weight: 800;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
+                            <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1z" />
+                        </svg>
+                        Login
+                    </NavLink>
+                </div>
+            }
 
-            <div class="nav-item px-3" style="width: 100%;">
-                <NavLink class="nav-link" href="login" style="width: 100%; justify-content: center; font-weight: 800;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
-                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
-                        <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1z" />
-                    </svg>
-                    Login
-                </NavLink>
-            </div>
+            
         </nav>
     </div>
 </div>
+
+@code
+{
+    UserData? userData;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        userData = await storageService.GetItemAsync<UserData>("userdata");
+        StateHasChanged();
+    }
+
+    private async Task LogOut()
+    {
+        await storageService.RemoveItemAsync("userdata");
+        userData = null;
+        StateHasChanged();
+    }
+}
 

@@ -1,0 +1,57 @@
+﻿@page "/profile"
+@using cAPParel.BlazorApp.Models
+@inject ILocalStorageService storageService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>User Profile</h3>
+<button class="btn btn-primary" @onclick=Logout>Log Out</button>
+@if (userData == null)
+{
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <td>Username</td>
+            <td>@userData.Username</td>
+        </tr>
+        <tr>
+            <td>Role</td>
+            <td>@userData.Role</td>
+        </tr>
+        <tr>
+            <td>Cart</td>
+            <td>
+                @foreach (var item in userData.Cart)
+                {
+                    <p>@item</p>
+                }
+            </td>
+        </tr>
+    </table>  
+}
+
+
+@code {
+    private UserData? userData;
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            userData = await storageService.GetItemAsync<UserData>("userdata");
+            StateHasChanged();
+        }
+    }
+
+    private async Task Logout()
+    {
+        await storageService.RemoveItemAsync("userdata");
+        NavigationManager.NavigateTo("/");
+    }
+}

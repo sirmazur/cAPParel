@@ -35,7 +35,7 @@ namespace cAPParel.BlazorApp.Services.OrderServices
 
         }
 
-        public async Task<LinkedResourceList<OrderFullDto>?> GetOrdersFullAsync(string? orderBy, bool? includeLinks = false)
+        public async Task<LinkedResourceList<OrderFullDto>?> GetOrdersFullAsync(string? orderBy = null, bool? includeLinks = false)
         {
             var route = "api/orders";
 
