@@ -23,11 +23,22 @@
 {
     case 0:      
         <ul class="myUL">
-        <RecursiveComponent Category="MainCategory" />
+            <CategoryComponent Category="MainCategory" OnCreateSubcategory="AddSubcategory" OnDeleteCategory="DeleteCategory" />
         </ul>
+        
+        if(categoryCreation is true)
+        {
+        <form @onsubmit="CreateCategory">
+            <div class="form-group">
+                <label for="categoryName">Category Name</label>
+                <input @bind="categoryName" type="text" class="form-control" id="categoryName" placeholder="Enter new category name" />
+            </div>           
+            <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        }
         break;
     case 1:
-
+        
         break;
     case 2:
 
@@ -36,8 +47,22 @@
         break;
 }
 
+
+@if (IsVisible)
+{
+    <div class="popup">
+        <div class="popup-content">
+            <p>@Message</p>
+            <button @onclick="Close">Close</button>
+        </div>
+    </div>
+}
+
 @code {
     int selected = -1;
+    bool categoryCreation = false;
+    string? categoryName = null;
+    int? selectedCategoryId = null;
     LinkedResourceList<ItemFullDto>? Items;
     LinkedResourceList<OrderFullDto>? Orders;
     LinkedResourceList<CategoryFullDto>? Categories;
@@ -46,6 +71,39 @@
     IList<CategoryFullDto> expandedNodes = new List<CategoryFullDto>();
     CategoryFullDto? selectedNode;
 
+    [Parameter]
+    public string Message { get; set; }
+
+    private bool IsVisible { get; set; }
+
+    public void Show(string message)
+    {
+        Message = message;
+        IsVisible = true;
+    }
+
+    private void Close()
+    {
+        IsVisible = false;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                Categories = await categoryService.GetCategoriesFull();
+                MainCategory = Categories.Value.FirstOrDefault(c => c.ParentCategoryId == null);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            selected = 0;
+            StateHasChanged();
+        }
+    }
     private async Task OnSelectionChanged(ChangeEventArgs e)
     {
         var selectedValue = e.Value.ToString();
@@ -59,7 +117,7 @@
                 }
                 catch(Exception ex)
                 {
-                    
+
                 }
                 selected = 0;
                 break;
@@ -76,17 +134,70 @@
 
     private async Task HandleCategoryClicked(CategoryFullDto category)
     {
-        // Handle the clicked category here.
+
     }
 
     private async Task AddSubcategory(CategoryFullDto category)
     {
-        throw new NotImplementedException();
+
+        categoryCreation = true;
+        selectedCategoryId = category.Id;
+        StateHasChanged();
+
+    }
+    private async Task CreateCategory()
+    {
+        try
+        {
+            CategoryForCreationDto categoryToCreate = new CategoryForCreationDto()
+                {
+                    CategoryName = categoryName,
+                    ParentCategoryId = selectedCategoryId
+                };
+            await categoryService.CreateCategoryAsync(categoryToCreate);
+        }
+        catch (Exception ex)
+        {
+            Show(ex.Message);
+            StateHasChanged();
+            return;
+        }
+        categoryCreation = false;
+        selectedCategoryId = null;
+        categoryName = null;
+        try
+        {
+            Categories = await categoryService.GetCategoriesFull();
+            MainCategory = Categories.Value.FirstOrDefault(c => c.ParentCategoryId == null);
+        }
+        catch (Exception ex)
+        {
+
+        }
+        StateHasChanged();
     }
 
     private async Task DeleteCategory(CategoryFullDto category)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await categoryService.DeleteCategoryAsync(category.Id);
+        }
+        catch(Exception ex)
+        {
+            Show(ex.Message);
+            return;
+        }
+        try
+        {
+            Categories = await categoryService.GetCategoriesFull();
+            MainCategory = Categories.Value.FirstOrDefault(c => c.ParentCategoryId == null);
+        }
+        catch (Exception ex)
+        {
+
+        }
+        StateHasChanged();
     }
 }
 <style>
