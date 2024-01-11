@@ -13,9 +13,9 @@
 <div class="form-group">
     <label for="adminSelect">Choose an action:</label>
     <select class="form-control" id="adminSelect" @onchange="OnSelectionChanged">
-        <option value="0">Manage Categories</option>
-        <option value="1">Manage Items</option>
-        <option value="2">Manage Orders</option>
+        <option value="0">Categories</option>
+        <option value="1">Items</option>
+        <option value="2">Orders</option>
     </select>
 </div>
 
@@ -23,7 +23,7 @@
 {
     case 0:      
         <ul class="myUL">
-            <CategoryComponent Category="MainCategory" OnCreateSubcategory="AddSubcategory" OnDeleteCategory="DeleteCategory" />
+            <CategoryComponent Category="MainCategory" OnCreateSubcategory="AddSubcategory" OnDeleteCategory="DeleteCategory" OnSelectCategory="SelectCategory"/>
         </ul>
         
         if(categoryCreation is true)
@@ -38,7 +38,55 @@
         }
         break;
     case 1:
-        
+        <EditForm Model="item" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <InputText id="name" @bind-Value="item.Name" />
+            <InputNumber id="price" @bind-Value="item.Price" />
+
+            <InputSelect id="type" @bind-Value="item.Type">
+                @foreach (var type in Enum.GetValues<ItemType>())
+                {
+                    <option value="@type">@type</option>
+                }
+            </InputSelect>
+
+            <InputSelect id="color" @bind-Value="item.Color">
+                @foreach (var color in Enum.GetValues<Color>())
+                {
+                    <option value="@color">@color</option>
+                }
+            </InputSelect>
+
+            <InputTextArea id="description" @bind-Value="item.Description" />
+
+            @foreach (var fileData in item.FileData)
+            {
+                <div>
+                    <InputFile id="fileUpload" OnChange="async (e) => await HandleFileUpload(e, fileData)" />
+                    <InputText id="fileDescription" @bind-Value="fileData.Description" />
+
+                    <InputSelect id="dataType" @bind-Value="fileData.Type">
+                        @foreach (var type in Enum.GetValues<DataType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+                </div>
+            }
+
+            <button type="button" @onclick="AddFileData">Add FileData</button>
+            @if(selectedCategory is not null)
+            {
+                <button type="submit">Submit</button>
+            }
+            else
+            {
+                <p>select category to add item</p>
+            }
+            
+        </EditForm>
         break;
     case 2:
 
@@ -46,6 +94,8 @@
     case -1:
         break;
 }
+<button class="btn btn-secondary" @onclick="()=>{selectedCategory=null;}">Reset Category</button>
+<p>Selected Category: @if(selectedCategory is not null) {@selectedCategory.CategoryName}</p>
 
 
 @if (IsVisible)
@@ -63,13 +113,14 @@
     bool categoryCreation = false;
     string? categoryName = null;
     int? selectedCategoryId = null;
+    ItemForCreationDto item = new ItemForCreationDto();
     LinkedResourceList<ItemFullDto>? Items;
     LinkedResourceList<OrderFullDto>? Orders;
     LinkedResourceList<CategoryFullDto>? Categories;
     [Parameter]
     public CategoryFullDto? MainCategory { get; set; }
     IList<CategoryFullDto> expandedNodes = new List<CategoryFullDto>();
-    CategoryFullDto? selectedNode;
+    CategoryFullDto? selectedCategory;
 
     [Parameter]
     public string Message { get; set; }
@@ -132,9 +183,25 @@
         }
     }
 
-    private async Task HandleCategoryClicked(CategoryFullDto category)
+    private async Task HandleValidSubmit()
     {
-
+        item.CategoryId = selectedCategory.Id;
+        await itemService.CreateItemAsync(item);
+        item = new ItemForCreationDto();
+    }
+    private async Task AddFileData()
+    {
+        item.FileData.Add(new FileDataForCreationDto());
+    }
+    private async Task HandleFileUpload(InputFileChangeEventArgs e, FileDataForCreationDto fileData)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using var ms = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(ms);
+            fileData.Data = ms.ToArray();
+        }
     }
 
     private async Task AddSubcategory(CategoryFullDto category)
@@ -197,6 +264,12 @@
         {
 
         }
+        StateHasChanged();
+    }
+
+    private async Task SelectCategory(CategoryFullDto category)
+    {
+        selectedCategory = category;
         StateHasChanged();
     }
 }
