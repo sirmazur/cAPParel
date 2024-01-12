@@ -17,10 +17,10 @@
     </div>
 </EditForm>
 <div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
         Filters
     </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
         <form>
             <div class="form-group px-4 py-2">
                 <label for="size">Size</label>
@@ -37,20 +37,15 @@
             </div>
             <div class="form-group px-4 py-2">
                 <label for="categoryId">Category</label>
-                <select class="form-control" id="categoryId" @bind="extendedFilters.filters.categoryid" @onclick=LoadCategories>
-                    @if (categories is not null && categories.Value is not null)
-                    {
-                        <option value="">Any</option>
-                        @foreach (var category in categories.Value)
-                        {
-                            <option value=@category.Id>@category.CategoryName</option>
-                        }
-                    }
-                    else
-                    {
-                        <option value="">Any</option>
-                    }
-                </select>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" @onclick="LoadCategories" type="button" id="dropdownCategoryMenuButton" data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @selectedCategory
+                    </button>
+                    <div class="dropdown-menu">
+                        <CategoryComponent Category="MainCategory" OnSelectCategory="(CategoryFullDto category)=>{
+                    extendedFilters.filters.categoryid=category.Id;selectedCategory=category.CategoryName;}" IsAdmin=false />
+                    </div>
+                </div>
             </div>
             <div class="form-group form-check px-4 py-2">
                 <input type="checkbox" class="form-check-input" id="isAvailable" @bind="extendedFilters.filters.isAvailable">
@@ -76,15 +71,19 @@
         </form>
     </div>
 </div>
+    
 
 @code {
     private ExtendedFilters extendedFilters = new ExtendedFilters();
-    private LinkedResourceList<CategoryDto>? categories;
+    private LinkedResourceList<CategoryFullDto>? categories;
+    private string selectedCategory = string.Empty;
+    private CategoryFullDto? MainCategory;
     private async Task LoadCategories()
     {
         if(categories is null)
         {
-            categories = await categoryService.GetCategoriesFriendly();
+            categories = await categoryService.GetCategoriesFull();
+            MainCategory = categories.Value.FirstOrDefault(c => c.ParentCategoryId == null);
             StateHasChanged();
         }      
     }
@@ -98,7 +97,7 @@
                 ("SearchQuery", extendedFilters.searchTerm),
                 ("OrderBy", extendedFilters.filters.OrderBy)
             );
-        navigationManager.NavigateTo($"/Items/{queryString}");
+        navigationManager.NavigateTo($"/Items/{queryString}&PageSize=5&PageNumber=1");
     }
     internal class ExtendedFilters
     {

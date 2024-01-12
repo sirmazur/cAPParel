@@ -23,7 +23,7 @@
 {
     case 0:      
         <ul class="myUL">
-            <CategoryComponent Category="MainCategory" OnCreateSubcategory="AddSubcategory" OnDeleteCategory="DeleteCategory" OnSelectCategory="SelectCategory"/>
+            <CategoryComponent Category="MainCategory" OnCreateSubcategory="AddSubcategory" OnDeleteCategory="DeleteCategory" OnSelectCategory="SelectCategory" IsAdmin=true/>
         </ul>
         
         if(categoryCreation is true)
@@ -38,54 +38,34 @@
         }
         break;
     case 1:
-        <EditForm Model="item" OnValidSubmit="HandleValidSubmit">
+        <EditForm Model="item" OnValidSubmit="HandleValidSubmit" class="p-3">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <InputText id="name" @bind-Value="item.Name" />
-            <InputNumber id="price" @bind-Value="item.Price" />
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="item.Name" class="form-control" />
+            </div>
 
-            <InputSelect id="type" @bind-Value="item.Type">
-                @foreach (var type in Enum.GetValues<ItemType>())
-                {
-                    <option value="@type">@type</option>
-                }
-            </InputSelect>
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <InputNumber id="price" @bind-Value="item.Price" class="form-control" />
+            </div>
 
-            <InputSelect id="color" @bind-Value="item.Color">
-                @foreach (var color in Enum.GetValues<Color>())
-                {
-                    <option value="@color">@color</option>
-                }
-            </InputSelect>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <InputTextArea id="description" @bind-Value="item.Description" class="form-control" />
+            </div>
 
-            <InputTextArea id="description" @bind-Value="item.Description" />
-
-            @foreach (var fileData in item.FileData)
+            <button type="button" @onclick="AddFileData" class="btn btn-outline-secondary mt-2">Add FileData</button>
+            @if (selectedCategory is not null)
             {
-                <div>
-                    <InputFile id="fileUpload" OnChange="async (e) => await HandleFileUpload(e, fileData)" />
-                    <InputText id="fileDescription" @bind-Value="fileData.Description" />
-
-                    <InputSelect id="dataType" @bind-Value="fileData.Type">
-                        @foreach (var type in Enum.GetValues<DataType>())
-                        {
-                            <option value="@type">@type</option>
-                        }
-                    </InputSelect>
-                </div>
-            }
-
-            <button type="button" @onclick="AddFileData">Add FileData</button>
-            @if(selectedCategory is not null)
-            {
-                <button type="submit">Submit</button>
+                <button type="submit" class="btn btn-outline-primary mt-2">Submit</button>
             }
             else
             {
-                <p>select category to add item</p>
+                <p class="text-warning">Please select a category to add item</p>
             }
-            
         </EditForm>
         break;
     case 2:

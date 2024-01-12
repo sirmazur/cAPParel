@@ -483,7 +483,7 @@ namespace cAPParel.API.Controllers
                         resourceParameters,
                         filters,
                         ResourceUriType.PreviousPage),
-                        "nextPage",
+                        "previousPage",
                         "GET"));
             }
             return links;
