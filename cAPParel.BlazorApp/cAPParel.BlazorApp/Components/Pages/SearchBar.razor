@@ -97,11 +97,18 @@
                 ("SearchQuery", extendedFilters.searchTerm),
                 ("OrderBy", extendedFilters.filters.OrderBy)
             );
-        navigationManager.NavigateTo($"/Items/{queryString}&PageSize=5&PageNumber=1");
+        if(queryString is null || queryString.Count()<1)
+            navigationManager.NavigateTo($"/Items?PageSize=5&PageNumber=1", forceLoad: true);
+        else
+            navigationManager.NavigateTo($"/Items?{queryString}&PageSize=5&PageNumber=1", forceLoad: true);
+
     }
     internal class ExtendedFilters
     {
         public string searchTerm = "";
-        public ItemFilters filters = new ItemFilters();
+        public ItemFilters filters = new ItemFilters()
+            {
+                OrderBy = "Price asc"
+            };
     }
 }

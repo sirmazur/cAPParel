@@ -436,30 +436,30 @@ namespace cAPParel.API.Controllers
                      new
                      {
                          fields = resourceParameters.Fields,
-                         pageNumber = resourceParameters.PageNumber - 1,
-                         pageSize = resourceParameters.PageSize,
+                         PageNumber = resourceParameters.PageNumber - 1,
+                         PageSize = resourceParameters.PageSize,
                          searchQuery = resourceParameters.SearchQuery,
-                         orderBy = resourceParameters.OrderBy
+                         OrderBy = resourceParameters.OrderBy
                      });
                 case ResourceUriType.NextPage:
                     return Url.Link("GetItems",
                     new
                     {
                         fields = resourceParameters.Fields,
-                        pageNumber = resourceParameters.PageNumber + 1,
-                        pageSize = resourceParameters.PageSize,
+                        PageNumber = resourceParameters.PageNumber + 1,
+                        PageSize = resourceParameters.PageSize,
                         searchQuery = resourceParameters.SearchQuery,
-                        orderBy = resourceParameters.OrderBy
+                        OrderBy = resourceParameters.OrderBy
                     });
                 default:
                     return Url.Link("GetItems",
                     new
                     {
                         fields = resourceParameters.Fields,
-                        pageNumber = resourceParameters.PageNumber,
-                        pageSize = resourceParameters.PageSize,
+                        PageNumber = resourceParameters.PageNumber,
+                        PageSize = resourceParameters.PageSize,
                         searchQuery = resourceParameters.SearchQuery,
-                        orderBy = resourceParameters.OrderBy
+                        OrderBy = resourceParameters.OrderBy
 
                     });
             }

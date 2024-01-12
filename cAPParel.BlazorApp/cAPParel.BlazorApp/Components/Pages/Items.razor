@@ -1,8 +1,11 @@
-﻿@page "/Items/{searchQuery}"
+﻿@page "/Items{searchQuery}"
 @page "/Items"
+@using Microsoft.AspNetCore.WebUtilities
 @using cAPParel.BlazorApp.Models
 @using cAPParel.BlazorApp.Services.ItemServices
 @inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
+@inject NavigationManager manager
+@inject IConfiguration config
 @rendermode InteractiveServer
 
 <style>
@@ -11,33 +14,33 @@
     }
 </style>
 
-<div class="container">   
+<div class="container">
     @if (items is not null && items.Value is not null)
     {
         <h2>Items</h2>
         <div class="row">
 
-                @foreach (var item in items.Value)
-                {
-                    var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
-                    <div class="col-12 mb-3">
-                        <div class="card clickable" style="width: 80%; height: 50vh; margin: auto; overflow: hidden;" @onclick="() => NavigateToItem(item.Id)">
-                            <div class="row no-gutters">
-                                <div class="col-md-6">
-                                    <img src="data:image/png;base64,@base64String" class="d-block w-100 h-100" style="object-fit: contain;" alt="@item.Name">
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card-body">
-                                        <h5 class="card-title">@item.Name</h5>
-                                        <p class="card-text">@item.Description</p>
-                                        <p class="card-text"><strong>Price: </strong>@item.Price</p>
-                                    </div>
+            @foreach (var item in items.Value)
+            {
+                var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
+                <div class="col-12 mb-3">
+                    <div class="card clickable" style="width: 80%; height: 50vh; margin: auto; overflow: hidden;" @onclick="() => NavigateToItem(item.Id)">
+                        <div class="row no-gutters">
+                            <div class="col-md-6">
+                                <img src="data:image/png;base64,@base64String" class="d-block w-100 h-100" style="object-fit: contain;" alt="@item.Name">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Name</h5>
+                                    <p class="card-text">@item.Description</p>
+                                    <p class="card-text"><strong>Price: </strong>@item.Price</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                
-                }
+                </div>
+
+            }
         </div>
     }
     else if (items is null)
@@ -53,38 +56,82 @@
         <h2>No matching results...</h2>
     }
 </div>
-@if (items.Links.Any(l => l.Rel == "nextPage"))
-{ }
-@if (items.Links.Any(l => l.Rel == "nextPage"))
-{}
+
+@if (items is not null && items.Links.Any(l => l.Rel == "previousPage"))
+{
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16"
+         @onclick='()=>{manager.NavigateTo("/Items"+items.Links.FirstOrDefault(l=>l.Rel=="previousPage").Href.Replace(config.GetValue<string>("BaseAddress")+"/api/items",""), forceLoad: true);}'>
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+    </svg>
+}
+@if (searchQuery is not null)
+{
+    string start = "PageNumber=";
+    string end = "&";
+
+    int startIndex = searchQuery.IndexOf(start) + start.Length;
+    int endIndex = searchQuery.IndexOf(end, startIndex);
+
+    if (endIndex == -1) // If end string is not found
+    {
+        endIndex = searchQuery.Length; // Use the length of the input string as the end index
+    }
+
+    string pageNumber = searchQuery.Substring(startIndex, endIndex - startIndex);
+
+    <p>@pageNumber</p>
+}
+else
+{
+    <p>1</p>
+}
+@if (items is not null && items.Links.Any(l => l.Rel == "nextPage"))
+{
+            
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16"
+         @onclick='()=>{manager.NavigateTo("/Items"+items.Links.FirstOrDefault(l=>l.Rel=="nextPage").Href.Replace(config.GetValue<string>("BaseAddress")+"/api/items",""), forceLoad: true);}'>
+        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+    </svg>
+
+}
+
 
 @code {
     [Parameter]
     public string? searchQuery { get; set; }
     private LinkedResourceList<ItemFullDto>? items;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = manager.ToAbsoluteUri(manager.Uri);
+
+        searchQuery = uri.Query.Substring(1);
+
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
-            if(searchQuery is not null && searchQuery.Count()>0)
+            if (searchQuery is not null && searchQuery.Count()>0)
             {
-                items = await itemService.GetItemsFullByQueryAsync(searchQuery);
+                items = await itemService.GetItemsFullByQueryAsync(searchQuery, true);
             }
             else
             {
-                items = await itemService.GetItemsFullAsync();
+                ItemFilters filters = new ItemFilters();
+                filters.includeLinks = true;
+                items = await itemService.GetItemsFullAsync(filters);
             }
 
             if (items is null)
-            items = new LinkedResourceList<ItemFullDto>();
+                items = new LinkedResourceList<ItemFullDto>();
 
             StateHasChanged();
 
         }
     }
 
-    private void NavigateToItem(int id)
+    private async Task NavigateToItem(int id)
     {
         throw new NotImplementedException();
     }
