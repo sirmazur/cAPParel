@@ -1,0 +1,164 @@
+﻿@page "/item/{itemidstring}"
+@using cAPParel.BlazorApp.Models
+@using Blazorise.TreeView
+@using Blazorise.Bootstrap
+@using Blazorise.Icons
+@inject ILocalStorageService storageService
+@inject NavigationManager NavigationManager
+@inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService;
+@rendermode InteractiveServer
+
+@if (item is not null)
+{
+    <h1 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+        @item.Name - $@(item.Price*item.PriceMultiplier)
+    </h1>
+
+    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="">
+        <div class="carousel-inner">
+
+            @foreach (var img in Images)
+            {
+                j++;
+                var active = j == 1 ? "active" : "";
+                var base64String = Convert.ToBase64String(img.Data);
+
+                <div class="carousel-item @active">
+                    <img src="data:image/png;base64,@base64String" class="d-block w-100" alt="@item.Name">
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+}
+else
+{
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+}
+
+@foreach(var size in pieces)
+{
+   
+            int i = 0; 
+            foreach(var piece in size.Value)
+            {
+                if (!userData.Cart.Any(c => c.Id == piece.Id))
+                    i++;
+            }
+    if (i>0)
+    {
+        <p>@size.Key - @i pieces available"</p>
+        <button class="btn btn-success" @onclick="() => AddPieceToCart(size.Value)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+            </svg>
+        </button>
+    }
+    
+        
+}
+
+@code
+{
+    int j = 0;
+    int i = 0;
+    ItemFullDto? item;
+    List<FileDataDto>? Images;
+    List<FileDataDto>? Files;
+    UserData? userData;
+    Dictionary<string, List<PieceDto>>? pieces = new Dictionary<string, List<PieceDto>>();
+    [Parameter]
+    public string itemidstring { get; set; }
+    public int itemid { get { return (int)Convert.ToInt32(itemidstring); } }
+
+    private async Task AddPieceToCart(List<PieceDto> pieces)
+    {
+        var pieceToAdd = pieces.FirstOrDefault(c => !userData.Cart.Any(d => d.Id == c.Id));
+        userData.Cart.Add(pieceToAdd);
+        await storageService.SetItemAsync("userdata", userData);
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            userData = await storageService.GetItemAsync<UserData>("userdata");
+            item = await itemService.GetItemFullAsync(itemid);
+            Images = item.FileData.Where(c => c.Type == DataType.Image).ToList();
+            Files = item.FileData.Where(c => c.Type == DataType.Other).ToList();
+            foreach(var piece in item.Pieces)
+            {
+                if(pieces.ContainsKey(piece.Size))
+                {
+                    pieces.TryGetValue(piece.Size, out List<PieceDto> list);
+                    list.Add(piece);
+                }
+                else
+                {
+                    List<PieceDto> toAdd = new List<PieceDto>();
+                    toAdd.Add(piece);
+                    pieces.Add(piece.Size, toAdd);
+                }
+            }
+
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+    .carousel {
+        max-width: 60%;
+        height: 30vh; /* Set the fixed height for the carousel */
+        margin: auto;
+        box-shadow: 0 10px 20px rgba(128,0,128,0.3), 0 6px 6px rgba(255,105,180,0.3);
+        border: 3px solid #EF7812;
+        border-radius: 3px; /* Rounded corners */
+        padding-bottom: 20px;
+        transition: all 0.2s ease; /* Smooth transition for hover effects */
+    }
+
+        .carousel:hover {
+            box-shadow: 0 14px 28px rgba(128,0,128,0.4), 0 10px 10px rgba(255,105,180,0.4);
+        }
+
+    .carousel-inner {
+        height: 100%;
+    }
+
+    .carousel-item {
+        height: 100%;
+    }
+
+        .carousel-item img {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+        }
+
+    .carousel-control-prev-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23FA8717' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+    }
+
+    .carousel-control-next-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23FA8717' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+    }
+
+    h2 {
+        text-align: center;
+        color: orange;
+        font-weight: 800;
+    }
+</style>

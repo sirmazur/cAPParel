@@ -36,5 +36,17 @@ namespace cAPParel.API.Services.ItemServices
             await _context.SaveChangesAsync();
             return new OperationResult<FileDataDto> { IsSuccess=true, ErrorMessage=$"File with id={id} was not found.", HttpResponseCode=204 };
         }
+
+        //public async Task<Item> GetByIdWithEagerLoadingAsync(int id, params string[] includeProperties)
+        //{
+        //    var query = _context.Set<Item>().AsQueryable();
+
+        //    foreach (var includeProperty in includeProperties)
+        //    {
+        //        query = query.Include(includeProperty);
+        //    }
+
+        //    return await query.SingleOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        //}
     }
 }

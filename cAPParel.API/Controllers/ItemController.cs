@@ -208,7 +208,8 @@ namespace cAPParel.API.Controllers
 
             if (primaryMediaType == "vnd.capparel.item.full")
             {
-                var fullItem = await _itemService.GetExtendedByIdWithEagerLoadingAsync(itemid);
+                Expression<Func<Item, object>>[] includeProperties = { c => c.Pieces, c => c.FileData };
+                var fullItem = await _itemService.GetExtendedByIdWithEagerLoadingAsync(itemid, includeProperties);
                 var fullResourceToReturn = fullItem.ShapeDataForObject(fields) as IDictionary<string, object>;
                 if (includeLinks)
                 {
@@ -216,6 +217,7 @@ namespace cAPParel.API.Controllers
                 }
                 return Ok(fullResourceToReturn);
             }
+
             var item = await _itemService.GetExtendedByIdWithEagerLoadingAsync(itemid);
 
             var lightResourceToReturn = item.ShapeDataForObject(fields) as IDictionary<string, object>;

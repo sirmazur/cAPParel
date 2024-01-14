@@ -9,5 +9,6 @@ namespace cAPParel.API.Services.ItemServices
         Task<PieceDto> CreatePieceAsync(PieceForCreationDto pieceForCreationDto, int itemid);
         Task<FileDataDto> AddFileDataToItemAsync(int itemid, FileDataForCreationDto imageForCreationDto);
         Task<OperationResult<FileDataDto>> DeleteFile(int id);
+        //Task<ItemFullDto> GetExtendedByIdWithEagerLoadingAsyncForCollections(int id, params string[] includeProperties);
     }
 }

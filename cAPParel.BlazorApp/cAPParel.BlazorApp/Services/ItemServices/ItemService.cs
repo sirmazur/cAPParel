@@ -38,6 +38,11 @@ namespace cAPParel.BlazorApp.Services.ItemServices
             var item = await _client.GetResourceAsync<ItemDto>($"api/items/{itemId}", "application/vnd.capparel.item.friendly+json");
             return item;
         }
+        public async Task<ItemFullDto> GetItemFullAsync(int itemId)
+        {
+            var item = await _client.GetResourceAsync<ItemFullDto>($"api/items/{itemId}", "application/vnd.capparel.item.full+json");
+            return item;
+        }
         public async Task<LinkedResourceList<ItemFullDto>?> GetItemsFullAsync(ItemFilters? filters = null)
         {
             var route = "api/items";

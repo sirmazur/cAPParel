@@ -7,5 +7,6 @@ namespace cAPParel.API.Services.ItemServices
     {
         Task<Piece> AddPieceAsync(Piece piece, int itemid);
         Task<OperationResult<FileDataDto>> DeleteFile(int id);
+        //Task<Item> GetByIdWithEagerLoadingAsync(int id, params string[] includeProperties);
 }
 }

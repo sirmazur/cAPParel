@@ -8,6 +8,7 @@ namespace cAPParel.BlazorApp.Services.ItemServices
         Task<LinkedResourceList<ItemFullDto>?> GetItemsFullAsync(ItemFilters? filters = null);
         Task<LinkedResourceList<ItemDto>?> GetItemsFriendlyByQueryAsync(string query, bool? includeLinks = false);
         Task<LinkedResourceList<ItemFullDto>?> GetItemsFullByQueryAsync(string query, bool? includeLinks = false);
+        Task<ItemFullDto> GetItemFullAsync(int itemId);
         Task<ItemDto> GetItemAsync(int itemId);
         Task<ItemDto> CreateItemAsync(ItemForCreationDto itemToCreate);
         Task DeletePieceAsync(int pieceId);

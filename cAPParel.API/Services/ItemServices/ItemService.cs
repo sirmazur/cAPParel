@@ -133,6 +133,12 @@ namespace cAPParel.API.Services.ItemServices
         }
 
 
+        //public async Task<ItemFullDto> GetExtendedByIdWithEagerLoadingAsyncForCollections(int id, params string[] includeProperties)
+        //{
+        //    var item = await _itemRepository.GetByIdWithEagerLoadingAsync(id, includeProperties);
+        //    var itemToReturn = _mapper.Map<ItemFullDto>(item);
+        //    return itemToReturn;
+        //}
 
     }
 }
