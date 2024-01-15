@@ -61,7 +61,7 @@ else
                 <h3>@order.DateCreated.ToShortDateString(), @order.State - @order.TotalPrice</h3>
                 </td>
                 <td>
-                    @if (order.State != State.Completed)
+                    @if (order.State != State.Completed && order.State != State.Cancelled)
                     {
                         <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
                     }

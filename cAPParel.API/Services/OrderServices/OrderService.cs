@@ -20,7 +20,7 @@ namespace cAPParel.API.Services.OrderServices
         public async Task CancelOrderAsync(int orderId, int userId, Role role)
         {
             var order = await _basicRepository.GetByIdWithEagerLoadingAsync(orderId, c => c.Pieces);
-            if(order.UserId != userId && role != Role.Admin)
+            if(order.UserId != userId && role != Role.Admin || (order.State == State.Cancelled || order.State==State.Completed))
                 throw new Exception("You are not allowed to cancel this order!");
             foreach (var piece in order.Pieces)
             {
