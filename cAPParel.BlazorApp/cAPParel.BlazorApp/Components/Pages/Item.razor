@@ -58,7 +58,7 @@ else
             int i = 0; 
             foreach(var piece in size.Value)
             {
-                if (!userData.Cart.Any(c => c.Id == piece.Id))
+                if (!userData.Cart.Any(c => c.Id == piece.Id) && piece.IsAvailable==true)
                     i++;
             }
     if (i>0)
@@ -74,9 +74,31 @@ else
         
 }
 
+@if(userData is not null && userData.Role==Role.Admin)
+{
+    <EditForm Model="pieceToCreate" OnValidSubmit="async ()=>await CreatePieceAsync(pieceToCreate)">
+        <InputText id="size" @bind-Value="pieceToCreate.Size" class="form-control"></InputText>
+        <label for="color">Color</label>
+        <select class="form-control" id="color" @bind="pieceToCreate.Color">
+            <option value="Red">Red</option>
+            <option value="Blue">Blue</option>
+            <option value="Green">Green</option>
+            <option value="Yellow">Yellow</option>
+            <option value="Black">Black</option>
+            <option value="White">White</option>
+            <option value="Gray">Gray</option>
+            <option value="Brown">Brown</option>
+            <option value="Pink">Pink</option>
+            <option value="Purple">Purple</option>
+            <option value="Orange">Orange</option>
+        </select>
+        <button type="submit" class="btn btn-success">Add Piece</button>
+    </EditForm>
+}
+
 @code
 {
-    
+    PieceForCreationDto pieceToCreate = new PieceForCreationDto();
     int i = 0;
     ItemFullDto? item;
     List<FileDataDto>? Images;
@@ -86,6 +108,29 @@ else
     [Parameter]
     public string itemidstring { get; set; }
     public int itemid { get { return (int)Convert.ToInt32(itemidstring); } }
+
+    private async Task CreatePieceAsync(PieceForCreationDto piece)
+    {
+        await itemService.CreatePieceAsync(item.Id, piece);
+        pieceToCreate = new PieceForCreationDto();
+        item = await itemService.GetItemFullAsync(itemid);
+        pieces.Clear();
+        foreach (var piece_ in item.Pieces)
+        {
+            if (pieces.ContainsKey(piece_.Size))
+            {
+                pieces.TryGetValue(piece_.Size, out List<PieceDto> list);
+                list.Add(piece_);
+            }
+            else
+            {
+                List<PieceDto> toAdd = new List<PieceDto>();
+                toAdd.Add(piece_);
+                pieces.Add(piece_.Size, toAdd);
+            }
+        }
+        StateHasChanged();
+    }
 
     private async Task AddPieceToCart(List<PieceDto> pieces)
     {

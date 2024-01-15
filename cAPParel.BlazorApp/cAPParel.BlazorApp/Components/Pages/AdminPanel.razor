@@ -18,6 +18,7 @@
         <option value="0">Categories</option>
         <option value="1">Items</option>
         <option value="2">Orders</option>
+        <option value="3">Users</option>
     </select>
 </div>
 
@@ -72,10 +73,10 @@
         break;
     case 2:
         <table class="table">
-        @foreach(var order in Orders.Value)
+        @foreach(var order in Orders.Value.Reverse())
         {
             <tr>
-            <h3>@order.DateCreated.ToShortDateString(), @order.State - @order.TotalPrice</h3>
+            <h3>@order.DateCreated.ToShortDateString(), @order.State - $ @order.TotalPrice</h3>
             <td>
             @foreach(var piece in order.Pieces)
             {
@@ -87,7 +88,7 @@
             {
                 <button class="btn btn-success" @onclick="async()=>await ProceedOrder(order)">Proceed</button>
             }
-            @if (order.State != State.Completed)
+            @if (order.State != State.Completed && order.State != State.Cancelled)
             {
                 <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
             }
@@ -104,8 +105,9 @@
                     <td>@user.Username</td>
                     <td>Saldo: $ @user.Saldo</td>
                     <td>
-                    <EditForm OnInvalidSubmit="async()=>await SetBalance(user.Id,amountToSet)">
-                            <InputNumber id="amounttoset" @bind-Value="amountToSet" class="form-control" />
+                    <EditForm Model="amountToSet" OnValidSubmit="async()=>await SetBalance(user.Id,amountToSet)">
+                            <InputNumber id="amounttoset" @bind-Value="amountToSet" class="form-control"/>
+                            <button type="submit" class="btn btn-outline-primary mt-2">Submit</button>
                     </EditForm>
                     </td>
                 </tr> 
@@ -182,6 +184,7 @@
     {
         await userService.TopUpAccountAsync(userId, amount);
         users = await userService.GetUsersFullAsync();
+        amount = 0;
         StateHasChanged();
     }
 

@@ -58,7 +58,7 @@ else
         {
             <tr>
                 <td>
-                <h3>@order.DateCreated.ToShortDateString(), @order.State - @order.TotalPrice</h3>
+                <h3>@order.DateCreated.ToShortDateString(), @order.State - $ @order.TotalPrice</h3>
                 </td>
                 <td>
                     @if (order.State != State.Completed && order.State != State.Cancelled)

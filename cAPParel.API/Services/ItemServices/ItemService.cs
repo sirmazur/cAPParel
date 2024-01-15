@@ -63,7 +63,7 @@ namespace cAPParel.API.Services.ItemServices
                 }
                 else
                 if(filter.FieldName == "HasPieces")
-                    listToReturn = listToReturn.Where(c => c.Pieces.Count > 0);
+                    listToReturn = listToReturn.Where(c => c.Pieces.Any(p=>p.IsAvailable==true));
                 else
                 if (filter.FieldName == "Size")
                     listToReturn = listToReturn.Where(i => i.Pieces.Any(p => p.Size == filter.Value.ToString()));
