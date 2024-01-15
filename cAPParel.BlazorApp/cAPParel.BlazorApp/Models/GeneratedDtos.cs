@@ -52,6 +52,11 @@ namespace cAPParel.BlazorApp.Models
         public ICollection<CategoryFullDto> ChildCategories { get; set; }
     }
 
+    public class OrderForCreationDto
+    {
+        public int UserId { get; set; }
+        public List<int> PiecesIds { get; set; } = new List<int>();
+    }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class CategoryForCreationDto

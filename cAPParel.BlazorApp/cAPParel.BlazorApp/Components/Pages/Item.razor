@@ -10,9 +10,10 @@
 
 @if (item is not null)
 {
-    <h1 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
+    int j = 0;
+    <h2 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
         @item.Name - $@(item.Price*item.PriceMultiplier)
-    </h1>
+    </h2>
 
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="">
         <div class="carousel-inner">
@@ -37,6 +38,8 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+    <h1>Description:</h1>
+    <p>@item.Description</p>
 }
 else
 {
@@ -46,6 +49,8 @@ else
         </div>
     </div>
 }
+
+
 
 @foreach(var size in pieces)
 {
@@ -58,8 +63,8 @@ else
             }
     if (i>0)
     {
-        <p>@size.Key - @i pieces available"</p>
-        <button class="btn btn-success" @onclick="() => AddPieceToCart(size.Value)">
+        <p>@size.Key - @i pieces available</p>
+        <button class="btn btn-success" @onclick="async () => await AddPieceToCart(size.Value)">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
             </svg>
@@ -71,7 +76,7 @@ else
 
 @code
 {
-    int j = 0;
+    
     int i = 0;
     ItemFullDto? item;
     List<FileDataDto>? Images;

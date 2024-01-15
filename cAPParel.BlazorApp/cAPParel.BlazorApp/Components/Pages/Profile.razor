@@ -26,14 +26,19 @@ else
             <td>@userData.Role</td>
         </tr>
         <tr>
-            <td>Cart</td>
+            <EditForm @Model="">
+
+            </EditForm>
+        </tr>
+        <tr>
             <td>
+                Cart total: $ @userData.Cart.Sum(c=>c.Item.Price*c.Item.PriceMultiplier)
                 @foreach (var piece in userData.Cart)
                 {
-                    <p>@piece.Item.Name, @piece.Size</p>
+                    <p>@piece.Item.Name, @piece.Size, $ @(piece.Item.Price*@piece.Item.PriceMultiplier)</p>
                     <button class="btn btn-danger" @onclick='async () => {
                         userData.Cart.Remove(piece);
-                        await storageService.SetItemAsync(" userdata", userData); 
+                        await storageService.SetItemAsync("userdata", userData); 
                         StateHasChanged();}'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
                             <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
@@ -48,6 +53,7 @@ else
 
 @code {
     private UserData? userData;
+    private OrderForCreationDto orderToCreate = new OrderForCreationDto();
     protected override async void OnAfterRender(bool firstRender)
     {
         if (firstRender)
