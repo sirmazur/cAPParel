@@ -1,8 +1,10 @@
 ﻿@page "/profile"
 @using cAPParel.BlazorApp.Models
+@using cAPParel.BlazorApp.Services.OrderServices
 @using cAPParel.BlazorApp.Services.UserServices
 @inject ILocalStorageService storageService
 @inject IUserService userService
+@inject IOrderService orderService
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -28,16 +30,19 @@ else
             <td>@userData.Role</td>
         </tr>
         <tr>
-            <EditForm @Model="">
-
-            </EditForm>
+            <td>Saldo</td>
+            <td>$ @user.Saldo</td>
         </tr>
         <tr>
             <td>
                 Cart total: $ @userData.Cart.Sum(c=>c.Item.Price*c.Item.PriceMultiplier)
+                @if (user.Saldo>=userData.Cart.Sum(c => c.Item.Price*c.Item.PriceMultiplier))
+                {
+                    <button class="btn btn-success" @onclick="FinalizePurchase">Complete purchase</button>
+                }              
                 @foreach (var piece in userData.Cart)
                 {
-                    <p>@piece.Item.Name, @piece.Size, $ @(piece.Item.Price*@piece.Item.PriceMultiplier)</p>
+                    <p>@piece.Item.Name, @piece.Size, $ @(piece.Item.Price*piece.Item.PriceMultiplier)</p>
                     <button class="btn btn-danger" @onclick='async () => {
                         userData.Cart.Remove(piece);
                         await storageService.SetItemAsync("userdata", userData); 
@@ -49,12 +54,28 @@ else
                 }
             </td>
         </tr>
+        @foreach (var order in user.Orders)
+        {
+            <tr>
+                <td>
+                <h3>@order.DateCreated.ToShortDateString(), @order.State - @order.TotalPrice</h3>
+                </td>
+                <td>
+                    @if (order.State != State.Completed)
+                    {
+                        <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
+                    }
+                </td>
+            </tr>
+        }
+    
     </table>  
 }
 
 
 @code {
     private UserData? userData;
+    private UserFullDto? user;
     private OrderForCreationDto orderToCreate = new OrderForCreationDto();
 
 
@@ -63,14 +84,27 @@ else
     {
         if (firstRender)
         {
+            user = await userService.GetSelfFull();
             userData = await storageService.GetItemAsync<UserData>("userdata");
             StateHasChanged();
         }
     }
 
-    private async Task SetBalance()
+    private async Task CancelOrder(OrderDto order)
     {
-        
+        await orderService.CancelOrderAsync(order.Id);
+        user = await userService.GetSelfFull();
+        StateHasChanged();
+    }
+
+    private async Task FinalizePurchase()
+    {
+        var ids = userData.Cart.Select(c => c.Id).ToList();
+        await orderService.CreateOrderAsync(ids);
+        userData.Cart.Clear();
+        await storageService.SetItemAsync("userdata", userData);
+        user = await userService.GetSelfFull();
+        StateHasChanged();
     }
 
     private async Task Logout()
