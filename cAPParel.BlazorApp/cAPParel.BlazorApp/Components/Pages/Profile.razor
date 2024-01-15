@@ -1,6 +1,8 @@
 ﻿@page "/profile"
 @using cAPParel.BlazorApp.Models
+@using cAPParel.BlazorApp.Services.UserServices
 @inject ILocalStorageService storageService
+@inject IUserService userService
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -54,6 +56,9 @@ else
 @code {
     private UserData? userData;
     private OrderForCreationDto orderToCreate = new OrderForCreationDto();
+
+
+
     protected override async void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -61,6 +66,11 @@ else
             userData = await storageService.GetItemAsync<UserData>("userdata");
             StateHasChanged();
         }
+    }
+
+    private async Task SetBalance()
+    {
+        
     }
 
     private async Task Logout()

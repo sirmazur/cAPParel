@@ -3,11 +3,13 @@
 @using Blazorise.TreeView
 @using Blazorise.Bootstrap
 @using Blazorise.Icons
+@using cAPParel.BlazorApp.Services.UserServices
 @inject ILocalStorageService storageService
 @inject NavigationManager NavigationManager
 @inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService;
 @inject cAPParel.BlazorApp.Services.CategoryServices.ICategoryService categoryService;
 @inject cAPParel.BlazorApp.Services.OrderServices.IOrderService orderService;
+@inject IUserService userService
 @rendermode InteractiveServer
 
 <div class="form-group">
@@ -69,7 +71,47 @@
         </EditForm>
         break;
     case 2:
-
+        <table class="table">
+        @foreach(var order in Orders.Value)
+        {
+            <tr>
+            <h3>@order.DateCreated.ToShortDateString(), @order.State - @order.TotalPrice</h3>
+            <td>
+            @foreach(var piece in order.Pieces)
+            {
+                <p>@piece.Item.Name, @piece.Size, @piece.Id</p>
+            }
+            </td>
+            <td>
+            @if (order.State == State.Accepted || order.State == State.Ongoing)
+            {
+                <button class="btn btn-success" @onclick="async()=>await ProceedOrder(order)">Proceed</button>
+            }
+            @if (order.State != State.Completed)
+            {
+                <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
+            }
+                    </td>
+                </tr>
+        }
+        </table>
+        break;
+    case 3:
+        <table class="table">
+            @foreach(var user in users.Value)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td>Saldo: $ @user.Saldo</td>
+                    <td>
+                    <EditForm OnInvalidSubmit="async()=>await SetBalance(user.Id,amountToSet)">
+                            <InputNumber id="amounttoset" @bind-Value="amountToSet" class="form-control" />
+                    </EditForm>
+                    </td>
+                </tr> 
+            }
+            
+        </table>
         break;
     case -1:
         break;
@@ -89,11 +131,13 @@
 }
 
 @code {
+    double amountToSet = 0;
     int selected = -1;
     bool categoryCreation = false;
     string? categoryName = null;
     int? selectedCategoryId = null;
     ItemForCreationDto item = new ItemForCreationDto();
+    LinkedResourceList<UserFullDto>? users;
     LinkedResourceList<ItemFullDto>? Items;
     LinkedResourceList<OrderFullDto>? Orders;
     LinkedResourceList<CategoryFullDto>? Categories;
@@ -107,6 +151,22 @@
 
     private bool IsVisible { get; set; }
 
+    private async Task ProceedOrder(OrderFullDto order)
+    {
+        await orderService.PatchOrderAsync(++order.State, order.Id);
+        Orders = await orderService.GetOrdersFullAsync();
+        StateHasChanged();
+
+    }
+
+    private async Task CancelOrder(OrderFullDto order)
+    {
+        await orderService.CancelOrderAsync(order.Id);
+        Orders = await orderService.GetOrdersFullAsync();
+        StateHasChanged();
+
+    }
+
     public void Show(string message)
     {
         Message = message;
@@ -116,6 +176,13 @@
     private void Close()
     {
         IsVisible = false;
+    }
+
+    private async Task SetBalance(int userId, double amount)
+    {
+        await userService.TopUpAccountAsync(userId, amount);
+        users = await userService.GetUsersFullAsync();
+        StateHasChanged();
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -159,6 +226,10 @@
             case "2":
                 Orders = await orderService.GetOrdersFullAsync();
                 selected = 2;
+                break;
+            case "3":
+                users = await userService.GetUsersFullAsync();
+                selected = 3;
                 break;
         }
     }

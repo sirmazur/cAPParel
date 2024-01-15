@@ -52,7 +52,7 @@ namespace cAPParel.BlazorApp.Services.UserServices
             await _client.PatchResourceAsync<UserForUpdateDto>(patchDocument, $"api/users/{id}", "application/json");
         }
 
-        public async Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(List<int>? ids, bool? includeLinks = false)
+        public async Task<LinkedResourceList<UserFullDto>?> GetUsersFullByIdAsync(List<int>? ids, bool? includeLinks = false)
         {
             var route = "api/users";
 
@@ -64,6 +64,18 @@ namespace cAPParel.BlazorApp.Services.UserServices
             {
                 route = $"{route}?{queryString}";
             }
+
+            if (includeLinks is not null && includeLinks is true)
+                return await _client.GetResourcesAsync<UserFullDto>(route, "application/vnd.capparel.user.full.hateoas+json");
+            else
+                return await _client.GetResourcesAsync<UserFullDto>(route, "application/vnd.capparel.user.full+json");
+
+
+        }
+
+        public async Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(bool? includeLinks = false)
+        {
+            var route = "api/users";
 
             if (includeLinks is not null && includeLinks is true)
                 return await _client.GetResourcesAsync<UserFullDto>(route, "application/vnd.capparel.user.full.hateoas+json");

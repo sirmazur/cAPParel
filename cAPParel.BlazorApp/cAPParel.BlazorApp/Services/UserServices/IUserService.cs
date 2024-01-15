@@ -8,7 +8,8 @@ namespace cAPParel.BlazorApp.Services.UserServices
         Task<OperationResult> Authenticate(string username, string password);
         Task<UserDto> GetSelfFriendly();
         Task<UserFullDto> GetSelfFull();
-        Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(List<int>? ids, bool? includeLinks = false);
+        Task<LinkedResourceList<UserFullDto>?> GetUsersFullByIdAsync(List<int>? ids, bool? includeLinks = false);
+        Task<LinkedResourceList<UserFullDto>?> GetUsersFullAsync(bool? includeLinks = false)
         Task Register(UserForClientCreation userToCreate);
         Task TopUpAccountAsync(int id, double amount);
     }
