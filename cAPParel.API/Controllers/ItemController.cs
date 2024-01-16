@@ -427,7 +427,7 @@ namespace cAPParel.API.Controllers
         }
 
         [Authorize(Policy = "MustBeAdmin")]
-        [HttpPatch("{ordertoupdateid}", Name = "PartiallyUpdateItem")]
+        [HttpPatch("{itemtoupdateid}", Name = "PartiallyUpdateItem")]
         public async Task<IActionResult> PartialUpdateItem(int itemtoupdateid, JsonPatchDocument<ItemForUpdateDto> patchDocument)
         {
             var operationResult = await _itemService.PartialUpdateAsync(itemtoupdateid, patchDocument);
