@@ -33,7 +33,16 @@
                                 <div class="card-body">
                                     <h5 class="card-title">@item.Name</h5>
                                     <p class="card-text">@item.Description</p>
-                                    <p class="card-text"><strong>Price: </strong>$ @(item.Price*item.PriceMultiplier)</p>
+                                    <p class="card-text"><strong>Price: </strong>$ 
+                                        @if(item.PriceMultiplier==1)
+                                        {
+                                            @item.Price
+                                        }
+                                        else
+                                        {
+                                            <s>@item.Price </s> @(item.Price*item.PriceMultiplier)
+                                        }
+                                    </p>
                                 </div>
                             </div>
                         </div>
