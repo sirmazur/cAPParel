@@ -59,7 +59,20 @@
                 <label for="description" class="form-label">Description</label>
                 <InputTextArea id="description" @bind-Value="item.Description" class="form-control" />
             </div>
+            @foreach (var fileData in item.FileData)
+            {
+                <div>
+                    <InputFile id="fileUpload" OnChange="async (e) => await HandleFileUpload(e, fileData)" />
+                    <InputText id="fileDescription" @bind-Value="fileData.Description" />
 
+                    <InputSelect id="dataType" @bind-Value="fileData.Type">
+                        @foreach (var type in Enum.GetValues<DataType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+                </div>
+            }
             <button type="button" @onclick="AddFileData" class="btn btn-outline-secondary mt-2">Add FileData</button>
             @if (selectedCategory is not null)
             {

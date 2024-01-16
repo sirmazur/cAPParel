@@ -6,6 +6,7 @@ using cAPParel.API.Services.CategoryServices;
 using cAPParel.API.Services.FieldsValidationServices;
 using cAPParel.API.Services.ItemServices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
@@ -423,6 +424,21 @@ namespace cAPParel.API.Controllers
                 return Ok(CollectionResource);
             }
 
+        }
+
+        [Authorize(Policy = "MustBeAdmin")]
+        [HttpPatch("{ordertoupdateid}", Name = "PartiallyUpdateItem")]
+        public async Task<IActionResult> PartialUpdateItem(int itemtoupdateid, JsonPatchDocument<ItemForUpdateDto> patchDocument)
+        {
+            var operationResult = await _itemService.PartialUpdateAsync(itemtoupdateid, patchDocument);
+            if (operationResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(operationResult.HttpResponseCode, operationResult.ErrorMessage);
+            }
         }
 
 

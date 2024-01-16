@@ -14,5 +14,7 @@ namespace cAPParel.BlazorApp.Services.ItemServices
         Task DeletePieceAsync(int pieceId);
         Task DeleteItemAsync(int itemId);
         Task<PieceDto> CreatePieceAsync(int itemId, PieceForCreationDto piece);
+        Task PatchItemAsync(double newMultiplier, int itemToUpdateId);
+        
     }
 }

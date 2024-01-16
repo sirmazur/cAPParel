@@ -14,6 +14,11 @@
     <h2 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
         @item.Name - $@(item.Price*item.PriceMultiplier)
     </h2>
+    if(userData is not null && userData.Role == Role.Admin)
+    {
+        <InputNumber @bind-Value="priceMultiplier">Manage discount</InputNumber>
+        <button type="button" class="btn btn-outline-success" @onclick="async()=>await itemService.PatchItemAsync(priceMultiplier,itemid)">apply</button>
+    }
 
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="">
         <div class="carousel-inner">
@@ -78,26 +83,13 @@ else
 {
     <EditForm Model="pieceToCreate" OnValidSubmit="async ()=>await CreatePieceAsync(pieceToCreate)">
         <InputText id="size" @bind-Value="pieceToCreate.Size" class="form-control"></InputText>
-        <label for="color">Color</label>
-        <select class="form-control" id="color" @bind="pieceToCreate.Color">
-            <option value="Red">Red</option>
-            <option value="Blue">Blue</option>
-            <option value="Green">Green</option>
-            <option value="Yellow">Yellow</option>
-            <option value="Black">Black</option>
-            <option value="White">White</option>
-            <option value="Gray">Gray</option>
-            <option value="Brown">Brown</option>
-            <option value="Pink">Pink</option>
-            <option value="Purple">Purple</option>
-            <option value="Orange">Orange</option>
-        </select>
         <button type="submit" class="btn btn-success">Add Piece</button>
     </EditForm>
 }
 
 @code
 {
+    double priceMultiplier = 1;
     PieceForCreationDto pieceToCreate = new PieceForCreationDto();
     int i = 0;
     ItemFullDto? item;
@@ -108,6 +100,7 @@ else
     [Parameter]
     public string itemidstring { get; set; }
     public int itemid { get { return (int)Convert.ToInt32(itemidstring); } }
+
 
     private async Task CreatePieceAsync(PieceForCreationDto piece)
     {

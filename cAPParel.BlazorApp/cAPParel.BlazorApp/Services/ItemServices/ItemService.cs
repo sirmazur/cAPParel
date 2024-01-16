@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Reflection.Metadata.Ecma335;
 using Color = cAPParel.BlazorApp.Models.Color;
 using cAPParel.BlazorApp.HttpClients;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace cAPParel.BlazorApp.Services.ItemServices
 {
@@ -69,6 +70,13 @@ namespace cAPParel.BlazorApp.Services.ItemServices
                 return await _client.GetResourcesAsync<ItemFullDto>(route, "application/vnd.capparel.item.full+json");
 
 
+        }
+
+        public async Task PatchItemAsync(double newMultiplier, int itemToUpdateId)
+        {
+            var patchDocument = new JsonPatchDocument<ItemForUpdateDto>();
+            patchDocument.Replace(o => o.PriceMultiplier, newMultiplier);
+            await _client.PatchResourceAsync<ItemForUpdateDto>(patchDocument, $"api/items/{itemToUpdateId}", "application/json");
         }
 
         public async Task<LinkedResourceList<ItemDto>?> GetItemsFriendlyAsync(ItemFilters? filters = null)

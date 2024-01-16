@@ -2,6 +2,7 @@
 @using cAPParel.BlazorApp.Models
 @using cAPParel.BlazorApp.Services.ItemServices
 @inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
+@inject NavigationManager manager
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
 <PageTitle>Home</PageTitle>
@@ -18,7 +19,7 @@
                 var active = i == 1 ? "active" : "";
                 var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
 
-                <div class="carousel-item @active">
+                <div class="carousel-item @active" @onclick='()=>manager.NavigateTo($"/item/{item.Id}")'>
                     <img src="data:image/png;base64,@base64String" class="d-block w-100" alt="@item.Name">
                     <div class="carousel-caption d-none d-md-block d-flex flex-column justify-content-between" style="height: 100%;">
                         <h5 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
@@ -63,7 +64,7 @@ else
                 var active = j == 1 ? "active" : "";
                 var base64String = Convert.ToBase64String(item.FileData.FirstOrDefault(c => c.Type==DataType.Image).Data);
 
-                <div class="carousel-item @active">
+                <div class="carousel-item @active" @onclick='()=>manager.NavigateTo($"/item/{item.Id}")'>
                     <img src="data:image/png;base64,@base64String" class="d-block w-100" alt="@item.Name">
                     <div class="carousel-caption d-none d-md-block d-flex flex-column justify-content-between" style="height: 100%;">
                         <h5 style="padding-top: 5px; color: black; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">

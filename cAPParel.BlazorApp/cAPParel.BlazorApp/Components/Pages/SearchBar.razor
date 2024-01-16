@@ -16,6 +16,9 @@
         </div>
     </div>
 </EditForm>
+<table class="table">
+<tr>
+    <td>
 <div class="dropdown">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
         Filters
@@ -71,7 +74,15 @@
         </form>
     </div>
 </div>
-    
+        </td>
+        <td>
+@if (extendedFilters.filters.categoryid is not null)
+{
+    <button type="button" class="btn btn-outline-primary" @onclick="GeneratePdf">Generate pricing</button>
+}
+        </td>
+</tr>
+</table>
 
 @code {
     private ExtendedFilters extendedFilters = new ExtendedFilters();
@@ -102,6 +113,10 @@
         else
             navigationManager.NavigateTo($"/Items?{queryString}&PageSize=5&PageNumber=1", forceLoad: true);
 
+    }
+    private async Task GeneratePdf()
+    {
+        await categoryService.GeneratePricingPdf((int)extendedFilters.filters.categoryid);
     }
     internal class ExtendedFilters
     {
