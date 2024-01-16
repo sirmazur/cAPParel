@@ -112,7 +112,8 @@ else
         {          
             var filters = new ItemFilters()
                 {
-                    OrderBy = "DateCreated desc"
+                    OrderBy = "DateCreated desc",
+                    PageSize = 5
                 };
             newItems = await itemService.GetItemsFullAsync(filters);
             filters.OrderBy = "PriceMultiplier asc";

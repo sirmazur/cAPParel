@@ -9,6 +9,7 @@ using System.Reflection.Metadata.Ecma335;
 using Color = cAPParel.BlazorApp.Models.Color;
 using cAPParel.BlazorApp.HttpClients;
 using Microsoft.AspNetCore.JsonPatch;
+using static cAPParel.BlazorApp.Components.Pages.SearchBar;
 
 namespace cAPParel.BlazorApp.Services.ItemServices
 {
@@ -56,7 +57,9 @@ namespace cAPParel.BlazorApp.Services.ItemServices
                 ("size", filters.size),
                 ("categoryid", filters.categoryid),
                 ("isavailable", filters.isAvailable),
-                ("ids", filters.ids)
+                ("ids", filters.ids),
+                ("OrderBy", filters.OrderBy),
+                ("PageSize", filters.PageSize)
             );
 
             if (!string.IsNullOrEmpty(queryString))
@@ -168,6 +171,7 @@ namespace cAPParel.BlazorApp.Services.ItemServices
         public int? categoryid = null;
         public bool? includeLinks = null;
         public bool? isAvailable = null;
+        public int? PageSize = null;
         public Color? color = null;
         public List<int>? ids = null;
     }
