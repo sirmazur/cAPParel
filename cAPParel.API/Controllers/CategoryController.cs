@@ -47,6 +47,21 @@ namespace cAPParel.API.Controllers
             return File(file.Item1, "application/pdf", file.Item2);
         }
 
+        [HttpGet("{categoryid}/clientpricelists", Name = "GetPricingClient")]
+        public async Task<IActionResult> GetPricingClient(int categoryid)
+        {
+            var file = await _categoryService.GeneratePdfForCategoryAsync(categoryid);
+            if (file.Item1 == null)
+            {
+                return NotFound();
+            }
+            var stream = new MemoryStream(file.Item1);
+            return new FileStreamResult(stream, "application/pdf")
+            {
+                FileDownloadName = file.Item2
+            };
+        }
+
         /// <summary>
         /// Gets categories
         /// </summary>

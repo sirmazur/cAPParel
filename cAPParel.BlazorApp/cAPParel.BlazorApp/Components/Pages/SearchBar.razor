@@ -2,6 +2,7 @@
 @using cAPParel.BlazorApp.Models
 @using cAPParel.BlazorApp.Services.ItemServices
 @inject cAPParel.BlazorApp.Services.CategoryServices.ICategoryService categoryService
+@inject IConfiguration config
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 <EditForm Model="@extendedFilters" OnValidSubmit="@Search">
@@ -18,7 +19,7 @@
 </EditForm>
 <table class="table">
 <tr>
-    <td>
+<td>
 <div class="dropdown">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
         Filters
@@ -74,12 +75,15 @@
         </form>
     </div>
 </div>
-        </td>
+</td>
         <td>
-@if (extendedFilters.filters.categoryid is not null)
-{
-    <button type="button" class="btn btn-outline-primary" @onclick="GeneratePdf">Generate pricing</button>
-}
+            @if (extendedFilters.filters.categoryid is not null)
+            {
+                var address = config.GetValue<string>("BaseAddress");
+                var uri = address + $"/api/categories/{extendedFilters.filters.categoryid}/pricelists";
+                <a type="button" class="btn btn-outline-primary"
+                   href="@uri" download>Download Pricelist</a>
+            }
         </td>
 </tr>
 </table>
