@@ -28,11 +28,13 @@
                 {
                     if(IsAdmin is true)
                     {
-                        <CategoryComponent Category="childCategory" OnCreateSubcategory="OnCreateSubcategory" OnDeleteCategory="OnDeleteCategory" OnSelectCategory="OnSelectCategory" IsAdmin=true/>
+                        <CategoryComponent Category="childCategory" OnCreateSubcategory="OnCreateSubcategory" 
+                            OnDeleteCategory="OnDeleteCategory" OnSelectCategory="OnSelectCategory" IsAdmin=true/>
                     }
                     else
                     {
-                        <CategoryComponent Category="childCategory" OnCreateSubcategory="OnCreateSubcategory" OnDeleteCategory="OnDeleteCategory" OnSelectCategory="OnSelectCategory" IsAdmin=false/>
+                        <CategoryComponent Category="childCategory" OnCreateSubcategory="OnCreateSubcategory" 
+                            OnDeleteCategory="OnDeleteCategory" OnSelectCategory="OnSelectCategory" IsAdmin=false/>
                     }
 
                     
