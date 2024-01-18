@@ -63,17 +63,27 @@ else
             int i = 0; 
             foreach(var piece in size.Value)
             {
-                if (!userData.Cart.Any(c => c.Id == piece.Id) && piece.IsAvailable==true)
-                    i++;
+            if (userData is null)
+                i++;
+            else
+            if (!userData.Cart.Any(c => c.Id == piece.Id) && piece.IsAvailable==true)
+                i++;
             }
     if (i>0)
     {
         <p>@size.Key - @i pieces available</p>
-        <button class="btn btn-success" @onclick="async () => await AddPieceToCart(size.Value)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-            </svg>
-        </button>
+        if(userData is not null)
+        {
+            <button class="btn btn-success" @onclick="async () => await AddPieceToCart(size.Value)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                </svg>
+            </button>
+        }
+        else
+        {
+            <p class="loginp" @onclick='()=>NavigationManager.NavigateTo("/login")'>Log in to purchase this item</p>
+        }
     }
     
         
@@ -162,6 +172,12 @@ else
 }
 
 <style>
+    .loginp {
+        font-weight: bold;        
+    }
+    .loginp:hover {
+        cursor: pointer;
+    }
     .carousel {
         max-width: 60%;
         height: 30vh; /* Set the fixed height for the carousel */

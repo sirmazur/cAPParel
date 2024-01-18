@@ -86,9 +86,9 @@
             int startIndex = searchQuery.IndexOf(start) + start.Length;
             int endIndex = searchQuery.IndexOf(end, startIndex);
 
-            if (endIndex == -1) // If end string is not found
+            if (endIndex == -1) 
             {
-                endIndex = searchQuery.Length; // Use the length of the input string as the end index
+                endIndex = searchQuery.Length; 
             }
 
             string pageNumber = searchQuery.Substring(startIndex, endIndex - startIndex);

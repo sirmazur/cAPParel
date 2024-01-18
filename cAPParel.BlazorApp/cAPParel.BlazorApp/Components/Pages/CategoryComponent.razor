@@ -43,7 +43,7 @@
         else
         {
         <li>
-            <span @onclick = "()=>OnSelectCategory.InvokeAsync(Category)">@Category.CategoryName</span> 
+            <span class="nochildren" @onclick = "()=>OnSelectCategory.InvokeAsync(Category)">@Category.CategoryName</span> 
             @if (IsAdmin is true)
             {
                 <button class="btn btn-success" @onclick="() => OnCreateSubcategory.InvokeAsync(Category)">
@@ -87,24 +87,29 @@
 }
 
 <style>
-    /* Remove default bullets */
+    
+    .nochildren:hover{
+        cursor: pointer;
+    }
+
+
     ul, #myUL {
         list-style-type: none;
     }
 
-    /* Remove margins and padding from the parent ul */
+    
     #myUL {
         margin: 0;
         padding: 0;
     }
 
-    /* Style the caret/arrow */
+    
     .caret {
         cursor: pointer;
-        user-select: none; /* Prevent text selection */
+        user-select: none; 
     }
 
-        /* Create the caret/arrow with a unicode, and style it */
+        
         .caret::before {
             content: "\25B6";
             color: black;
@@ -112,23 +117,23 @@
             margin-right: 6px;
         }
 
-    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+    
     .caret-down::before {
         transform: rotate(90deg);
     }
 
-    /* Hide the nested list */
+    
     .nested {
         display: none;
     }
 
-    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+    
     .active {
         display: block;
     }
 
     .btn {
         flex-grow: 1;
-        margin: 10px; /* Adjust this value to add extra space for padding */
+        margin: 10px; 
     }
 </style>

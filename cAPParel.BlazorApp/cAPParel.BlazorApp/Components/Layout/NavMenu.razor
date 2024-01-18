@@ -12,6 +12,12 @@
 
     <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()" style="flex: 0.8; overflow-y: auto; width: 100%;">       
         <nav class="flex-column" style="width: 100%;">
+            <div class="nav-item px-3" style="width: 100%;">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All" style="width: 100%; justify-content: center; font-weight: 800;">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+
             @if (userData is not null)
             {
                 <div class="nav-item px-3" style="width: 100%;">
@@ -34,11 +40,7 @@
                 </div>
 
             }
-            <div class="nav-item px-3" style="width: 100%;">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All" style="width: 100%; justify-content: center; font-weight: 800;">
-                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-                </NavLink>
-            </div>
+            
             @if(userData is null)
             {
                 <div class="nav-item px-3" style="width: 100%;">
