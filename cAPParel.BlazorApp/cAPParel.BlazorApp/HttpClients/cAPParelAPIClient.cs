@@ -287,6 +287,40 @@ namespace cAPParel.BlazorApp.HttpClients
 
         }
 
+        public async Task PostEmptyAsync(string route, string acceptHeader = "application/json")
+        {
+            var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            route);
+            request.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(acceptHeader));
+            var data = await _localStorageService.GetItemAsync<UserData>("userdata");
+            if (data is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", data.Token);
+            }
+            var response = await _client.SendAsync(request);
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode.HasValue)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
 
+                    throw new Exception(errorMessage, ex);
+                }
+                else
+                {
+                    throw new Exception(ex.Message, ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

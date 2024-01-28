@@ -94,12 +94,7 @@
         {
             <tr>
             <h3>@order.DateCreated.ToShortDateString(), @order.State - $ @order.TotalPrice</h3>
-            <td>
-            @foreach(var piece in order.Pieces)
-            {
-                <p>@piece.Item.Name, @piece.Size, @piece.Id</p>
-            }
-            </td>
+           
             <td>
             @if (order.State == State.Accepted || order.State == State.Ongoing)
             {
@@ -110,6 +105,14 @@
                 <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
             }
                     </td>
+                </tr>
+                <tr>
+                    <p>Ids:
+                        @foreach (var piece in order.Pieces)
+                        {
+                            @piece.Id @:&nbsp;
+                        }
+                    </p>
                 </tr>
         }
         </table>

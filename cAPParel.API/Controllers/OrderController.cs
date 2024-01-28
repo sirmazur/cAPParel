@@ -150,7 +150,7 @@ namespace cAPParel.API.Controllers
                 PagedList<OrderFullDto>? orders = null;
                 try
                 {
-                    orders = await _orderService.GetFullAllAsync(filters, resourceParameters);
+                    orders = await _orderService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters, c => c.Pieces);
                 }
                 catch (Exception ex)
                 {

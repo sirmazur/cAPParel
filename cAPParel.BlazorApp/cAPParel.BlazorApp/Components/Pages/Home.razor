@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using cAPParel.BlazorApp.Models
 @using cAPParel.BlazorApp.Services.ItemServices
+@using cAPParel.BlazorApp.Services.VisitServices
 @inject cAPParel.BlazorApp.Services.ItemServices.IItemService itemService
 @inject NavigationManager manager
+@inject IVisitService visitService
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
 <PageTitle>Home</PageTitle>
@@ -97,7 +99,10 @@ else
     </div>
 }
 
-
+@if(visitCounter is not null)
+{
+    <p>Visits:@visitCounter.Amount</p>
+}
 
 @code
 {
@@ -105,6 +110,7 @@ else
     int j = 0;
     private LinkedResourceList<ItemFullDto> newItems = new LinkedResourceList<ItemFullDto>();
     private LinkedResourceList<ItemFullDto> discountedItems = new LinkedResourceList<ItemFullDto>();
+    private Visit visitCounter;
     private bool first;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -118,6 +124,8 @@ else
             newItems = await itemService.GetItemsFullAsync(filters);
             filters.OrderBy = "PriceMultiplier asc";
             discountedItems = await itemService.GetItemsFullAsync(filters);
+            await visitService.AddVisitAsync();
+            visitCounter = await visitService.GetVisitAsync();
             StateHasChanged();
         }      
         

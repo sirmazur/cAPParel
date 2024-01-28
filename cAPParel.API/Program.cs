@@ -19,6 +19,7 @@ using cAPParel.API.Services.OrderServices;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cAPParel.API.Helpers;
 using System.Reflection;
+using cAPParel.API.Services.VisitServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +89,8 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddScoped<IBasicRepository<Visit>, BasicRepository<Visit>>();
 builder.Services.AddScoped<IBasicRepository<Category>, BasicRepository<Category>>();
 builder.Services.AddScoped<IBasicRepository<User>, BasicRepository<User>>();
 builder.Services.AddScoped<IBasicRepository<Item>, BasicRepository<Item>>();

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using cAPParel.API.DbContexts;
 
@@ -11,9 +12,11 @@ using cAPParel.API.DbContexts;
 namespace cAPParel.API.Migrations
 {
     [DbContext(typeof(cAPParelContext))]
-    partial class cAPParelContextModelSnapshot : ModelSnapshot
+    [Migration("20240128210252_visits")]
+    partial class visits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

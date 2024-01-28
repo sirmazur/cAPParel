@@ -268,6 +268,18 @@
         <member name="M:cAPParel.API.Migrations.fixfiledataitemid.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:cAPParel.API.Migrations.visits">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.visits.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.visits.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.visits.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:cAPParel.API.Models.CategoryDto">
             <summary>
             Item Category

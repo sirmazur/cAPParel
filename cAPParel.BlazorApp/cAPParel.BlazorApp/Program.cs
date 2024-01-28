@@ -11,6 +11,7 @@ using cAPParel.BlazorApp.Services.UserServices;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using cAPParel.BlazorApp.Services.VisitServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddHttpClient<cAPParelAPIClient>();
 builder.Services.AddSingleton<JsonSerializerOptionsWrapper>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddBlazoredLocalStorage();

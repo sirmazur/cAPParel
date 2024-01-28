@@ -340,6 +340,12 @@ namespace cAPParel.BlazorApp.Models
         public ICollection<FileDataForCreationDto> FileData { get; set; }
     }
 
+    public class Visit
+    {
+        public int Id { get; set; }
+        public int Amount { get; set; } = 1;
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public enum Role
     {
