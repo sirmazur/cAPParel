@@ -10,7 +10,7 @@ namespace cAPParel.API.Models
         public double TotalPrice { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateCompleted { get; set; }
-        public int UserId { get; set; }
+        public int UserId { get; set; }     
         public State State { get; set;}
     }
 }

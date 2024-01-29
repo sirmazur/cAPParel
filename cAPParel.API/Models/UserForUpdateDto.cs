@@ -13,8 +13,8 @@ namespace cAPParel.API.Models
         [MinLength(7)]
         [MaxLength(20)]
         public string Password { get; set; }
-
-        public Role Role { get; set; }
+		public string? Address { get; set; }
+		public Role Role { get; set; }
         public double Saldo { get; set; }
     }
 }

@@ -15,5 +15,6 @@ namespace cAPParel.API.Models
         public double Saldo { get; set; }
 
         public ICollection<OrderDto> Orders { get; set; }
-    }
+		public string? Address { get; set; }
+	}
 }

@@ -13,5 +13,6 @@ namespace cAPParel.API.Models
         public int UserId { get; set; }
         public State State { get; set;}
         public ICollection<PieceDto> Pieces { get; set; }
+        public UserDto User { get; set; }
     }
 }

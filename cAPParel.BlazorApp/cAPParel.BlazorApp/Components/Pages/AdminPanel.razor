@@ -103,8 +103,14 @@
             @if (order.State != State.Completed && order.State != State.Cancelled)
             {
                 <button class="btn btn-danger" @onclick="async()=>await CancelOrder(order)">Cancel</button>
-            }
+            }           
                     </td>
+                    @if (order.User is not null && order.User.Address is not null)
+                    {
+                        <td>
+                            <p>Address: @order.User.Address</p>
+                        </td>
+                    }
                 </tr>
                 <tr>
                     <p>Ids:

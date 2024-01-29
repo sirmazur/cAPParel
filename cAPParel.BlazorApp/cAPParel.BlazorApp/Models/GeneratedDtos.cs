@@ -289,6 +289,7 @@ namespace cAPParel.BlazorApp.Models
         public State State { get; set; }
         [Newtonsoft.Json.JsonProperty("pieces", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ICollection<PieceDto> Pieces { get; set; }
+        public UserDto User { get; set; }
 
     }
 
@@ -370,8 +371,9 @@ namespace cAPParel.BlazorApp.Models
 
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
+		public string? Address { get; set; }
 
-    }
+	}
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class UserFullDto
@@ -387,7 +389,8 @@ namespace cAPParel.BlazorApp.Models
         public double Saldo { get; set; }
         [Newtonsoft.Json.JsonProperty("orders", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ICollection<OrderDto> Orders { get; set; }
-    }
+		public string? Address { get; set; }
+	}
 
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
@@ -405,8 +408,9 @@ namespace cAPParel.BlazorApp.Models
 
         [Newtonsoft.Json.JsonProperty("adminCode", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AdminCode { get; set; }
+		public string? Address { get; set; }
 
-    }
+	}
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class UserForUpdateDto
@@ -422,8 +426,9 @@ namespace cAPParel.BlazorApp.Models
 
         [Newtonsoft.Json.JsonProperty("saldo", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Saldo { get; set; }
+		public string? Address { get; set; }
 
-    }
+	}
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.20.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v11.0.0.0))")]
     public partial class UserParams

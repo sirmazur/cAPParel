@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Dynamic;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace cAPParel.API.Controllers
@@ -150,7 +151,8 @@ namespace cAPParel.API.Controllers
                 PagedList<OrderFullDto>? orders = null;
                 try
                 {
-                    orders = await _orderService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters, c => c.Pieces);
+                    Expression<Func<Order, object>>[] includeProperties = { c => c.Pieces, c => c.User };
+                    orders = await _orderService.GetFullAllWithEagerLoadingAsync(filters, resourceParameters, includeProperties);
                 }
                 catch (Exception ex)
                 {

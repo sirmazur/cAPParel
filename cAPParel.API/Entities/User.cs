@@ -20,6 +20,7 @@ namespace cAPParel.API.Entities
         [MinLength(7)]
         [MaxLength(20)]
         public string Password { get; set; }
+        public string? Address { get; set; }
         [Required]
         public Role Role { get; set; }
 

@@ -154,6 +154,7 @@ namespace cAPParel.API.Services.UserServices
             {
                 Username = user.Username,
                 Password = user.Password,
+                Address = user.Address,
                 Role = Role.User
             };
             if (user.AdminCode == _configuration["AdminCodes:AdminRegisterCode"])

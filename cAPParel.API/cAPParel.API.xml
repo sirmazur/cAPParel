@@ -280,6 +280,18 @@
         <member name="M:cAPParel.API.Migrations.visits.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:cAPParel.API.Migrations.address">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.address.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.address.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:cAPParel.API.Migrations.address.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:cAPParel.API.Models.CategoryDto">
             <summary>
             Item Category
